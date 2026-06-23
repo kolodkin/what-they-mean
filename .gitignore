@@ -1,0 +1,9 @@
+# Vendored ES modules are downloaded by ./vendor.sh (locally and in CI).
+web/vendor/
+.DS_Store
+
+# Python / test artifacts
+.venv/
+__pycache__/
+test-results/
+
