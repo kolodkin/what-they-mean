@@ -32,7 +32,11 @@ body {
 }
 
 .pane-app {
-  background: linear-gradient(160deg, #fffdf8, #fef3e7);
+  /* Gentle pancake: soft buttery cream warming into a pale golden honey,
+     with a faint warm highlight up top like butter melting on a stack. */
+  background:
+    radial-gradient(130% 80% at 50% 0%, rgba(255, 240, 204, 0.65), transparent 62%),
+    linear-gradient(165deg, #fffdf7 0%, #fdf2db 48%, #f7e6c4 100%);
   border-bottom: 3px solid var(--ink);
 }
 
