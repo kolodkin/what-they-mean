@@ -49,6 +49,11 @@ function App() {
     sendRequest();
   }, []);
 
+  // Expose a small readiness signal for end-to-end tests to wait on.
+  useEffect(() => {
+    window.__APP = { status, ready: status === "done", name: data ? data.name : null };
+  }, [status, data]);
+
   return html`
     <main class="split">
       <${AppPane} status=${status} data=${data} active=${active} setActive=${setActive} />

@@ -9,6 +9,7 @@ disables caching so edits show up immediately.
 """
 import argparse
 import os
+from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -32,14 +33,22 @@ class Handler(SimpleHTTPRequestHandler):
         pass
 
 
+def make_server(directory: str, port: int) -> ThreadingHTTPServer:
+    """Build a threading static-file server for `directory` on `port`.
+
+    Shared by the CLI below and the pytest `server_url` fixture in conftest.py.
+    """
+    handler = partial(Handler, directory=directory)
+    return ThreadingHTTPServer(("127.0.0.1", port), handler)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--directory", default=WEB_DIR)
     args = parser.parse_args()
 
-    handler = lambda *a, **k: Handler(*a, directory=args.directory, **k)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
+    server = make_server(args.directory, args.port)
     print(f"Serving {args.directory} at http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
     try:
         server.serve_forever()

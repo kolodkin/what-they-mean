@@ -1,0 +1,11 @@
+[project]
+name = "what-they-mean"
+version = "0.1.0"
+description = "A tiny SPA explaining tech concepts to non-developers."
+requires-python = ">=3.9"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-playwright>=0.5",
+]
