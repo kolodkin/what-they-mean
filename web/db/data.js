@@ -59,15 +59,11 @@ export const SCHEMA = [
   },
 ];
 
-export const QUERY_SQL = `SELECT recipes.name,
-       ingredients.name AS ingredient,
-       recipe_ingredients.amount
-FROM recipes
-JOIN recipe_ingredients
-  ON recipe_ingredients.recipe_id = recipes.id
-JOIN ingredients
-  ON ingredients.id = recipe_ingredients.ingredient_id
-WHERE recipes.name = 'Fluffy Buttermilk Pancakes';`;
+export const QUERY_SQL = `SELECT r.name, i.name AS ingredient, ri.amount
+FROM recipes r
+JOIN recipe_ingredients ri ON ri.recipe_id = r.id
+JOIN ingredients i ON i.id = ri.ingredient_id
+WHERE r.name = 'Fluffy Buttermilk Pancakes';`;
 
 // Run the JOIN above against the in-memory tables, so the result table the demo
 // shows is really derived from the data, not typed out by hand.
