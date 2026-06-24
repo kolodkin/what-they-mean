@@ -3,270 +3,57 @@
   --ink: #0f172a;
   --muted: #64748b;
   --line: #e2e8f0;
-  --name: #2563eb;
-  --ingredients: #16a34a;
-  --recipe: #ea580c;
+  --accent: #2563eb;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-
 * { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { color: var(--ink); background: var(--bg); }
 
-html, body { margin: 0; height: 100%; }
-
-body {
-  color: var(--ink);
-  background: var(--bg);
-}
-
-/* 100vh page split exactly in the middle: 50vh / 50vh. */
-.split {
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 50vh 50vh;
-}
-
-.pane {
-  position: relative;
-  padding: 18px 22px;
-  overflow: auto;
-}
-
-.pane-app {
-  /* Gentle pancake: a faint tiled pancake-stack watermark over a soft buttery
-     cream gradient warming into pale golden honey. The watermark opacity is
-     baked into the SVG (~0.16) so it reads as a delicate pattern, not clutter. */
-  background-image:
-    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTIwIDEyMCI+CiAgPGcgb3BhY2l0eT0iMC4xNiI+CiAgICA8IS0tIHN5cnVwIGRyaXBzIG92ZXIgdGhlIGZyb250IGVkZ2UgLS0+CiAgICA8cGF0aCBkPSJNMzQgNjAgcS0zIDEyIDEgMjAgcTUgLTQgNCAtMTUgeiIgZmlsbD0iI2M1ODIxZiIvPgogICAgPHBhdGggZD0iTTg2IDYyIHE0IDExIDAgMjAgcS01IC01IC0zIC0xNiB6IiBmaWxsPSIjYzU4MjFmIi8+CiAgICA8IS0tIHBhbmNha2Ugc3RhY2ssIGJvdHRvbSB0byB0b3AgLS0+CiAgICA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3MiIgcng9IjM4IiByeT0iMTAiIGZpbGw9IiNkOWEyNGYiLz4KICAgIDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYxIiByeD0iMzYiIHJ5PSI5LjUiIGZpbGw9IiNlM2IwNjYiLz4KICAgIDxlbGxpcHNlIGN4PSI2MCIgY3k9IjUxIiByeD0iMzQiIHJ5PSI5IiBmaWxsPSIjZWJiYjc4Ii8+CiAgICA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI0MiIgcng9IjMyIiByeT0iOC41IiBmaWxsPSIjZjBjNDg5Ii8+CiAgICA8IS0tIHBhdCBvZiBidXR0ZXIgLS0+CiAgICA8cmVjdCB4PSI1MCIgeT0iMzMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMyIgcng9IjMuNSIgZmlsbD0iI2ZkZWNhMyIvPgogIDwvZz4KPC9zdmc+Cg=="),
-    radial-gradient(130% 80% at 50% 0%, rgba(255, 240, 204, 0.65), transparent 62%),
-    linear-gradient(165deg, #fffdf7 0%, #fdf2db 48%, #f7e6c4 100%);
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-size: 120px 120px, auto, auto;
-  border-bottom: 3px solid var(--ink);
-}
-
-.pane-api {
-  background: #0f172a;
-  color: #e2e8f0;
-}
-
-/* --- pane labels --------------------------------------------------------- */
-.pane-label {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.badge {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-.badge-app { background: var(--ink); color: #fff; }
-.badge-api { background: #38bdf8; color: #04263a; }
-
-.pane-sub { color: var(--muted); font-size: 13px; }
-.pane-api .pane-sub { color: #94a3b8; }
-
-/* --- the app (top) ------------------------------------------------------- */
-.card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  max-width: 760px;
-  margin: 0 auto;
-}
-
-.placeholder {
+.menu {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 40px;
-  color: var(--muted);
-  min-height: 140px;
+  gap: 36px;
+  padding: 40px 20px;
 }
+.menu-head { text-align: center; max-width: 620px; }
+.menu-head h1 { margin: 0 0 8px; font-size: 40px; letter-spacing: -0.02em; }
+.menu-head p { margin: 0; color: var(--muted); font-size: 17px; }
 
-.recipe-card { overflow: hidden; }
-
-.recipe-head {
-  padding: 20px 24px;
-  border-bottom: 3px solid var(--name);
-  transition: opacity 0.15s, box-shadow 0.15s;
-}
-.recipe-head h1 { margin: 0; font-size: 26px; }
-.recipe-tag { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-
-.recipe-body {
+.cards {
   display: grid;
-  grid-template-columns: 0.9fr 1.4fr;
-  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 320px));
+  gap: 22px;
 }
-@media (max-width: 620px) {
-  .recipe-body { grid-template-columns: 1fr; }
-}
+@media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
 
-.recipe-col {
-  padding: 16px 24px;
-  transition: opacity 0.15s, background 0.15s;
-}
-.recipe-col h2 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin: 0 0 10px;
-}
-.field-ingredients { border-right: 1px solid var(--line); }
-
-.ingredients { list-style: none; margin: 0; padding: 0; }
-.ingredients li {
+.card {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 0;
-  font-size: 15px;
-}
-.check {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--ingredients);
-  border-radius: 5px;
-  flex: none;
-}
-
-.steps { margin: 0; padding-left: 20px; }
-.steps li { padding: 4px 0; line-height: 1.5; }
-.steps li::marker { color: var(--recipe); font-weight: 700; }
-
-/* Hover-linking: dim the parts that aren't the focused field, glow the one
-   that is — so the connection between data and UI is unmistakable. */
-.dim { opacity: 0.28; }
-.glow { box-shadow: inset 0 0 0 3px currentColor; }
-.field-name.glow { color: var(--name); }
-.field-ingredients.glow { color: var(--ingredients); background: #f0fdf4; }
-.field-recipe.glow { color: var(--recipe); background: #fff7ed; }
-.recipe-col.glow h2, .recipe-head.glow h1 { color: inherit; }
-
-.spinner {
-  width: 26px; height: 26px;
-  border: 3px solid var(--line);
-  border-top-color: var(--muted);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* --- the API (bottom) ---------------------------------------------------- */
-.api-grid {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 18px;
-  align-items: start;
-}
-@media (max-width: 620px) {
-  .api-grid { grid-template-columns: 1fr; }
-}
-
-.block-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #94a3b8;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-
-.http-line {
-  display: block;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 14px;
-  color: #e2e8f0;
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
 }
-.method { color: #38bdf8; font-weight: 700; }
-
-.send {
-  margin-top: 12px;
-  width: 100%;
-  background: #38bdf8;
-  color: #04263a;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
+.card-tag {
+  font-size: 12px;
   font-weight: 700;
-  cursor: pointer;
-  transition: filter 0.15s;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
-.send:hover:not(:disabled) { filter: brightness(1.08); }
-.send:disabled { opacity: 0.6; cursor: default; }
-
-.explain { color: #94a3b8; font-size: 13px; line-height: 1.5; }
-.explain em { color: #cbd5e1; font-style: normal; }
-.explain strong { color: #f8fafc; }
-
-.status-ok { color: #4ade80; font-weight: 700; }
-.status-err { color: #f87171; font-weight: 700; }
-
-.json {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin: 0;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.json.muted { color: #64748b; }
-.json.err { color: #f87171; }
-
-.jrow {
-  padding: 1px 6px;
-  margin: 0 -6px;
-  border-radius: 5px;
-  border-left: 3px solid var(--c);
-  transition: opacity 0.15s, background 0.15s;
-}
-.jrow:hover { background: rgba(56, 189, 248, 0.08); }
-.jrow.dim { opacity: 0.3; }
-.jkey { color: var(--c); font-weight: 700; }
-.jstr { color: #fcd34d; }
-.jpunc { color: #94a3b8; }
-
-/* --- legend -------------------------------------------------------------- */
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin: 18px 0 0;
-  font-size: 13px;
-  color: #94a3b8;
-}
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  cursor: default;
-}
-.legend-item code { color: var(--c); font-weight: 700; }
-.dot {
-  width: 11px; height: 11px;
-  border-radius: 50%;
-  background: var(--c);
-  flex: none;
-}
+.card h2 { margin: 0; font-size: 22px; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; flex: 1; }
+.card-go { font-size: 14px; font-weight: 700; color: var(--accent); }
