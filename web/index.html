@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>What They Mean — APIs</title>
+  <title>What They Mean</title>
   <link rel="stylesheet" href="./styles.css" />
-
-  <!-- No bundler. Bare module specifiers are resolved by this import map to
-       locally vendored ES modules (run ./vendor.sh to download them). -->
-  <script type="importmap">
-  {
-    "imports": {
-      "preact": "./vendor/preact.module.js",
-      "preact/hooks": "./vendor/preact-hooks.module.js",
-      "htm": "./vendor/htm.module.js"
-    }
-  }
-  </script>
 </head>
 <body>
-  <div id="app"></div>
-  <script type="module" src="./app.js"></script>
+  <main class="menu">
+    <header class="menu-head">
+      <h1>What They Mean</h1>
+      <p>Tech concepts for non-developers — one idea per screen, shown rather than told.</p>
+    </header>
+    <nav class="cards">
+      <a class="card" href="api/">
+        <span class="card-tag">Concept #1</span>
+        <h2>What is an API?</h2>
+        <p>The pretty app is just data, drawn nicely — see the request and the raw JSON underneath.</p>
+        <span class="card-go">Open demo →</span>
+      </a>
+      <a class="card" href="db/">
+        <span class="card-tag">Concept #2</span>
+        <h2>What is a database?</h2>
+        <p>A spreadsheet many machines share at once — several sheets, and the power to ask precise questions.</p>
+        <span class="card-go">Open demo →</span>
+      </a>
+    </nav>
+  </main>
 </body>
 </html>

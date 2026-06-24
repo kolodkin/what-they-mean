@@ -9,10 +9,12 @@ def _get(url):
 
 
 def test_index_served(server_url):
+    """The landing page is the menu, linking to both demos."""
     status, ctype, body = _get(server_url + "/index.html")
     assert status == 200
     assert "text/html" in ctype
-    assert b'id="app"' in body
+    assert b'href="api/"' in body
+    assert b'href="db/"' in body
 
 
 def test_recipe_endpoint_shape(server_url):
