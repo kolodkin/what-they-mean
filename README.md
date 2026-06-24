@@ -13,7 +13,7 @@ concept is a standalone page.
   "endpoint" is the static file [`web/api/recipe.json`](web/api/recipe.json);
   fetching it is a genuine HTTP `GET` returning JSON.
 - **#2 — What is a database?** ([`web/db/`](web/db/)) A spreadsheet workbook with
-  three sheets on top; the same three tables as a database — an ERD and a SQL
+  two sheets on top; the same two tables as a database — an ERD and a SQL
   query with its (computed) result — underneath. Hovering a sheet tab highlights
   its matching table. The point: **a database is a spreadsheet many machines
   share at once, and can be asked precise questions (queries).**
