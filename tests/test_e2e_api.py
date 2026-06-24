@@ -27,7 +27,7 @@ def _shot(page: Page, name: str):
 @pytest.fixture()
 def app(page: Page, server_url: str):
     page.set_viewport_size({"width": 1100, "height": 800})
-    page.goto(server_url + "/")
+    page.goto(server_url + "/api/")
     _wait_ready(page)
     return page
 
@@ -43,7 +43,7 @@ def test_recipe_card_renders(app: Page):
 def test_api_pane_shows_request_and_response(app: Page):
     """Bottom pane shows GET line, a 200 response, and the three JSON keys."""
     expect(app.locator(".http-line")).to_contain_text("GET")
-    expect(app.locator(".http-line")).to_contain_text("/api/recipe.json")
+    expect(app.locator(".http-line")).to_contain_text("recipe.json")
     expect(app.locator(".status-ok")).to_contain_text("200 OK")
     keys = app.locator(".jkey").all_inner_texts()
     assert keys == ['"name"', '"recipe"', '"ingredients"']

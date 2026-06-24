@@ -6,8 +6,9 @@ const html = htm.bind(h);
 
 // The "endpoint" our app talks to. On GitHub Pages this is a static file, but
 // fetching it is a genuine HTTP GET that returns JSON — exactly what a real
-// REST API call looks like from the browser's point of view.
-const API_URL = "./api/recipe.json";
+// REST API call looks like from the browser's point of view. It sits next to
+// this page, so the URL is relative to web/api/.
+const API_URL = "./recipe.json";
 
 // Each field of the response gets a colour. The same colour is used in the raw
 // JSON below and in the pretty app above, so a non-developer can literally see

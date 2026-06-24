@@ -270,3 +270,20 @@ body {
   background: var(--c);
   flex: none;
 }
+
+/* --- back link ----------------------------------------------------------- */
+.back {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 10;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.back:hover { background: #fff; }
