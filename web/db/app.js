@@ -15,6 +15,17 @@ const COLORS = {
 
 const byName = (name) => SCHEMA.find((t) => t.name === name);
 
+// How the ERD reads left-to-right: the junction table sits in the middle, with a
+// crow's-foot connector to the "one" side on each flank. `recipes` has many
+// `recipe_ingredients` (linked by recipe_id); `ingredients` likewise.
+const ERD_LAYOUT = [
+  { table: "recipes" },
+  { rel: { left: "1", right: "∞", via: "recipe_id" } },
+  { table: "recipe_ingredients" },
+  { rel: { left: "∞", right: "1", via: "ingredient_id" } },
+  { table: "ingredients" },
+];
+
 function App() {
   const [sheet, setSheet] = useState("recipes"); // which sheet is open
   const [active, setActive] = useState(null); // which table is hover-linked
@@ -97,6 +108,35 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
 // BOTTOM — the database: an ERD, a SQL query and its (computed) result.
 // ---------------------------------------------------------------------------
 function DatabasePane({ result, active, setActive }) {
+  const tableBox = (name) => {
+    const t = byName(name);
+    return html`
+      <div
+        key=${name}
+        class=${`erd-table ${active && active !== name ? "dim" : ""} ${
+          active === name ? "glow" : ""
+        }`}
+        data-table=${name}
+        style=${`--c:${COLORS[name]}`}
+        onMouseEnter=${() => setActive(name)}
+        onMouseLeave=${() => setActive(null)}
+      >
+        <div class="erd-head">${t.name}</div>
+        <ul class="erd-cols">
+          ${t.columns.map(
+            (c) => html`
+              <li key=${c.name} class=${c.fk ? "is-fk" : ""}>
+                <span class="col-name">${c.name}</span>
+                ${c.pk && html`<span class="key pk">PK</span>`}
+                ${c.fk && html`<span class="key fk">FK → ${c.fk}</span>`}
+              </li>
+            `
+          )}
+        </ul>
+      </div>
+    `;
+  };
+
   return html`
     <section class="pane pane-db">
       <div class="pane-label">
@@ -116,56 +156,40 @@ function DatabasePane({ result, active, setActive }) {
         <span class="db-can">🗄️ one shared database</span>
       </div>
 
-      <div class="db-grid">
-        <div class="erd">
-          ${SCHEMA.map(
-            (t) => html`
-              <div
-                key=${t.name}
-                class=${`erd-table ${active && active !== t.name ? "dim" : ""} ${
-                  active === t.name ? "glow" : ""
-                }`}
-                data-table=${t.name}
-                style=${`--c:${COLORS[t.name]}`}
-                onMouseEnter=${() => setActive(t.name)}
-                onMouseLeave=${() => setActive(null)}
-              >
-                <div class="erd-head">${t.name}</div>
-                <ul class="erd-cols">
-                  ${t.columns.map(
-                    (c) => html`
-                      <li key=${c.name}>
-                        <span class="col-name">${c.name}</span>
-                        ${c.pk && html`<span class="key pk">PK</span>`}
-                        ${c.fk && html`<span class="key fk">FK → ${c.fk}</span>`}
-                      </li>
-                    `
-                  )}
-                </ul>
-              </div>
-            `
-          )}
-        </div>
+      <div class="block-title">Three tables, joined by keys</div>
+      <div class="erd-row">
+        ${ERD_LAYOUT.map((item, i) =>
+          item.table
+            ? tableBox(item.table)
+            : html`
+                <div class="erd-link" key=${`rel-${i}`}>
+                  <span class="card-mark">${item.rel.left}</span>
+                  <span class="erd-line"></span>
+                  <span class="card-mark">${item.rel.right}</span>
+                  <span class="erd-via">${item.rel.via}</span>
+                </div>
+              `
+        )}
+      </div>
 
-        <div class="query">
-          <div class="block-title">A query asks a precise question</div>
-          <pre class="sql">${QUERY_SQL}</pre>
-          <div class="block-title">Result</div>
-          <table class="result-table">
-            <thead>
-              <tr><th>name</th><th>ingredient</th><th>amount</th></tr>
-            </thead>
-            <tbody>
-              ${result.map(
-                (r, i) => html`
-                  <tr key=${i}>
-                    <td>${r.name}</td><td>${r.ingredient}</td><td>${r.amount}</td>
-                  </tr>
-                `
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div class="query">
+        <div class="block-title">A query asks a precise question</div>
+        <pre class="sql">${QUERY_SQL}</pre>
+        <div class="block-title">Result</div>
+        <table class="result-table">
+          <thead>
+            <tr><th>name</th><th>ingredient</th><th>amount</th></tr>
+          </thead>
+          <tbody>
+            ${result.map(
+              (r, i) => html`
+                <tr key=${i}>
+                  <td>${r.name}</td><td>${r.ingredient}</td><td>${r.amount}</td>
+                </tr>
+              `
+            )}
+          </tbody>
+        </table>
       </div>
     </section>
   `;

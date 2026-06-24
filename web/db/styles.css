@@ -75,13 +75,35 @@ body { color: var(--ink); background: var(--bg); }
 .machines .arrow { color: #64748b; font-size: 18px; }
 .machines .db-can { font-size: 14px; font-weight: 700; color: #38bdf8; }
 
-.db-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: start; }
-@media (max-width: 720px) { .db-grid { grid-template-columns: 1fr; } }
-
-.erd { display: flex; flex-direction: column; gap: 14px; }
+/* The ERD reads left-to-right with the junction table in the middle, so all
+   three tables and their foreign keys are visible without scrolling. */
+.erd-row {
+  display: flex; align-items: flex-start; gap: 0;
+  margin-bottom: 18px; flex-wrap: wrap;
+}
 .erd-table {
-  background: #1e293b; border: 1px solid #334155; border-left: 4px solid var(--c);
+  flex: 1 1 0; min-width: 180px;
+  background: #1e293b; border: 1px solid #334155; border-top: 4px solid var(--c);
   border-radius: 8px; overflow: hidden; transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+/* crow's-foot-ish connector between two tables: "1 ──< ∞" + the linking column */
+.erd-link {
+  flex: 0 0 64px; align-self: center;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; gap: 4px; padding: 0 4px;
+}
+.erd-line { height: 2px; flex: 1; background: #475569; min-width: 12px; }
+.card-mark { color: #94a3b8; font-size: 13px; font-weight: 700; }
+.erd-via {
+  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; font-size: 10px; color: #64748b;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (max-width: 720px) {
+  .erd-row { flex-direction: column; align-items: stretch; }
+  .erd-link { flex-basis: auto; padding: 6px 0; }
+  .erd-via { position: static; transform: none; }
 }
 .erd-table.dim { opacity: 0.32; }
 .erd-table.glow { box-shadow: 0 0 0 2px var(--c); }
@@ -94,6 +116,7 @@ body { color: var(--ink); background: var(--bg); }
   display: flex; align-items: center; gap: 8px; padding: 3px 12px;
   font-size: 13px; font-family: "SF Mono", Menlo, Consolas, monospace; color: #cbd5e1;
 }
+.erd-cols li.is-fk { background: rgba(29, 78, 216, 0.16); }
 .key { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
 .key.pk { background: #fde68a; color: #713f12; }
 .key.fk { background: #1d4ed8; color: #dbeafe; }
