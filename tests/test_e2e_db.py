@@ -17,16 +17,16 @@ def db(page: Page, server_url: str):
     return page
 
 
-def test_workbook_has_three_sheets(db: Page):
+def test_workbook_has_two_sheets(db: Page):
     tabs = db.locator(".sheet-tab")
-    expect(tabs).to_have_count(3)
+    expect(tabs).to_have_count(2)
     assert tabs.nth(0).inner_text() == "recipes"
-    assert tabs.nth(2).inner_text() == "recipe_ingredients"
+    assert tabs.nth(1).inner_text() == "ingredients"
     db.screenshot(path=os.path.join(SHOTS, "05-db-spreadsheet.png"))
 
 
-def test_erd_has_three_tables(db: Page):
-    expect(db.locator(".erd-table")).to_have_count(3)
+def test_erd_has_two_tables(db: Page):
+    expect(db.locator(".erd-table")).to_have_count(2)
     db.screenshot(path=os.path.join(SHOTS, "06-db-erd.png"))
 
 
@@ -38,12 +38,12 @@ def test_query_result_rows(db: Page):
 
 def test_switch_sheet(db: Page):
     db.locator(".sheet-tab", has_text="ingredients").nth(0).click()
-    # ingredients sheet has 7 rows
+    # ingredients sheet has 7 rows across both recipes
     expect(db.locator(".grid tbody tr")).to_have_count(7)
 
 
 def test_hover_links_sheet_to_erd(db: Page):
-    db.locator(".sheet-tab", has_text="recipe_ingredients").hover()
-    expect(db.locator('.erd-table[data-table="recipe_ingredients"]')).to_have_class(re.compile(r"\bglow\b"))
+    db.locator(".sheet-tab", has_text="ingredients").hover()
+    expect(db.locator('.erd-table[data-table="ingredients"]')).to_have_class(re.compile(r"\bglow\b"))
     expect(db.locator('.erd-table[data-table="recipes"]')).to_have_class(re.compile(r"\bdim\b"))
     db.screenshot(path=os.path.join(SHOTS, "07-db-hover.png"))

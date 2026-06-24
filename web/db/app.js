@@ -10,19 +10,15 @@ const html = htm.bind(h);
 const COLORS = {
   recipes: "#2563eb",
   ingredients: "#16a34a",
-  recipe_ingredients: "#ea580c",
 };
 
 const byName = (name) => SCHEMA.find((t) => t.name === name);
 
-// How the ERD reads left-to-right: the junction table sits in the middle, with a
-// crow's-foot connector to the "one" side on each flank. `recipes` has many
-// `recipe_ingredients` (linked by recipe_id); `ingredients` likewise.
+// How the ERD reads left-to-right: one `recipes` row has many `ingredients`
+// rows (each linked back by recipe_id), drawn with a crow's-foot "1 ──< ∞".
 const ERD_LAYOUT = [
   { table: "recipes" },
   { rel: { left: "1", right: "∞", via: "recipe_id" } },
-  { table: "recipe_ingredients" },
-  { rel: { left: "∞", right: "1", via: "ingredient_id" } },
   { table: "ingredients" },
 ];
 
@@ -99,7 +95,7 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
         </div>
       </div>
 
-      <p class="sheet-hint">Three tabs, three sheets — like any workbook.</p>
+      <p class="sheet-hint">Two tabs, two sheets — like any workbook.</p>
     </section>
   `;
 }
@@ -156,7 +152,7 @@ function DatabasePane({ result, active, setActive }) {
         <span class="db-can">🗄️ one shared database</span>
       </div>
 
-      <div class="block-title">Three tables, joined by keys</div>
+      <div class="block-title">Two tables, joined by a key</div>
       <div class="erd-row">
         ${ERD_LAYOUT.map((item, i) =>
           item.table
