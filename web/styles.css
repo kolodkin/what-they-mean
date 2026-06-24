@@ -32,11 +32,15 @@ body {
 }
 
 .pane-app {
-  /* Gentle pancake: soft buttery cream warming into a pale golden honey,
-     with a faint warm highlight up top like butter melting on a stack. */
-  background:
+  /* Gentle pancake: a faint tiled pancake-stack watermark over a soft buttery
+     cream gradient warming into pale golden honey. The watermark opacity is
+     baked into the SVG (~0.16) so it reads as a delicate pattern, not clutter. */
+  background-image:
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTIwIDEyMCI+CiAgPGcgb3BhY2l0eT0iMC4xNiI+CiAgICA8IS0tIHN5cnVwIGRyaXBzIG92ZXIgdGhlIGZyb250IGVkZ2UgLS0+CiAgICA8cGF0aCBkPSJNMzQgNjAgcS0zIDEyIDEgMjAgcTUgLTQgNCAtMTUgeiIgZmlsbD0iI2M1ODIxZiIvPgogICAgPHBhdGggZD0iTTg2IDYyIHE0IDExIDAgMjAgcS01IC01IC0zIC0xNiB6IiBmaWxsPSIjYzU4MjFmIi8+CiAgICA8IS0tIHBhbmNha2Ugc3RhY2ssIGJvdHRvbSB0byB0b3AgLS0+CiAgICA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3MiIgcng9IjM4IiByeT0iMTAiIGZpbGw9IiNkOWEyNGYiLz4KICAgIDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYxIiByeD0iMzYiIHJ5PSI5LjUiIGZpbGw9IiNlM2IwNjYiLz4KICAgIDxlbGxpcHNlIGN4PSI2MCIgY3k9IjUxIiByeD0iMzQiIHJ5PSI5IiBmaWxsPSIjZWJiYjc4Ii8+CiAgICA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI0MiIgcng9IjMyIiByeT0iOC41IiBmaWxsPSIjZjBjNDg5Ii8+CiAgICA8IS0tIHBhdCBvZiBidXR0ZXIgLS0+CiAgICA8cmVjdCB4PSI1MCIgeT0iMzMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMyIgcng9IjMuNSIgZmlsbD0iI2ZkZWNhMyIvPgogIDwvZz4KPC9zdmc+Cg=="),
     radial-gradient(130% 80% at 50% 0%, rgba(255, 240, 204, 0.65), transparent 62%),
     linear-gradient(165deg, #fffdf7 0%, #fdf2db 48%, #f7e6c4 100%);
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 120px 120px, auto, auto;
   border-bottom: 3px solid var(--ink);
 }
 
