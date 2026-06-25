@@ -28,11 +28,14 @@ def test_three_stages_render(etl: Page):
     etl.screenshot(path=os.path.join(SHOTS, "08-etl-idle.png"))
 
 
-def test_cards_empty_until_played(etl: Page):
-    # Before Run, no stage is "reached" and no data rows are rendered.
-    expect(etl.locator(".stage.reached")).to_have_count(0)
-    expect(etl.locator(".stage-empty")).to_have_count(3)
-    expect(etl.locator(".rows tbody tr")).to_have_count(0)
+def test_only_extract_filled_before_run(etl: Page):
+    # The source data exists up front, so Extract starts filled with the raw
+    # 5 rows; Transform & Load wait until the run reaches them.
+    expect(etl.locator(".stage.reached")).to_have_count(1)
+    expect(etl.locator(".stage-extract .rows tbody tr")).to_have_count(5)
+    expect(etl.locator(".stage-empty")).to_have_count(2)
+    expect(etl.locator(".stage-transform .rows")).to_have_count(0)
+    expect(etl.locator(".stage-load .rows")).to_have_count(0)
 
 
 def test_run_loads_cleaned_rows_into_database(etl: Page):
@@ -58,5 +61,7 @@ def test_reset_empties_every_card_again(etl: Page):
     etl.locator("button.run").click()
     expect(etl.locator(".stage-load .rows.dest tbody tr")).to_have_count(4, timeout=10000)
     etl.locator("button.reset").click()
-    expect(etl.locator(".stage.reached")).to_have_count(0)
-    expect(etl.locator(".rows tbody tr")).to_have_count(0)
+    # Reset returns to the start state: only Extract filled (its 5 raw rows).
+    expect(etl.locator(".stage.reached")).to_have_count(1)
+    expect(etl.locator(".stage-empty")).to_have_count(2)
+    expect(etl.locator(".rows tbody tr")).to_have_count(5)

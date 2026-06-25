@@ -86,7 +86,9 @@ function App() {
       </header>
 
       <div class="pipeline">
-        <${ExtractStage} active=${phase === "extract"} reached=${reached("extract")} />
+        <!-- The source data exists before you press Run, so Extract starts
+             filled; Transform & Load stay empty until the run reaches them. -->
+        <${ExtractStage} active=${phase === "extract"} reached=${true} />
         <div class="flow ${reached("transform") ? "on" : ""}">→</div>
         <${TransformStage}
           active=${phase === "transform"}
@@ -114,7 +116,14 @@ function StageShell({ kind, title, layer, sub, badge, active, reached, children 
         <span class=${`medallion m-${layer.key}`}>${layer.name}</span>${sub}
       </p>
       <div class="stage-body">
-        ${reached ? children : html`<div class="stage-empty">${title === "Load" ? "empty" : "waiting…"}</div>`}
+        ${reached
+          ? children
+          : html`
+              <div class="stage-empty">
+                <span class="stage-empty-dot"></span>
+                <span>waiting to run</span>
+              </div>
+            `}
       </div>
     </section>
   `;
