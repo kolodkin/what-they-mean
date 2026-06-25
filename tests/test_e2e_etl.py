@@ -10,36 +10,43 @@ os.makedirs(SHOTS, exist_ok=True)
 
 @pytest.fixture()
 def etl(page: Page, server_url: str):
-    page.set_viewport_size({"width": 1200, "height": 820})
+    page.set_viewport_size({"width": 1000, "height": 900})
     page.goto(server_url + "/etl/")
     page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
     return page
 
 
-def test_three_stages_render(etl: Page):
-    expect(etl.locator(".stage")).to_have_count(3)
-    expect(etl.locator(".stage-extract")).to_contain_text("Extract")
-    expect(etl.locator(".stage-transform")).to_contain_text("Transform")
-    expect(etl.locator(".stage-load")).to_contain_text("Load")
+def test_chain_alternates_data_and_processing(etl: Page):
+    # Four data nodes ( ): source, bronze, silver, store — and three [ ]: e/t/l.
+    expect(etl.locator(".node-data")).to_have_count(4)
+    expect(etl.locator(".node-proc")).to_have_count(3)
+    expect(etl.locator('[data-node="bronze"]')).to_contain_text("bronze")
+    expect(etl.locator('[data-node="silver"]')).to_contain_text("normalised")
+    expect(etl.locator('[data-node="transform"]')).to_contain_text("transform")
     etl.screenshot(path=os.path.join(SHOTS, "08-etl-idle.png"))
 
 
-def test_extract_shows_all_raw_rows(etl: Page):
-    # The messy source has 5 rows, including the blank/junk one.
-    expect(etl.locator(".stage-extract .rows tbody tr")).to_have_count(5)
-    expect(etl.locator(".stage-extract .rows tr.junk")).to_have_count(1)
+def test_cards_empty_until_played(etl: Page):
+    # Before Run, no node is "on" and no data rows are rendered anywhere.
+    expect(etl.locator(".node.on")).to_have_count(0)
+    expect(etl.locator(".rows tbody tr")).to_have_count(0)
+    expect(etl.locator(".node-empty")).to_have_count(7)
 
 
-def test_run_loads_cleaned_rows_into_database(etl: Page):
+def test_run_flows_data_through_the_chain(etl: Page):
     etl.locator("button.run").click()
-    # The junk row is dropped, so 4 clean rows land in the destination table.
-    expect(etl.locator(".stage-load .rows.dest tbody tr")).to_have_count(4, timeout=10000)
-    dest = etl.locator(".stage-load .rows.dest")
-    expect(dest).to_contain_text("Mac & Cheese")  # trimmed + recapitalised
-    expect(dest).to_contain_text("2026-03-02")  # date normalised from "3/2/26"
-    expect(dest).to_contain_text("3.50")  # price parsed from "$3.50"
-    # The database counter reaches 4.
-    expect(etl.locator(".db-count")).to_have_text("4")
+    # Bronze ends up holding the raw 5 rows (incl. the junk row), as landed.
+    expect(etl.locator('[data-node="bronze"] .rows tbody tr')).to_have_count(5, timeout=10000)
+    expect(etl.locator('[data-node="bronze"] .rows tr.junk')).to_have_count(1)
+    # Silver is the cleaned, normalised 4 rows (junk dropped).
+    silver = etl.locator('[data-node="silver"] .rows')
+    expect(silver.locator("tbody tr")).to_have_count(4)
+    expect(silver).to_contain_text("Mac & Cheese")  # trimmed + recapitalised
+    expect(silver).to_contain_text("2026-03-02")  # date normalised from "3/2/26"
+    expect(silver).to_contain_text("3.50")  # price parsed from "$3.50"
+    # The data store fills with the 4 clean rows.
+    expect(etl.locator('[data-node="store"] .rows.dest tbody tr')).to_have_count(4)
+    expect(etl.locator('[data-node="store"] .node-count')).to_contain_text("4 rows written")
     etl.screenshot(path=os.path.join(SHOTS, "09-etl-loaded.png"))
 
 
@@ -48,9 +55,9 @@ def test_all_transform_rules_light_up(etl: Page):
     expect(etl.locator(".rules li.lit")).to_have_count(5, timeout=10000)
 
 
-def test_reset_clears_the_run(etl: Page):
+def test_reset_empties_every_card_again(etl: Page):
     etl.locator("button.run").click()
-    expect(etl.locator(".stage-load .rows.dest tbody tr")).to_have_count(4, timeout=10000)
+    expect(etl.locator('[data-node="store"] .rows.dest tbody tr')).to_have_count(4, timeout=10000)
     etl.locator("button.reset").click()
-    expect(etl.locator(".db-count")).to_have_text("0")
-    expect(etl.locator(".rules li.lit")).to_have_count(0)
+    expect(etl.locator(".node.on")).to_have_count(0)
+    expect(etl.locator(".rows tbody tr")).to_have_count(0)
