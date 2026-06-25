@@ -3,11 +3,10 @@
   --ink: #0f172a;
   --muted: #64748b;
   --line: #e2e8f0;
-  --proc: #7c3aed; /* processing [ ] nodes */
-  --bronze: #b45309;
-  --silver: #64748b;
-  --store: #0284c7;
-  --source: #475569;
+  /* one colour per stage, reused on its header + glow */
+  --extract: #d97706;
+  --transform: #7c3aed;
+  --load: #0284c7;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 * { box-sizing: border-box; }
@@ -23,17 +22,17 @@ body { color: var(--ink); background: var(--bg); }
 }
 .back:hover { background: #fff; }
 
-.wrap { max-width: 620px; margin: 0 auto; padding: 30px 22px 56px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 30px 22px 48px; }
 
 /* --- header -------------------------------------------------------------- */
-.head { margin-bottom: 22px; }
+.head { margin-bottom: 26px; }
 .head h1 { margin: 0 0 8px; font-size: 30px; }
-.lede { font-size: 15px; line-height: 1.6; color: #334155; margin: 0; }
+.lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 720px; margin: 0; }
 .lede strong { color: var(--ink); }
 
 .controls { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
 .run {
-  background: var(--proc); color: #fff; border: none; cursor: pointer;
+  background: var(--transform); color: #fff; border: none; cursor: pointer;
   font-size: 15px; font-weight: 700; padding: 10px 18px; border-radius: 10px;
   box-shadow: 0 6px 16px rgba(124, 58, 237, 0.28);
 }
@@ -44,71 +43,63 @@ body { color: var(--ink); background: var(--bg); }
 }
 .reset:disabled { color: #cbd5e1; cursor: default; }
 
-/* --- the chain (vertical) ------------------------------------------------ */
-.chain { display: flex; flex-direction: column; align-items: stretch; }
+/* --- the pipeline -------------------------------------------------------- */
+.pipeline {
+  display: grid; gap: 6px; align-items: stretch;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+}
+.flow {
+  align-self: center; font-size: 26px; color: #cbd5e1; padding: 0 2px;
+  transition: color 0.25s, transform 0.25s;
+}
+.flow.on { color: var(--transform); transform: scale(1.15); }
 
-.hop {
-  align-self: center; font-size: 22px; line-height: 1; color: #cbd5e1;
-  padding: 5px 0; transition: color 0.25s, transform 0.25s;
+.stage {
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid #cbd5e1;
+  border-radius: 12px; padding: 14px; opacity: 0.5;
+  transition: opacity 0.3s, box-shadow 0.3s, transform 0.3s;
+  display: flex; flex-direction: column;
 }
-.hop.on { color: var(--proc); transform: scale(1.2); }
+.stage.reached { opacity: 1; }
+.stage.active { box-shadow: 0 0 0 3px var(--c), 0 14px 30px rgba(15, 23, 42, 0.12); transform: translateY(-3px); }
+.stage-extract { --c: var(--extract); }
+.stage-transform { --c: var(--transform); }
+.stage-load { --c: var(--load); }
+.stage-extract { border-top-color: var(--extract); }
+.stage-transform { border-top-color: var(--transform); }
+.stage-load { border-top-color: var(--load); }
 
-/* shared node shell — empty & dimmed until reached */
-.node {
-  opacity: 0.5; transition: opacity 0.25s, box-shadow 0.25s, transform 0.25s;
+.stage-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.stage-name { font-size: 16px; font-weight: 800; color: var(--c); }
+.stage-badge {
+  font-size: 11px; font-weight: 700; color: #475569; background: #f1f5f9;
+  border-radius: 999px; padding: 2px 9px; white-space: nowrap;
 }
-.node.on { opacity: 1; }
-.node.active { box-shadow: 0 0 0 3px var(--c), 0 12px 26px rgba(15, 23, 42, 0.12); transform: translateY(-1px); }
-.node-empty {
-  font-size: 12px; font-style: italic; color: #cbd5e1; padding: 6px 2px;
+.stage-sub { margin: 6px 0 12px; font-size: 12.5px; color: var(--muted); }
+
+/* the medallion layer label, folded into each stage's subtitle */
+.medallion {
+  display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.03em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 4px;
+  vertical-align: 1px;
+}
+.m-bronze { color: #92400e; background: #fef3c7; }
+.m-silver { color: #334155; background: #e2e8f0; }
+.m-store { color: #075985; background: #e0f2fe; }
+
+/* empty-until-played placeholder keeps the card's footprint while it waits */
+.stage-body { flex: 1; }
+.stage-empty {
+  display: flex; align-items: center; justify-content: center; min-height: 168px;
+  color: #cbd5e1; font-size: 13px; font-style: italic;
+  border: 1px dashed #e2e8f0; border-radius: 8px;
 }
 
-/* DATA nodes — the "( )" — rounded, light, layer-coloured left edge */
-.node-data {
-  background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--c);
-  border-radius: 14px; padding: 12px 14px;
-}
-.tone-source { --c: var(--source); }
-.tone-bronze { --c: var(--bronze); }
-.tone-silver { --c: var(--silver); }
-.tone-store { --c: var(--store); }
-.node-head { display: flex; align-items: baseline; gap: 6px; }
-.paren { color: var(--c); font-weight: 800; font-size: 18px; font-family: "SF Mono", Menlo, Consolas, monospace; }
-.node-name { font-size: 15px; font-weight: 800; color: var(--c); }
-.node-count {
-  margin-left: auto; font-size: 11px; font-weight: 700; color: #475569;
-  background: #f1f5f9; border-radius: 999px; padding: 2px 9px; white-space: nowrap;
-}
-.node-sub { margin: 3px 0 10px; font-size: 12px; color: var(--muted); }
-
-/* PROCESSING nodes — the "[ ]" — slimmer, monospace, violet, bracketed */
-.node-proc {
-  --c: var(--proc);
-  background: #faf5ff; border: 1px dashed #ddd6fe; border-radius: 10px;
-  padding: 10px 14px; align-self: center; min-width: 70%;
-}
-.proc-head { display: flex; align-items: baseline; gap: 4px; justify-content: center; }
-.bracket { color: var(--proc); font-weight: 800; font-size: 18px; font-family: "SF Mono", Menlo, Consolas, monospace; }
-.proc-name {
-  font-size: 14px; font-weight: 800; color: var(--proc);
-  font-family: "SF Mono", Menlo, Consolas, monospace; text-transform: lowercase;
-}
-.proc-desc { margin: 6px 0 0; font-size: 12.5px; color: #6d28d9; text-align: center; }
-
-/* transform's rule list */
-.rules { list-style: none; margin: 10px 0 0; padding: 0; }
-.rules li {
-  display: flex; align-items: center; gap: 7px; padding: 3px 0;
-  font-size: 12.5px; color: #a78bca; transition: color 0.2s;
-}
-.rules li.lit { color: var(--proc); font-weight: 600; }
-.rules .tick { display: inline-flex; width: 16px; justify-content: center; font-weight: 800; }
-
-/* --- row tables (shared) ------------------------------------------------- */
+/* --- row tables (used by every stage) ------------------------------------ */
 .rows { width: 100%; border-collapse: collapse; font-size: 12px; }
 .rows th, .rows td {
-  border: 1px solid #eef2f6; padding: 4px 8px; text-align: left;
-  max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  border: 1px solid #eef2f6; padding: 4px 7px; text-align: left;
+  max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .rows thead th {
   background: #f8fafc; color: var(--muted); font-weight: 600;
@@ -118,6 +109,33 @@ body { color: var(--ink); background: var(--bg); }
 .rows .empty { color: #cbd5e1; font-style: italic; }
 .rows tr.junk td { background: #fef2f2; color: #ef4444; text-decoration: line-through; }
 .rows.clean td, .rows.dest td { color: #166534; font-weight: 500; }
+
+/* --- transform: the rules list ------------------------------------------- */
+.rules { list-style: none; margin: 0 0 12px; padding: 0; }
+.rules li {
+  display: flex; align-items: center; gap: 7px; padding: 3px 0;
+  font-size: 12.5px; color: #94a3b8; transition: color 0.2s;
+}
+.rules li.lit { color: var(--transform); font-weight: 600; }
+.rules .tick {
+  display: inline-flex; width: 16px; justify-content: center; font-weight: 800;
+}
+.rules li.lit .tick { color: var(--transform); }
+
+/* --- load: the database icon --------------------------------------------- */
+.db { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.db-icon {
+  position: relative; font-size: 36px; line-height: 1;
+  filter: grayscale(0.7); transition: filter 0.3s, transform 0.3s;
+}
+.db-icon.filling { filter: grayscale(0); transform: scale(1.08); }
+.db-count {
+  position: absolute; bottom: -4px; right: -10px;
+  background: var(--load); color: #fff; font-size: 11px; font-weight: 800;
+  min-width: 18px; height: 18px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+.db-label { font-size: 12px; font-weight: 700; color: var(--load); }
 .rows.dest tr.placeholder td {
   color: #cbd5e1; font-style: italic; text-align: center; font-weight: 400;
 }
@@ -125,4 +143,12 @@ body { color: var(--ink); background: var(--bg); }
 @keyframes drop {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- stack the pipeline vertically on narrow screens --------------------- */
+@media (max-width: 760px) {
+  .pipeline { grid-template-columns: 1fr; }
+  .flow { transform: rotate(90deg); justify-self: center; }
+  .flow.on { transform: rotate(90deg) scale(1.15); }
+  .stage-empty { min-height: 80px; }
 }
