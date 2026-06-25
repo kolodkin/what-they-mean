@@ -174,13 +174,13 @@ function DatabasePane({ result, active, setActive }) {
         <div class="block-title">Result</div>
         <table class="result-table">
           <thead>
-            <tr><th>name</th><th>ingredient</th><th>amount</th></tr>
+            <tr><th>name</th><th>ingredient</th><th>amount</th><th>units</th></tr>
           </thead>
           <tbody>
             ${result.map(
               (r, i) => html`
                 <tr key=${i}>
-                  <td>${r.name}</td><td>${r.ingredient}</td><td>${r.amount}</td>
+                  <td>${r.name}</td><td>${r.ingredient}</td><td>${r.amount}</td><td>${r.units}</td>
                 </tr>
               `
             )}
