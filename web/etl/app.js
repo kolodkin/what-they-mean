@@ -75,7 +75,6 @@ function App() {
   return html`
     <main class="wrap">
       <header class="head">
-        <span class="tag">Concept #3</span>
         <h1>What is a data pipeline?</h1>
         <p class="lede">
           A pipeline <strong>moves data from where it's made to where it's
