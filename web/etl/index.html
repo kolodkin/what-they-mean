@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What They Mean — Data pipelines</title>
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- No bundler. Bare module specifiers are resolved by this import map to
+       locally vendored ES modules (run ./vendor.sh to download them). The demo
+       lives one level deep, so vendor/ is one directory up. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "preact": "../vendor/preact.module.js",
+      "preact/hooks": "../vendor/preact-hooks.module.js",
+      "htm": "../vendor/htm.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="back" href="../">← All concepts</a>
+  <div id="app"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
