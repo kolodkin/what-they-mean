@@ -7,26 +7,29 @@ const html = htm.bind(h);
 
 const { sources, transformed, loaded } = runPipeline();
 
-// Three stages, left -> right: Extract -> Transform -> Load. Each card stays
-// EMPTY until the run reaches it, then fills. The medallion layers (bronze =
-// raw, silver = mapped) ride along as each stage's label. The Transform stage
-// holds one card PER SOURCE, mapped onto the shared schema one at a time.
+// Three stages, left -> right: Extract -> Transform -> Load.
+//   Extract  — pull the raw rows out of THREE mismatched sources, as found.
+//   Transform— clean each source & map it onto the one shared schema.
+//   Load     — write the unified rows into the store.
+// Each stage stays EMPTY until the run reaches it (Extract is filled up front,
+// since the source data exists before you press Run). The medallion layers
+// (bronze = raw, silver = clean) ride along as each stage's label.
 const T_EXTRACT = 550; // pause after pulling rows in
-const T_MAP = 480; // between each source being mapped to the schema
+const T_MAP = 480; // between each source being cleaned & mapped
 const T_LOAD = 240; // between each row landing in the store
 
 const fmtPrice = (p) => (p == null ? "—" : p.toFixed(2));
 
 // Show a raw cell honestly: quote strings, leave numbers bare, flag blanks.
 function rawCell(v) {
-  if (v === "" ) return html`<span class="empty">empty</span>`;
+  if (v === "") return html`<span class="empty">empty</span>`;
   if (v == null) return html`<span class="empty">null</span>`;
   return typeof v === "string" ? `"${v}"` : String(v);
 }
 
 function App() {
   const [phase, setPhase] = useState("idle"); // idle -> extract -> transform -> load -> done
-  const [mapped, setMapped] = useState(0); // how many source cards are mapped
+  const [mapped, setMapped] = useState(0); // how many source cards are cleaned
   const [loadedCount, setLoadedCount] = useState(0);
   const timers = useRef([]);
 
@@ -94,8 +97,8 @@ function App() {
       </header>
 
       <div class="pipeline">
-        <!-- The source data exists before you press Run, so Extract starts
-             filled; Transform & Load stay empty until the run reaches them. -->
+        <!-- Extract holds the raw sources up front; Transform & Load stay empty
+             until the run reaches them. -->
         <${ExtractStage} active=${phase === "extract"} reached=${true} />
         <div class="flow ${reached("transform") ? "on" : ""}">→</div>
         <${TransformStage}
@@ -137,8 +140,9 @@ function StageShell({ kind, title, layer, sub, badge, active, reached, children 
   `;
 }
 
-// EXTRACT — bronze: pull rows out of several messy sources, exactly as found.
-// Each source disagrees on column names & formats; Transform reconciles them.
+// EXTRACT — bronze: pull the raw rows out of three mismatched sources, exactly
+// as found. Each source disagrees on column names AND formats — that mess is
+// the input; Transform is what reconciles it.
 function ExtractStage({ active, reached }) {
   const total = sources.reduce((n, s) => n + s.rows.length, 0);
   return html`
@@ -146,71 +150,28 @@ function ExtractStage({ active, reached }) {
       kind="extract"
       title="Extract"
       layer=${{ key: "bronze", name: "bronze" }}
-      sub=" — pull rows from every source, raw"
+      sub=" — pull each source in, raw"
       badge=${`${total} rows in`}
       active=${active}
       reached=${reached}
     >
-      <ul class="sources">
-        ${sources.map(
-          (s) => html`
-            <li key=${s.id} class="source">
-              <span class="src-dot"></span>
-              <span class="source-name">${s.name}</span>
-              <span class="source-kind">${s.kind}</span>
-              <span class="source-count">${s.rows.length} rows</span>
-            </li>
-          `
-        )}
-      </ul>
-      <p class="extract-note">three sources, three different sets of columns</p>
-    </${StageShell}>
-  `;
-}
-
-// TRANSFORM — silver: one card per source, each mapped onto name/added/price.
-function TransformStage({ active, reached, mapped }) {
-  const done = mapped >= sources.length;
-  return html`
-    <${StageShell}
-      kind="transform"
-      title="Transform"
-      layer=${{ key: "silver", name: "silver" }}
-      sub=" — map every source onto one schema"
-      badge=${done ? "1 schema" : "mapping…"}
-      active=${active}
-      reached=${reached}
-    >
-      <div class="transform-stack">
-        ${sources.map(
-          (src, i) => html`
-            <${SourceCard}
-              key=${src.id}
-              src=${src}
-              mapped=${mapped > i}
-              mapping=${active && mapped === i}
-            />
-          `
-        )}
+      <p class="stack-note">three sources, three different sets of columns</p>
+      <div class="src-stack">
+        ${sources.map((src) => html`<${RawSourceCard} key=${src.id} src=${src} />`)}
       </div>
     </${StageShell}>
   `;
 }
 
-// One source's card: its OWN columns on top (raw), the shared schema below
-// (lit green once this source has been mapped).
-function SourceCard({ src, mapped, mapping }) {
+// One source's RAW card: its own (messy) column names and untouched values.
+function RawSourceCard({ src }) {
   const orig = [src.cols.name, src.cols.added, src.cols.price];
-  const cls = ["src-card", mapped ? "mapped" : "", mapping ? "mapping" : ""]
-    .filter(Boolean)
-    .join(" ");
   return html`
-    <div class=${cls}>
+    <div class="src-card">
       <div class="src-head">
         <span class="src-name">${src.name}</span>
         <span class="src-kind">${src.kind}</span>
       </div>
-
       <table class="rows src-in">
         <thead><tr>${orig.map((c) => html`<th key=${c}>${c}</th>`)}</tr></thead>
         <tbody>
@@ -225,9 +186,53 @@ function SourceCard({ src, mapped, mapping }) {
           )}
         </tbody>
       </table>
+    </div>
+  `;
+}
 
-      <div class="map-arrow">↓ map to schema</div>
+// TRANSFORM — silver: the same three sources, now cleaned and mapped onto one
+// shared schema (name / added / price). Cards light up one source at a time.
+function TransformStage({ active, reached, mapped }) {
+  const done = mapped >= sources.length;
+  return html`
+    <${StageShell}
+      kind="transform"
+      title="Transform"
+      layer=${{ key: "silver", name: "silver" }}
+      sub=" — clean & map onto one schema"
+      badge=${done ? "1 schema" : "mapping…"}
+      active=${active}
+      reached=${reached}
+    >
+      <p class="stack-note">same sources, now one shared shape</p>
+      <div class="src-stack">
+        ${sources.map(
+          (src, i) => html`
+            <${CleanSourceCard}
+              key=${src.id}
+              src=${src}
+              mapped=${mapped > i}
+              mapping=${active && mapped === i}
+            />
+          `
+        )}
+      </div>
+    </${StageShell}>
+  `;
+}
 
+// One source's CLEAN card: the shared schema, junk dropped. Dim until this
+// source has been mapped, then it lights green.
+function CleanSourceCard({ src, mapped, mapping }) {
+  const cls = ["src-card", mapped ? "mapped" : "", mapping ? "mapping" : ""]
+    .filter(Boolean)
+    .join(" ");
+  return html`
+    <div class=${cls}>
+      <div class="src-head">
+        <span class="src-name">${src.name}</span>
+        <span class="src-kind">${src.kind}</span>
+      </div>
       <table class="rows src-out ${mapped ? "clean" : ""}">
         <thead><tr><th>name</th><th>added</th><th>price</th></tr></thead>
         <tbody>
