@@ -114,22 +114,61 @@ body { color: var(--ink); background: var(--bg); }
   background: #f8fafc; color: var(--muted); font-weight: 600;
   font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em;
 }
-.rows.raw td { font-family: "SF Mono", Menlo, Consolas, monospace; color: #b45309; }
 .rows .empty { color: #cbd5e1; font-style: italic; }
 .rows tr.junk td { background: #fef2f2; color: #ef4444; text-decoration: line-through; }
 .rows.clean td, .rows.dest td { color: #166534; font-weight: 500; }
 
-/* --- transform: the rules list ------------------------------------------- */
-.rules { list-style: none; margin: 0 0 12px; padding: 0; }
-.rules li {
-  display: flex; align-items: center; gap: 7px; padding: 3px 0;
-  font-size: 12.5px; color: #94a3b8; transition: color 0.2s;
+/* --- extract: the list of mismatched sources ----------------------------- */
+.sources { list-style: none; margin: 0 0 10px; padding: 0; }
+.source {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  padding: 7px 9px; font-size: 12.5px; background: #fff;
+  border: 1px solid var(--line); border-radius: 8px;
 }
-.rules li.lit { color: var(--transform); font-weight: 600; }
-.rules .tick {
-  display: inline-flex; width: 16px; justify-content: center; font-weight: 800;
+.src-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--extract); flex: none; }
+.source-name {
+  font-weight: 700; color: #b45309;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-.rules li.lit .tick { color: var(--transform); }
+.source-kind { color: var(--muted); }
+.source-count {
+  margin-left: auto; font-size: 11px; font-weight: 700; color: #475569;
+  background: #f1f5f9; border-radius: 999px; padding: 2px 8px; white-space: nowrap;
+}
+.extract-note { margin: 2px 0 0; font-size: 11.5px; font-style: italic; color: var(--muted); }
+
+/* --- transform: one mapping card per source, stacked vertically ----------- */
+.transform-stack { display: flex; flex-direction: column; gap: 10px; }
+.src-card {
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
+  background: #fbfaff; opacity: 0.5;
+  transition: opacity 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.src-card.mapped { opacity: 1; }
+.src-card.mapping {
+  opacity: 1; border-color: var(--transform);
+  box-shadow: 0 0 0 2px var(--transform), 0 8px 20px rgba(124, 58, 237, 0.16);
+}
+.src-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.src-name {
+  font-size: 12.5px; font-weight: 800; color: var(--transform);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+.src-kind { font-size: 10.5px; color: var(--muted); }
+
+/* the source's own (messy) columns on top… */
+.src-in td { font-family: "SF Mono", Menlo, Consolas, monospace; color: #6d28d9; }
+.src-in thead th { color: var(--transform); }
+
+/* …the arrow to the shared schema… */
+.map-arrow {
+  font-size: 10.5px; font-weight: 700; color: var(--muted);
+  text-align: center; padding: 4px 0 3px; letter-spacing: 0.02em;
+}
+
+/* …and the unified output below, dim until this source is mapped. */
+.src-out { opacity: 0.4; transition: opacity 0.3s; }
+.src-card.mapped .src-out { opacity: 1; }
 
 /* --- load: the database icon --------------------------------------------- */
 .db { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }

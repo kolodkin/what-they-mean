@@ -1,24 +1,32 @@
 import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
-import { RAW_ROWS, RULES, runPipeline } from "./data.js";
+import { runPipeline } from "./data.js";
 
 const html = htm.bind(h);
 
-const { extracted, transformed, loaded } = runPipeline();
+const { sources, transformed, loaded } = runPipeline();
 
 // Three stages, left -> right: Extract -> Transform -> Load. Each card stays
 // EMPTY until the run reaches it, then fills. The medallion layers (bronze =
-// raw, silver = cleaned) ride along as each stage's label.
+// raw, silver = mapped) ride along as each stage's label. The Transform stage
+// holds one card PER SOURCE, mapped onto the shared schema one at a time.
 const T_EXTRACT = 550; // pause after pulling rows in
-const T_RULE = 320; // between each Transform rule lighting up
+const T_MAP = 480; // between each source being mapped to the schema
 const T_LOAD = 240; // between each row landing in the store
 
 const fmtPrice = (p) => (p == null ? "—" : p.toFixed(2));
 
+// Show a raw cell honestly: quote strings, leave numbers bare, flag blanks.
+function rawCell(v) {
+  if (v === "" ) return html`<span class="empty">empty</span>`;
+  if (v == null) return html`<span class="empty">null</span>`;
+  return typeof v === "string" ? `"${v}"` : String(v);
+}
+
 function App() {
   const [phase, setPhase] = useState("idle"); // idle -> extract -> transform -> load -> done
-  const [litRules, setLitRules] = useState(0);
+  const [mapped, setMapped] = useState(0); // how many source cards are mapped
   const [loadedCount, setLoadedCount] = useState(0);
   const timers = useRef([]);
 
@@ -33,19 +41,19 @@ function App() {
   function run() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    setLitRules(0);
+    setMapped(0);
     setLoadedCount(0);
 
     setPhase("extract");
     let t = T_EXTRACT;
 
     at(t, () => setPhase("transform"));
-    RULES.forEach((_, i) => {
-      t += T_RULE;
-      at(t, () => setLitRules(i + 1));
+    sources.forEach((_, i) => {
+      t += T_MAP;
+      at(t, () => setMapped(i + 1));
     });
 
-    t += T_RULE;
+    t += T_MAP;
     at(t, () => setPhase("load"));
     loaded.forEach((_, i) => {
       t += T_LOAD;
@@ -60,7 +68,7 @@ function App() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     setPhase("idle");
-    setLitRules(0);
+    setMapped(0);
     setLoadedCount(0);
   }
 
@@ -93,7 +101,7 @@ function App() {
         <${TransformStage}
           active=${phase === "transform"}
           reached=${reached("transform")}
-          lit=${litRules}
+          mapped=${mapped}
         />
         <div class="flow ${reached("load") ? "on" : ""}">→</div>
         <${LoadStage} active=${phase === "load"} reached=${reached("load")} count=${loadedCount} />
@@ -110,7 +118,7 @@ function StageShell({ kind, title, layer, sub, badge, active, reached, children 
     <section class=${cls}>
       <div class="stage-head">
         <span class="stage-name">${title}</span>
-        ${reached && html`<span class="stage-badge">${badge}</span>`}
+        ${reached && badge && html`<span class="stage-badge">${badge}</span>`}
       </div>
       <p class="stage-sub">
         <span class=${`medallion m-${layer.key}`}>${layer.name}</span>${sub}
@@ -129,84 +137,117 @@ function StageShell({ kind, title, layer, sub, badge, active, reached, children 
   `;
 }
 
-// EXTRACT — bronze: read the raw rows out of the messy source, as-is.
+// EXTRACT — bronze: pull rows out of several messy sources, exactly as found.
+// Each source disagrees on column names & formats; Transform reconciles them.
 function ExtractStage({ active, reached }) {
+  const total = sources.reduce((n, s) => n + s.rows.length, 0);
   return html`
     <${StageShell}
       kind="extract"
       title="Extract"
       layer=${{ key: "bronze", name: "bronze" }}
-      sub=" — read the rows in, raw"
-      badge=${`${RAW_ROWS.length} rows in`}
+      sub=" — pull rows from every source, raw"
+      badge=${`${total} rows in`}
       active=${active}
       reached=${reached}
     >
-      <table class="rows raw">
-        <thead><tr><th>name</th><th>added</th><th>price</th></tr></thead>
-        <tbody>
-          ${RAW_ROWS.map(
-            (r, i) => html`
-              <tr key=${i} class=${r.name.trim() === "" ? "junk" : ""}>
-                <td>${r.name === "" ? html`<span class="empty">empty</span>` : `"${r.name}"`}</td>
-                <td>${r.added || html`<span class="empty">—</span>`}</td>
-                <td>${r.price || html`<span class="empty">—</span>`}</td>
-              </tr>
-            `
-          )}
-        </tbody>
-      </table>
+      <ul class="sources">
+        ${sources.map(
+          (s) => html`
+            <li key=${s.id} class="source">
+              <span class="src-dot"></span>
+              <span class="source-name">${s.name}</span>
+              <span class="source-kind">${s.kind}</span>
+              <span class="source-count">${s.rows.length} rows</span>
+            </li>
+          `
+        )}
+      </ul>
+      <p class="extract-note">three sources, three different sets of columns</p>
     </${StageShell}>
   `;
 }
 
-// TRANSFORM — silver: clean & normalise; each rule lights, junk row drops.
-function TransformStage({ active, reached, lit }) {
-  const done = lit >= RULES.length;
+// TRANSFORM — silver: one card per source, each mapped onto name/added/price.
+function TransformStage({ active, reached, mapped }) {
+  const done = mapped >= sources.length;
   return html`
     <${StageShell}
       kind="transform"
       title="Transform"
       layer=${{ key: "silver", name: "silver" }}
-      sub=" — clean & normalise"
-      badge=${done ? `${transformed.length} rows` : "cleaning…"}
+      sub=" — map every source onto one schema"
+      badge=${done ? "1 schema" : "mapping…"}
       active=${active}
       reached=${reached}
     >
-      <ul class="rules">
-        ${RULES.map(
-          (rule, i) => html`
-            <li key=${rule.id} class=${i < lit ? "lit" : ""}>
-              <span class="tick">${i < lit ? "✓" : "○"}</span>${rule.label}
-            </li>
+      <div class="transform-stack">
+        ${sources.map(
+          (src, i) => html`
+            <${SourceCard}
+              key=${src.id}
+              src=${src}
+              mapped=${mapped > i}
+              mapping=${active && mapped === i}
+            />
           `
         )}
-      </ul>
-      <table class="rows ${done ? "clean" : ""}">
-        <thead><tr><th>name</th><th>added</th><th>price</th></tr></thead>
-        <tbody>
-          ${done
-            ? transformed.map(
-                (r, i) => html`
-                  <tr key=${i}>
-                    <td>${r.name}</td><td>${r.added}</td><td>${fmtPrice(r.price)}</td>
-                  </tr>
-                `
-              )
-            : RAW_ROWS.map(
-                (r, i) => html`
-                  <tr key=${i} class=${r.name.trim() === "" ? "junk" : ""}>
-                    <td>${r.name.trim() || html`<span class="empty">empty</span>`}</td>
-                    <td>${r.added || "—"}</td><td>${r.price || "—"}</td>
-                  </tr>
-                `
-              )}
-        </tbody>
-      </table>
+      </div>
     </${StageShell}>
   `;
 }
 
-// LOAD — store: cleaned rows fly into the 🗄️ database, one by one.
+// One source's card: its OWN columns on top (raw), the shared schema below
+// (lit green once this source has been mapped).
+function SourceCard({ src, mapped, mapping }) {
+  const orig = [src.cols.name, src.cols.added, src.cols.price];
+  const cls = ["src-card", mapped ? "mapped" : "", mapping ? "mapping" : ""]
+    .filter(Boolean)
+    .join(" ");
+  return html`
+    <div class=${cls}>
+      <div class="src-head">
+        <span class="src-name">${src.name}</span>
+        <span class="src-kind">${src.kind}</span>
+      </div>
+
+      <table class="rows src-in">
+        <thead><tr>${orig.map((c) => html`<th key=${c}>${c}</th>`)}</tr></thead>
+        <tbody>
+          ${src.rows.map(
+            (r, i) => html`
+              <tr key=${i}>
+                <td>${rawCell(r[src.cols.name])}</td>
+                <td>${rawCell(r[src.cols.added])}</td>
+                <td>${rawCell(r[src.cols.price])}</td>
+              </tr>
+            `
+          )}
+        </tbody>
+      </table>
+
+      <div class="map-arrow">↓ map to schema</div>
+
+      <table class="rows src-out ${mapped ? "clean" : ""}">
+        <thead><tr><th>name</th><th>added</th><th>price</th></tr></thead>
+        <tbody>
+          ${src.normalized.map((r, i) => {
+            const dropped = r.name === "";
+            return html`
+              <tr key=${i} class=${dropped ? "junk" : ""}>
+                <td>${dropped ? html`<span class="empty">dropped</span>` : r.name}</td>
+                <td>${dropped ? "—" : r.added}</td>
+                <td>${dropped ? "—" : fmtPrice(r.price)}</td>
+              </tr>
+            `;
+          })}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// LOAD — store: the mapped rows from every source fly into the 🗄️ database.
 function LoadStage({ active, reached, count }) {
   const rows = loaded.slice(0, count);
   return html`
@@ -214,7 +255,7 @@ function LoadStage({ active, reached, count }) {
       kind="load"
       title="Load"
       layer=${{ key: "store", name: "data store" }}
-      sub=" — write the clean rows in"
+      sub=" — write the unified rows in"
       badge=${`${count} rows written`}
       active=${active}
       reached=${reached}
@@ -229,7 +270,7 @@ function LoadStage({ active, reached, count }) {
         <thead><tr><th>name</th><th>added</th><th>price</th></tr></thead>
         <tbody>
           ${rows.length === 0
-            ? html`<tr class="placeholder"><td colspan="3">waiting for clean rows…</td></tr>`
+            ? html`<tr class="placeholder"><td colspan="3">waiting for mapped rows…</td></tr>`
             : rows.map(
                 (r, i) => html`
                   <tr key=${i} class="dropped">
