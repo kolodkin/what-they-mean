@@ -71,11 +71,11 @@ function App() {
   return html`
     <main class="wrap">
       <header class="head">
-        <h1>What is a data pipeline?</h1>
+        <h1>What is ETL?</h1>
         <p class="lede">
-          A pipeline <strong>moves data from where it's made to where it's
-          used</strong> — and <strong>fixes it on the way</strong>. The three
-          steps are nicknamed <em>ETL</em>: Extract, Transform, Load.
+          <strong>ETL</strong> <strong>moves data from where it's made to where
+          it's used</strong> — and <strong>fixes it on the way</strong>. The
+          name is its three steps: <em>Extract, Transform, Load</em>.
         </p>
         <div class="controls">
           <button class="run" onClick=${run} disabled=${running}>

@@ -13,7 +13,7 @@ def test_menu_lists_all_demos(page: Page, server_url: str):
     expect(page.locator(".card")).to_have_count(3)
     expect(page.locator('.card[href="api/"]')).to_contain_text("API")
     expect(page.locator('.card[href="db/"]')).to_contain_text("database")
-    expect(page.locator('.card[href="etl/"]')).to_contain_text("data pipeline")
+    expect(page.locator('.card[href="etl/"]')).to_contain_text("ETL")
     page.screenshot(path=os.path.join(SHOTS, "00-menu.png"))
 
 
