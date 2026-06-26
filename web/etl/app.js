@@ -9,7 +9,7 @@ const { sources, transformed, loaded } = runPipeline();
 
 // Three stages, left -> right: Extract -> Transform -> Load.
 //   Extract  — pull the raw rows out of THREE mismatched sources, as found.
-//   Transform— clean each source & map it onto the one shared schema.
+//   Transform— normalize each source onto the one shared schema.
 //   Load     — write the unified rows into the store.
 // Each stage stays EMPTY until the run reaches it (Extract is filled up front,
 // since the source data exists before you press Run). The medallion layers
@@ -85,8 +85,14 @@ function App() {
         <h1>What is ETL?</h1>
         <p class="lede">
           <strong>ETL</strong> <strong>moves data from where it's made to where
-          it's used</strong> — and <strong>fixes it on the way</strong>. The
-          name is its three steps: <em>Extract, Transform, Load</em>.
+          it's used</strong> — and <strong>fixes it on the way</strong>. Its
+          name is its three steps. <em>Extract</em> pulls the raw data out of
+          each source as-is. <em>Transform</em> <strong>normalizes</strong> it —
+          forcing mismatched column names, date formats and prices into one
+          consistent shape (a shared <em>schema</em>). <em>Load</em> writes the
+          clean rows into a database. That middle step —
+          <strong>data normalization</strong> — is the real work: three sources
+          that disagree on everything become one tidy table.
         </p>
         <div class="controls">
           <button class="run" onClick=${run} disabled=${running}>
@@ -199,12 +205,12 @@ function TransformStage({ active, reached, mapped }) {
       kind="transform"
       title="Transform"
       layer=${{ key: "silver", name: "silver" }}
-      sub=" — clean & map onto one schema"
-      badge=${done ? "1 schema" : "mapping…"}
+      sub=" — normalize onto one schema"
+      badge=${done ? "1 schema" : "normalizing…"}
       active=${active}
       reached=${reached}
     >
-      <p class="stack-note">same sources, now one shared shape</p>
+      <p class="stack-note">each source normalized to the same shape</p>
       <div class="src-stack">
         ${sources.map(
           (src, i) => html`
