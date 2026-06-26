@@ -1,0 +1,45 @@
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - "tests/**"
+      - "conftest.py"
+      - "serve.py"
+      - "vendor.sh"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pytest.ini"
+      - ".github/workflows/e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Vendor ES modules
+        run: ./vendor.sh
+
+      # The dev image pre-installs the bundled Chromium, but CI runners don't —
+      # fetch it (and its system deps) for the pinned Playwright build.
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: uv run pytest -v
