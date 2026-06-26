@@ -4,6 +4,7 @@
   --muted: #64748b;
   --line: #e2e8f0;
   --accent: #4338ca;
+  --wire: #cbd5e1;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 * { box-sizing: border-box; }
@@ -19,13 +20,17 @@ body { color: var(--ink); background: var(--bg); }
 }
 .back:hover { background: #fff; }
 
-.wrap { max-width: 1100px; margin: 0 auto; padding: 30px 22px 56px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 30px 22px 56px; }
 
 /* --- header -------------------------------------------------------------- */
-.head { margin-bottom: 26px; }
+.head { margin-bottom: 22px; }
 .head h1 { margin: 0 0 8px; font-size: 30px; }
-.lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 760px; margin: 0; }
+.lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 800px; margin: 0; }
 .lede strong { color: var(--ink); }
+.lede em { font-style: normal; font-weight: 700; }
+.lede em:nth-of-type(1) { color: #b45309; }
+.lede em:nth-of-type(2) { color: #475569; }
+.lede em:nth-of-type(3) { color: #b58a0b; }
 
 .controls { margin-top: 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .run {
@@ -42,78 +47,130 @@ body { color: var(--ink); background: var(--bg); }
 .trace-caption { font-size: 13.5px; color: var(--muted); }
 .trace-caption strong { color: var(--ink); }
 
-/* --- the map ------------------------------------------------------------- */
-.map { display: flex; flex-direction: column; gap: 14px; }
-/* The spine stays on one row on desktop (it collapses to a column on narrow
-   screens via the media query below); the tail holds the end fork. */
-.spine, .tail { display: flex; align-items: stretch; gap: 8px; }
-.tail { align-items: center; }
-
-.arrow {
-  align-self: center; font-size: 22px; color: #cbd5e1; padding: 0 2px;
-  transition: color 0.25s, transform 0.25s;
+/* --- the board: a flow-editor viewport ----------------------------------- */
+.board {
+  overflow-x: auto;            /* pan on narrow screens, like a real editor */
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle, #d8dee9 1px, transparent 1.4px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #fbfcfe, #f4f7fb);
+  box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(15, 23, 42, 0.06);
+  padding: 18px;
 }
-.arrow.on { color: var(--accent); transform: scale(1.25); }
-
-/* the fork: gold feeds backend AND agent, stacked, both feeding the app */
-.fork { display: flex; flex-direction: column; gap: 8px; }
-
-/* --- a box --------------------------------------------------------------- */
-.box {
-  --c: #94a3b8;
-  flex: 1 1 120px; min-width: 116px;
-  display: flex; flex-direction: column; gap: 6px; text-align: left;
-  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--c);
-  border-radius: 14px; padding: 12px 13px; cursor: pointer;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
-  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
-  font: inherit; color: inherit;
+.canvas {
+  position: relative;
+  min-width: 940px;            /* keep node text legible; scroll if narrower */
+  aspect-ratio: 1240 / 360;    /* MUST match the SVG viewBox so layers align */
 }
-.box:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12); }
-.box.lit { box-shadow: 0 0 0 2px var(--c), 0 12px 26px rgba(15, 23, 42, 0.12); }
-.box.active { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--c), 0 16px 32px rgba(15, 23, 42, 0.16); }
-.box.selected { border-color: var(--c); box-shadow: 0 0 0 3px var(--c); }
 
-.box-head { display: flex; align-items: center; gap: 6px; }
-.box-icon { font-size: 17px; }
-.box-name { font-size: 14.5px; font-weight: 800; color: var(--c); }
-.box-layer {
-  margin-left: auto; font-size: 10px; font-weight: 800; letter-spacing: 0.04em;
-  text-transform: uppercase; color: var(--c); background: #fff;
-  border: 1px solid var(--c); border-radius: 999px; padding: 1px 7px;
+/* layer 1: wires ---------------------------------------------------------- */
+.wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.wire {
+  fill: none; stroke: var(--wire); stroke-width: 2.5; stroke-linecap: round;
+  color: var(--wire);          /* drives the arrowhead via context-stroke */
+  transition: stroke 0.3s, color 0.3s, stroke-width 0.3s;
 }
-.box-form { font-size: 11px; color: var(--muted); }
-.box-snap {
+.wire.on { stroke: var(--c, var(--accent)); color: var(--c, var(--accent)); stroke-width: 3; }
+/* the wire currently carrying data: a dashed flow runs along it */
+.wire.live {
+  stroke-dasharray: 9 8;
+  animation: flow 0.6s linear infinite;
+}
+@keyframes flow { to { stroke-dashoffset: -17; } }
+
+/* each wire is tinted by the block it leaves */
+.wire-connectors { --c: #0d9488; }
+.wire-bronze     { --c: #b45309; }
+.wire-normalize  { --c: #7c3aed; }
+.wire-silver     { --c: #475569; }
+.wire-db         { --c: #0284c7; }
+.wire-gold       { --c: #b58a0b; }
+.wire-backend    { --c: #4338ca; }
+.wire-agent      { --c: #db2777; }
+
+/* layer 2: node blocks ---------------------------------------------------- */
+.node {
+  --c: #64748b;
+  position: absolute;
+  display: flex; flex-direction: column; gap: 5px; justify-content: center;
+  text-align: left; padding: 8px 9px; overflow: hidden;
+  background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--c);
+  border-radius: 12px; cursor: pointer; font: inherit; color: inherit;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.07);
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+/* input / output ports, sitting exactly on the wire ends */
+.node::before, .node::after {
+  content: ""; position: absolute; top: 50%; width: 9px; height: 9px;
+  background: #fff; border: 2px solid var(--c); border-radius: 50%;
+  transform: translateY(-50%); transition: background 0.2s;
+}
+.node::before { left: -5px; }
+.node::after { right: -5px; }
+.node-connectors::before, .node-app::after { display: none; } /* ends of the flow */
+
+.node:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14); z-index: 3; }
+.node.lit { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 8px 20px rgba(15, 23, 42, 0.12); }
+.node.lit::before, .node.lit::after { background: var(--c); }
+.node.active { transform: translateY(-2px); box-shadow: 0 0 0 3px var(--c), 0 12px 26px rgba(15, 23, 42, 0.2); z-index: 4; }
+.node.selected { border-color: var(--c); box-shadow: 0 0 0 3px var(--c); z-index: 4; }
+
+.node-top { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.node-icon { font-size: 14px; line-height: 1; flex: none; }
+.node-name {
+  font-size: 11.5px; font-weight: 800; color: var(--c);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.node-layer {
+  position: absolute; top: 7px; right: 8px; flex: none;
+  font-size: 8px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--c); background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--c); border-radius: 999px; padding: 1px 5px;
+}
+.node-snap {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px; line-height: 1.35; color: #334155;
-  background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
-  padding: 6px 7px; word-break: break-word;
+  font-size: 9.5px; line-height: 1.2; color: #475569;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* per-box accent colours */
-.box-connectors { --c: #0d9488; }
-.box-normalize  { --c: #7c3aed; }
-.box-db         { --c: #0284c7; }
-.box-backend    { --c: #4338ca; }
-.box-agent      { --c: #db2777; }
-.box-app        { --c: #16a34a; }
+/* per-block accent colours */
+.node-connectors { --c: #0d9488; }
+.node-normalize  { --c: #7c3aed; }
+.node-db         { --c: #0284c7; }
+.node-backend    { --c: #4338ca; }
+.node-agent      { --c: #db2777; }
+.node-app        { --c: #16a34a; }
 
 /* the three medallion layers, coloured like the metals */
 .layer-bronze { --c: #b45309; background: linear-gradient(180deg, #fff7ed, #fff); }
 .layer-silver { --c: #475569; background: linear-gradient(180deg, #f3f6fb, #fff); }
 .layer-gold   { --c: #b58a0b; background: linear-gradient(180deg, #fefce8, #fff); }
 
+/* layer 3: the data packet in flight ------------------------------------- */
+.packet {
+  position: absolute; transform: translate(-50%, -50%); pointer-events: none; z-index: 6;
+}
+.packet span {
+  display: inline-block; white-space: nowrap;
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: var(--accent); border-radius: 999px; padding: 3px 9px;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.18), 0 4px 10px rgba(67, 56, 202, 0.5);
+}
+
 /* --- detail panel -------------------------------------------------------- */
 .detail {
-  --c: #94a3b8;
-  margin-top: 26px; background: #fff; border: 1px solid var(--line);
+  --c: #64748b;
+  margin-top: 22px; background: #fff; border: 1px solid var(--line);
   border-left: 5px solid var(--c); border-radius: 14px; padding: 18px 20px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 .detail-empty { border-left-color: var(--line); color: var(--muted); }
 .detail-empty p { margin: 0; font-size: 14px; }
 .detail-head { display: flex; align-items: center; gap: 8px; }
+.detail-head .node-icon { font-size: 20px; }
 .detail-head h2 { margin: 0; font-size: 19px; color: var(--c); }
+.detail-head .node-layer { position: static; font-size: 10px; padding: 2px 8px; }
 .detail-text { font-size: 14.5px; line-height: 1.6; color: #334155; max-width: 720px; }
 .detail-snap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .detail-form {
@@ -124,11 +181,4 @@ body { color: var(--ink); background: var(--bg); }
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px; color: #1e293b; background: #f8fafc;
   border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
-}
-
-@media (max-width: 760px) {
-  .spine, .tail { flex-direction: column; align-items: stretch; }
-  .arrow { transform: rotate(90deg); align-self: center; }
-  .arrow.on { transform: rotate(90deg) scale(1.25); }
-  .fork { flex-direction: row; }
 }

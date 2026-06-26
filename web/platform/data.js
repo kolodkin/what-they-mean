@@ -81,7 +81,7 @@ export const SPINE = [
       "The big shared table where every clean row is kept so many machines " +
       "and people can ask it precise questions at once. (That's the database " +
       "demo.) Our one coffee sale is now a single row among thousands.",
-    form: "one row among thousands",
+    form: "a stored row",
     snapshot: "row 8,412 of 53,219",
   },
   {

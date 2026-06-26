@@ -43,19 +43,31 @@ These nine entries (id, name, emoji/icon, layer color, one-line role, and a
 `snapshot` value to render) live in `data.js` so the trace and detail panel are
 data-driven, mirroring how `etl/data.js` feeds the etl demo.
 
-## Layout & interaction
+## Layout & interaction — a node-graph component diagram
 
-- A horizontal map of box cards connected by arrows; it wraps on narrow widths.
-  The end fork is drawn so backend and agent sit as two parallel boxes that both
-  point into the final app box.
-- **▶ Trace a piece of data** — sends a glowing token along the path, lighting
-  each box in order (timed, like the etl demo's staged `setTimeout` cadence) and
-  surfacing each box's one-line caption as it arrives. It ends on the app box
-  showing the finished card.
+Deliberately NOT the etl demo's card-row. This is a flow-editor (n8n / Node-RED)
+style **component diagram**, light/technical theme:
+
+- A dot-grid **canvas** (a flow-editor viewport) holds the blocks. Everything is
+  laid out in one fixed coordinate space (an SVG `viewBox`); the canvas keeps
+  that aspect ratio, so the wire layer and the HTML node layer never drift.
+- **Node blocks** are compact cards with input/output **ports** sitting exactly
+  on the wire ends. Each shows icon + name, a corner layer chip for the metals,
+  and the coffee sale's current snapshot (mono, truncated).
+- **Wires** are SVG cubic beziers from each block's output port to the next
+  block's input port, tinted by the block they leave, with arrowheads. The fork
+  is real branching geometry: two wires leave gold (to backend, to agent) and
+  two converge on the app.
+- **▶ Run the data** — lights the blocks in order (timed `setTimeout` cadence);
+  the wire currently carrying data gets a flowing dashed stroke, and a glowing
+  **packet pill labelled with the data's current form** ("raw JSON", "a clean
+  row", …) glides along that wire, its position measured straight off the SVG
+  path so it follows the exact curve. A live caption names the current block.
 - **Reset** — returns to the idle state.
-- **Click any box** — pins that box's fuller plain-language explanation and its
-  data snapshot in a detail panel below the map. Clicking during/after a trace
-  is fine; selection is independent of the trace.
+- **Click any block** — pins its fuller plain-language explanation and snapshot
+  in a detail panel below the canvas. Selection is independent of the run.
+- On narrow screens the canvas pans horizontally (a real flow editor), keeping
+  node text legible rather than shrinking it.
 
 ## Conventions (same as every other demo)
 
