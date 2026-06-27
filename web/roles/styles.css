@@ -56,56 +56,17 @@ body { color: var(--ink); background: var(--bg); }
 .role-name { font-size: 14px; font-weight: 800; color: var(--role-c); }
 .role-short { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
 
-/* --- the stack: slabs, top (screen) to bottom (raw data) ----------------- */
-.board {
-  display: flex; flex-direction: column; gap: 10px;
-  border: 1px solid var(--line); border-radius: 18px;
-  background:
-    radial-gradient(circle, #d8dee9 1px, transparent 1.4px) 0 0 / 22px 22px,
-    linear-gradient(180deg, #fbfcfe, #f4f7fb);
-  box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(15, 23, 42, 0.06);
-  padding: 16px;
+/* --- the stack: pick a role and the chips it holds light up --------------- */
+/* The chips ARE the stack. Once a role is picked, the basic-role chips for the
+   layers it holds light in the picked role's colour (--sel-c); the rest dim,
+   so a composite role reads as a shape over the same set of chips. */
+.role.held {
+  border-color: var(--sel-c);
+  box-shadow: 0 0 0 2px var(--sel-c), 0 8px 18px rgba(15, 23, 42, 0.12);
+  background: color-mix(in srgb, var(--sel-c) 7%, #fff);
+  transform: translateY(-2px);
 }
-.slab {
-  --slab-c: #64748b;
-  background: #fff; border: 1.6px solid var(--line); border-radius: 14px;
-  padding: 13px 15px; transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
-}
-.slab-frontend    { --slab-c: #16a34a; }
-.slab-backend     { --slab-c: #4338ca; }
-.slab-science     { --slab-c: #9333ea; }
-.slab-engineering { --slab-c: #b45309; }
-
-.slab-main { display: flex; align-items: center; gap: 11px; }
-.slab-icon {
-  flex: none; width: 38px; height: 38px; display: grid; place-items: center;
-  font-size: 20px; border-radius: 10px;
-  background: color-mix(in srgb, var(--slab-c) 12%, #fff);
-  border: 1px solid color-mix(in srgb, var(--slab-c) 28%, #fff);
-}
-.slab-text { display: flex; flex-direction: column; gap: 1px; }
-.slab-name { font-size: 15px; font-weight: 800; color: var(--slab-c); }
-.slab-tag { font-size: 11.5px; font-weight: 600; color: var(--muted); }
-.slab-badge {
-  margin-left: auto; font-size: 11px; font-weight: 800;
-  color: #fff; background: var(--role-c, var(--slab-c));
-  border-radius: 999px; padding: 4px 11px; white-space: nowrap;
-}
-.slab-parts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
-.part {
-  font-size: 11px; font-weight: 700; color: var(--slab-c);
-  background: color-mix(in srgb, var(--slab-c) 8%, #fff);
-  border: 1px solid color-mix(in srgb, var(--slab-c) 22%, #fff);
-  border-radius: 999px; padding: 3px 9px;
-}
-
-/* once a role is picked, owned slabs light in the role's colour; the rest dim */
-.board.picked .slab.own {
-  border-color: var(--role-c);
-  box-shadow: 0 0 0 2px var(--role-c), 0 10px 22px rgba(15, 23, 42, 0.12);
-  transform: translateX(2px);
-}
-.board.picked .slab.off { opacity: 0.42; }
+.roles.picked .role.dim { opacity: 0.42; transform: none; }
 
 /* --- detail panel -------------------------------------------------------- */
 .detail {
