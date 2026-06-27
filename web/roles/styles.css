@@ -1,0 +1,129 @@
+:root {
+  --bg: #f1f5f9;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --accent: #4338ca;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { color: var(--ink); background: var(--bg); }
+
+/* --- back link ----------------------------------------------------------- */
+.back {
+  position: absolute; top: 12px; right: 16px; z-index: 10;
+  font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none;
+  background: rgba(255, 255, 255, 0.8); padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.back:hover { background: #fff; }
+
+.wrap { max-width: 1000px; margin: 0 auto; padding: 30px 22px 56px; }
+
+/* --- header -------------------------------------------------------------- */
+.head { margin-bottom: 22px; }
+.head h1 { margin: 0 0 8px; font-size: 30px; }
+.lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 760px; margin: 0; }
+.lede strong { color: var(--ink); }
+.lede em { font-style: normal; font-weight: 700; color: var(--accent); }
+
+/* --- role chips: the picker --------------------------------------------- */
+.roles {
+  display: grid; gap: 10px; margin-bottom: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.role {
+  --role-c: #64748b;
+  display: flex; align-items: center; gap: 11px; text-align: left;
+  cursor: pointer; font: inherit; color: var(--ink);
+  background: #fff; border: 1.6px solid var(--line); border-radius: 12px;
+  padding: 11px 13px; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.role:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1); }
+.role.active {
+  border-color: var(--role-c);
+  box-shadow: 0 0 0 2px var(--role-c), 0 8px 18px rgba(15, 23, 42, 0.12);
+  background: color-mix(in srgb, var(--role-c) 7%, #fff);
+}
+.role-icon {
+  flex: none; width: 36px; height: 36px; display: grid; place-items: center;
+  font-size: 19px; border-radius: 10px;
+  background: color-mix(in srgb, var(--role-c) 14%, #fff);
+  border: 1px solid color-mix(in srgb, var(--role-c) 30%, #fff);
+}
+.role-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.role-name { font-size: 14px; font-weight: 800; color: var(--role-c); }
+.role-short { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+
+/* --- the stack: slabs, top (screen) to bottom (raw data) ----------------- */
+.board {
+  display: flex; flex-direction: column; gap: 10px;
+  border: 1px solid var(--line); border-radius: 18px;
+  background:
+    radial-gradient(circle, #d8dee9 1px, transparent 1.4px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #fbfcfe, #f4f7fb);
+  box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(15, 23, 42, 0.06);
+  padding: 16px;
+}
+.slab {
+  --slab-c: #64748b;
+  background: #fff; border: 1.6px solid var(--line); border-radius: 14px;
+  padding: 13px 15px; transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
+}
+.slab-frontend    { --slab-c: #16a34a; }
+.slab-backend     { --slab-c: #4338ca; }
+.slab-science     { --slab-c: #9333ea; }
+.slab-engineering { --slab-c: #b45309; }
+
+.slab-main { display: flex; align-items: center; gap: 11px; }
+.slab-icon {
+  flex: none; width: 38px; height: 38px; display: grid; place-items: center;
+  font-size: 20px; border-radius: 10px;
+  background: color-mix(in srgb, var(--slab-c) 12%, #fff);
+  border: 1px solid color-mix(in srgb, var(--slab-c) 28%, #fff);
+}
+.slab-text { display: flex; flex-direction: column; gap: 1px; }
+.slab-name { font-size: 15px; font-weight: 800; color: var(--slab-c); }
+.slab-tag { font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.slab-badge {
+  margin-left: auto; font-size: 11px; font-weight: 800;
+  color: #fff; background: var(--role-c, var(--slab-c));
+  border-radius: 999px; padding: 4px 11px; white-space: nowrap;
+}
+.slab-parts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.part {
+  font-size: 11px; font-weight: 700; color: var(--slab-c);
+  background: color-mix(in srgb, var(--slab-c) 8%, #fff);
+  border: 1px solid color-mix(in srgb, var(--slab-c) 22%, #fff);
+  border-radius: 999px; padding: 3px 9px;
+}
+
+/* once a role is picked, owned slabs light in the role's colour; the rest dim */
+.board.picked .slab.own {
+  border-color: var(--role-c);
+  box-shadow: 0 0 0 2px var(--role-c), 0 10px 22px rgba(15, 23, 42, 0.12);
+  transform: translateX(2px);
+}
+.board.picked .slab.off { opacity: 0.42; }
+
+/* --- detail panel -------------------------------------------------------- */
+.detail {
+  --role-c: #64748b;
+  margin-top: 22px; background: #fff; border: 1px solid var(--line);
+  border-left: 5px solid var(--role-c); border-radius: 14px; padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.detail-empty { border-left-color: var(--line); color: var(--muted); }
+.detail-empty p { margin: 0; font-size: 14px; }
+.detail-head { display: flex; align-items: center; gap: 9px; }
+.detail-icon { font-size: 20px; }
+.detail-head h2 { margin: 0; font-size: 19px; color: var(--role-c); }
+.detail-owns {
+  margin-left: auto; font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--role-c);
+  background: color-mix(in srgb, var(--role-c) 10%, #fff);
+  border: 1px solid color-mix(in srgb, var(--role-c) 25%, #fff);
+  border-radius: 999px; padding: 3px 10px;
+}
+.detail-text { font-size: 14.5px; line-height: 1.6; color: #334155; max-width: 720px; margin: 12px 0 0; }
