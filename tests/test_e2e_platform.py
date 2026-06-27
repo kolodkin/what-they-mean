@@ -47,9 +47,12 @@ def test_wires_connect_every_hop_including_the_fork(platform: Page):
         "wire-backend",     # → app
         "wire-agent",       # → app
     ]:
-        expect(platform.locator(f".{wire}")).to_have_count(1)
+        expect(platform.locator(f".wire.{wire}")).to_have_count(1)
     # gold leaves on two wires — one to the backend, one to the agent.
-    expect(platform.locator(".wire-gold")).to_have_count(2)
+    expect(platform.locator(".wire.wire-gold")).to_have_count(2)
+    # every wire carries a drifting flow dot, so the diagram feels alive at rest.
+    expect(platform.locator(".flow-dot")).to_have_count(9)
+    expect(platform.locator(".flow-dot animateMotion")).to_have_count(9)
 
 
 def test_medallion_layers_are_tagged(platform: Page):

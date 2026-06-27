@@ -79,6 +79,10 @@ body { color: var(--ink); background: var(--bg); }
 }
 @keyframes flow { to { stroke-dashoffset: -17; } }
 
+/* a dot drifting along each wire — faint at rest, brighter once the wire lights */
+.flow-dot { fill: var(--c, var(--wire)); opacity: 0.5; }
+.flow-dot.on { opacity: 0.95; }
+
 /* each wire is tinted by the block it leaves */
 .wire-connectors { --c: #0d9488; }
 .wire-bronze     { --c: #b45309; }

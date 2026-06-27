@@ -153,16 +153,26 @@ function App() {
                 <path d="M 0 1 L 9 5 L 0 9 z" fill="context-stroke" />
               </marker>
             </defs>
-            ${EDGES.map((edge) => {
+            ${EDGES.map((edge, idx) => {
               const id = `${edge[0]}-${edge[1]}`;
               const on = litIds.has(edge[1]);
               const live = activeEdges.includes(id);
-              return html`<path
-                class=${`wire wire-${edge[0]} ${on ? "on" : ""} ${live ? "live" : ""}`}
-                d=${edgePath(edge)}
-                marker-end="url(#arrow)"
-                ref=${(el) => el && (wireRefs.current[id] = el)}
-              />`;
+              return html`<g key=${id}>
+                <path
+                  id=${`w-${id}`}
+                  class=${`wire wire-${edge[0]} ${on ? "on" : ""} ${live ? "live" : ""}`}
+                  d=${edgePath(edge)}
+                  marker-end="url(#arrow)"
+                  ref=${(el) => el && (wireRefs.current[id] = el)}
+                />
+                <!-- a small dot drifts along the wire forever, so the diagram
+                     feels alive even at rest; it scales with the viewBox -->
+                <circle class=${`flow-dot wire-${edge[0]} ${on ? "on" : ""}`} r="2.6">
+                  <animateMotion dur="2.4s" repeatCount="indefinite" begin=${`${-idx * 0.27}s`}>
+                    <mpath href=${`#w-${id}`} />
+                  </animateMotion>
+                </circle>
+              </g>`;
             })}
           </svg>
 
