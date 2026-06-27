@@ -16,15 +16,16 @@ def platform(page: Page, server_url: str):
     return page
 
 
-def test_all_nine_nodes_render(platform: Page):
-    # connectors → bronze → normalize → silver → db → gold → {backend, agent} → app
-    expect(platform.locator(".node")).to_have_count(9)
+def test_all_ten_nodes_render(platform: Page):
+    # connectors → bronze → normalize → silver → db → logic → gold → {backend, agent} → app
+    expect(platform.locator(".node")).to_have_count(10)
     for node_id, name in [
         ("connectors", "Connectors"),
         ("bronze", "Bronze"),
         ("normalize", "Normalize"),
         ("silver", "Silver"),
         ("db", "Database"),
+        ("logic", "Logic"),
         ("gold", "Gold"),
         ("backend", "Backend"),
         ("agent", "Agent"),
@@ -35,15 +36,16 @@ def test_all_nine_nodes_render(platform: Page):
 
 
 def test_wires_connect_every_hop_including_the_fork(platform: Page):
-    # Nine directed wires: five along the spine, then gold forks to backend and
+    # Ten directed wires: six along the spine, then gold forks to backend and
     # agent, and both converge on the app.
-    expect(platform.locator(".wire")).to_have_count(9)
+    expect(platform.locator(".wire")).to_have_count(10)
     for wire in [
         "wire-connectors",  # → bronze
         "wire-bronze",      # → normalize
         "wire-normalize",   # → silver
         "wire-silver",      # → db
-        "wire-db",          # → gold
+        "wire-db",          # → logic
+        "wire-logic",       # → gold
         "wire-backend",     # → app
         "wire-agent",       # → app
     ]:
@@ -51,8 +53,8 @@ def test_wires_connect_every_hop_including_the_fork(platform: Page):
     # gold leaves on two wires — one to the backend, one to the agent.
     expect(platform.locator(".wire.wire-gold")).to_have_count(2)
     # every wire carries a drifting flow dot, so the diagram feels alive at rest.
-    expect(platform.locator(".flow-dot")).to_have_count(9)
-    expect(platform.locator(".flow-dot animateMotion")).to_have_count(9)
+    expect(platform.locator(".flow-dot")).to_have_count(10)
+    expect(platform.locator(".flow-dot animateMotion")).to_have_count(10)
 
 
 def test_medallion_layers_are_tagged(platform: Page):
@@ -83,7 +85,7 @@ def test_running_lights_the_blocks_through_to_the_app(platform: Page):
     expect(platform.locator(".wire.live")).not_to_have_count(0)
     platform.screenshot(path=os.path.join(SHOTS, "12-platform-running.png"))
     # The run ends with every block lit, the app among them.
-    expect(platform.locator(".node.lit")).to_have_count(9, timeout=10000)
+    expect(platform.locator(".node.lit")).to_have_count(10, timeout=10000)
     expect(platform.locator(".node-app.lit")).to_be_visible()
     expect(platform.locator(".trace-caption")).to_contain_text("App")
 
@@ -100,7 +102,7 @@ def test_clicking_a_block_explains_it(platform: Page):
 
 def test_reset_returns_to_idle(platform: Page):
     platform.locator("button.run").click()
-    expect(platform.locator(".node.lit")).to_have_count(9, timeout=10000)
+    expect(platform.locator(".node.lit")).to_have_count(10, timeout=10000)
     platform.locator(".node-silver").click()
     platform.locator("button.reset").click()
     # Reset clears the trail and any selection.

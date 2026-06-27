@@ -12,23 +12,25 @@ const html = htm.bind(h);
 // the same space, so ports and wire ends line up exactly. The canvas keeps this
 // aspect ratio, so the two layers never drift apart.
 const VB_W = 1240;
-const VB_H = 360;
+const VB_H = 380;
 const NODE_W = 132; // the slot each node centres in (kept for spacing)
 const NODE_H = 92;
-const BADGE = 56; // the icon badge's size, in viewBox units; wires meet its edge
+const BADGE = 60; // the icon badge's size, in viewBox units; wires meet its edge
 
-// A left-to-right flow with a fork at the end: the six-stage spine, then gold
-// branches to a backend AND an agent, and both feed the app.
+// A left-to-right flow with a fork at the end: the seven-stage spine (logic sits
+// between the database and gold), then gold branches to a backend AND an agent,
+// and both feed the app.
 const LAYOUT = {
-  connectors: { x: 16, y: 104 },
-  bronze: { x: 167, y: 104 },
-  normalize: { x: 318, y: 104 },
-  silver: { x: 469, y: 104 },
-  db: { x: 620, y: 104 },
-  gold: { x: 771, y: 104 },
-  backend: { x: 946, y: 24 },
-  agent: { x: 946, y: 244 },
-  app: { x: 1097, y: 104 },
+  connectors: { x: 0, y: 144 },
+  bronze: { x: 138, y: 144 },
+  normalize: { x: 276, y: 144 },
+  silver: { x: 414, y: 144 },
+  db: { x: 552, y: 144 },
+  logic: { x: 690, y: 144 },
+  gold: { x: 828, y: 144 },
+  backend: { x: 964, y: 34 },
+  agent: { x: 964, y: 254 },
+  app: { x: 1084, y: 144 },
 };
 
 // Directed wires between nodes. Order matters: the trace lights them in turn.
@@ -37,7 +39,8 @@ const EDGES = [
   ["bronze", "normalize"],
   ["normalize", "silver"],
   ["silver", "db"],
-  ["db", "gold"],
+  ["db", "logic"],
+  ["logic", "gold"],
   ["gold", "backend"],
   ["gold", "agent"],
   ["backend", "app"],

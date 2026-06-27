@@ -85,6 +85,20 @@ export const SPINE = [
     snapshot: "row 8,412 of 53,219",
   },
   {
+    id: "logic",
+    name: "Logic",
+    icon: "🧠",
+    layer: null,
+    role: "rules, algorithms & AI work out the answers",
+    detail:
+      "The brains in the middle. Business rules, algorithms and — increasingly — " +
+      "an AI model read the clean rows and work out the answers a business " +
+      "actually cares about: totals, rankings, scores, forecasts. This is what " +
+      "turns plain facts into “the top seller is…”.",
+    form: "a calculation",
+    snapshot: "count by item · rank → top = Iced Coffee",
+  },
+  {
     id: "gold",
     name: "Gold",
     icon: "🥇",
@@ -157,6 +171,7 @@ export const TRACE = [
   ["normalize"],
   ["silver"],
   ["db"],
+  ["logic"],
   ["gold"],
   ["backend", "agent"],
   ["app"],

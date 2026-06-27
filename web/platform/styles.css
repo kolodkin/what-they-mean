@@ -61,7 +61,7 @@ body { color: var(--ink); background: var(--bg); }
 .canvas {
   position: relative;
   min-width: 940px;            /* keep node text legible; scroll if narrower */
-  aspect-ratio: 1240 / 360;    /* MUST match the SVG viewBox so layers align */
+  aspect-ratio: 1240 / 380;    /* MUST match the SVG viewBox so layers align */
 }
 
 /* layer 1: wires ---------------------------------------------------------- */
@@ -89,6 +89,7 @@ body { color: var(--ink); background: var(--bg); }
 .wire-normalize  { --c: #7c3aed; }
 .wire-silver     { --c: #475569; }
 .wire-db         { --c: #0284c7; }
+.wire-logic      { --c: #9333ea; }
 .wire-gold       { --c: #b58a0b; }
 .wire-backend    { --c: #4338ca; }
 .wire-agent      { --c: #db2777; }
@@ -145,6 +146,7 @@ body { color: var(--ink); background: var(--bg); }
 .node-connectors { --c: #0d9488; }
 .node-normalize  { --c: #7c3aed; }
 .node-db         { --c: #0284c7; }
+.node-logic      { --c: #9333ea; }
 .node-backend    { --c: #4338ca; }
 .node-agent      { --c: #db2777; }
 .node-app        { --c: #16a34a; }
