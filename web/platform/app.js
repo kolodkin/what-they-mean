@@ -133,8 +133,10 @@ function App() {
           ${"it's a wiring diagram of small parts, each with one job, that pass "}
           ${"the data along and "}<strong>refine it at every hop</strong>${": raw "}
           ${"copies in "}<em>bronze</em>${", tidy rows in "}<em>silver</em>
-          ${", ready-to-read answers in "}<em>gold</em>${". Press "}
-          <strong>Run the data</strong>${" to watch a single coffee sale flow "}
+          ${", ready-to-read answers in "}<em>gold</em>${". Here one "}
+          <strong>iced coffee sale</strong>${" makes the whole trip — from a "}
+          ${"messy till receipt to “14 sold today, £52.50” on the screen. Press "}
+          <strong>Run the data</strong>${" to watch that single sale flow "}
           ${"down the wires, or "}<strong>click any block</strong>${" to learn "}
           ${"what it is."}
         </p>
