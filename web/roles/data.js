@@ -18,7 +18,7 @@ export const LAYERS = [
     id: "backend",
     name: "Backend",
     icon: "⚙️",
-    tag: "Gold → UI API",
+    tag: "Gold → UI/API",
     parts: ["Endpoints", "Auth", "Gold API"],
   },
   {
