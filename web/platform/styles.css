@@ -1,0 +1,193 @@
+:root {
+  --bg: #f1f5f9;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --accent: #4338ca;
+  --wire: #cbd5e1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { color: var(--ink); background: var(--bg); }
+
+/* --- back link ----------------------------------------------------------- */
+.back {
+  position: absolute; top: 12px; right: 16px; z-index: 10;
+  font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none;
+  background: rgba(255, 255, 255, 0.8); padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.back:hover { background: #fff; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 30px 22px 56px; }
+
+/* --- header -------------------------------------------------------------- */
+.head { margin-bottom: 22px; }
+.head h1 { margin: 0 0 8px; font-size: 30px; }
+.lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 800px; margin: 0; }
+.lede strong { color: var(--ink); }
+.lede em { font-style: normal; font-weight: 700; }
+.lede em:nth-of-type(1) { color: #b45309; }
+.lede em:nth-of-type(2) { color: #475569; }
+.lede em:nth-of-type(3) { color: #b58a0b; }
+
+.controls { margin-top: 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.run {
+  background: var(--accent); color: #fff; border: none; cursor: pointer;
+  font-size: 15px; font-weight: 700; padding: 10px 18px; border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(67, 56, 202, 0.28);
+}
+.run:disabled { background: #c7d2fe; cursor: default; box-shadow: none; }
+.reset {
+  background: #fff; color: #334155; border: 1px solid var(--line); cursor: pointer;
+  font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 10px;
+}
+.reset:disabled { color: #cbd5e1; cursor: default; }
+.trace-caption { font-size: 13.5px; color: var(--muted); }
+.trace-caption strong { color: var(--ink); }
+
+/* --- the board: a flow-editor viewport ----------------------------------- */
+.board {
+  overflow-x: auto;            /* pan on narrow screens, like a real editor */
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle, #d8dee9 1px, transparent 1.4px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #fbfcfe, #f4f7fb);
+  box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(15, 23, 42, 0.06);
+  padding: 18px;
+}
+.canvas {
+  position: relative;
+  min-width: 940px;            /* keep node text legible; scroll if narrower */
+  aspect-ratio: 1240 / 380;    /* MUST match the SVG viewBox so layers align */
+}
+
+/* layer 1: wires ---------------------------------------------------------- */
+.wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.wire {
+  fill: none; stroke: var(--wire); stroke-width: 2.5; stroke-linecap: round;
+  color: var(--wire);          /* drives the arrowhead via context-stroke */
+  transition: stroke 0.3s, color 0.3s, stroke-width 0.3s;
+}
+.wire.on { stroke: var(--c, var(--accent)); color: var(--c, var(--accent)); stroke-width: 3; }
+/* the wire currently carrying data: a dashed flow runs along it */
+.wire.live {
+  stroke-dasharray: 9 8;
+  animation: flow 0.6s linear infinite;
+}
+@keyframes flow { to { stroke-dashoffset: -17; } }
+
+/* a dot drifting along each wire — faint at rest, brighter once the wire lights */
+.flow-dot { fill: var(--c, var(--wire)); opacity: 0.5; }
+.flow-dot.on { opacity: 0.95; }
+
+/* each wire is tinted by the block it leaves */
+.wire-connectors { --c: #0d9488; }
+.wire-bronze     { --c: #b45309; }
+.wire-normalize  { --c: #7c3aed; }
+.wire-silver     { --c: #475569; }
+.wire-db         { --c: #0284c7; }
+.wire-logic      { --c: #9333ea; }
+.wire-gold       { --c: #b58a0b; }
+.wire-backend    { --c: #4338ca; }
+.wire-agent      { --c: #db2777; }
+
+/* layer 2: nodes — an icon badge with its label underneath (no card chrome).
+   The badge is sized in viewBox units (% of the canvas) so its edges land
+   exactly on the wire ends; the label floats below and doesn't affect that. */
+.node {
+  --c: #64748b;
+  position: absolute; display: grid; place-items: center;
+  border-radius: 16px; cursor: pointer; overflow: visible; font: inherit;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 9%, #fff);
+  border: 1.6px solid color-mix(in srgb, var(--c) 32%, #fff);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+  transition: box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+}
+.node .icon { width: 54%; height: 54%; }
+
+/* input / output ports, sitting exactly on the wire ends */
+.node::before, .node::after {
+  content: ""; position: absolute; top: 50%; width: 9px; height: 9px;
+  background: #fff; border: 2px solid var(--c); border-radius: 50%;
+  transform: translateY(-50%); transition: background 0.2s; z-index: 1;
+}
+.node::before { left: -5px; }
+.node::after { right: -5px; }
+.node-connectors::before, .node-app::after { display: none; } /* ends of the flow */
+
+.node:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16); z-index: 5; }
+.node.lit { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 8px 18px rgba(15, 23, 42, 0.14); }
+.node.lit::before, .node.lit::after { background: var(--c); }
+.node.active {
+  background: var(--c); color: #fff; border-color: var(--c);
+  transform: translateY(-2px); box-shadow: 0 0 0 3px var(--c), 0 12px 26px rgba(15, 23, 42, 0.22); z-index: 6;
+}
+.node.selected { border-color: var(--c); box-shadow: 0 0 0 3px var(--c); z-index: 6; }
+
+/* the name (+ optional layer chip) floats just below the badge */
+.node-label {
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  white-space: nowrap; pointer-events: none;
+}
+.node-name { font-size: 11.5px; font-weight: 800; color: var(--c); }
+.node-layer {
+  font-size: 8px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--c); background: #fff; border: 1px solid var(--c);
+  border-radius: 999px; padding: 0 5px;
+}
+.icon { display: block; }
+
+/* per-block accent colours */
+.node-connectors { --c: #0d9488; }
+.node-normalize  { --c: #7c3aed; }
+.node-db         { --c: #0284c7; }
+.node-logic      { --c: #9333ea; }
+.node-backend    { --c: #4338ca; }
+.node-agent      { --c: #db2777; }
+.node-app        { --c: #16a34a; }
+
+/* the three medallion layers, coloured like the metals */
+.layer-bronze { --c: #b45309; }
+.layer-silver { --c: #475569; }
+.layer-gold   { --c: #b58a0b; }
+
+/* layer 3: the data packet in flight ------------------------------------- */
+.packet {
+  position: absolute; transform: translate(-50%, -50%); pointer-events: none; z-index: 6;
+}
+.packet span {
+  display: inline-block; white-space: nowrap;
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: var(--accent); border-radius: 999px; padding: 3px 9px;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.18), 0 4px 10px rgba(67, 56, 202, 0.5);
+}
+
+/* --- detail panel -------------------------------------------------------- */
+.detail {
+  --c: #64748b;
+  margin-top: 22px; background: #fff; border: 1px solid var(--line);
+  border-left: 5px solid var(--c); border-radius: 14px; padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.detail-empty { border-left-color: var(--line); color: var(--muted); }
+.detail-empty p { margin: 0; font-size: 14px; }
+.detail-head { display: flex; align-items: center; gap: 8px; }
+.detail-head .node-icon { color: var(--c); }
+.detail-head h2 { margin: 0; font-size: 19px; color: var(--c); }
+.detail-head .node-layer { position: static; font-size: 10px; padding: 2px 8px; }
+.detail-text { font-size: 14.5px; line-height: 1.6; color: #334155; max-width: 720px; }
+.detail-snap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.detail-form {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--c); white-space: nowrap;
+}
+.detail-snap code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px; color: #1e293b; background: #f8fafc;
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
+}
