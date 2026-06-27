@@ -93,51 +93,53 @@ body { color: var(--ink); background: var(--bg); }
 .wire-backend    { --c: #4338ca; }
 .wire-agent      { --c: #db2777; }
 
-/* layer 2: node blocks ---------------------------------------------------- */
+/* layer 2: nodes — an icon badge with its label underneath (no card chrome).
+   The badge is sized in viewBox units (% of the canvas) so its edges land
+   exactly on the wire ends; the label floats below and doesn't affect that. */
 .node {
   --c: #64748b;
-  position: absolute;
-  display: flex; flex-direction: column; gap: 5px; justify-content: center;
-  text-align: left; padding: 8px 9px; overflow: hidden;
-  background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--c);
-  border-radius: 12px; cursor: pointer; font: inherit; color: inherit;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.07);
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  position: absolute; display: grid; place-items: center;
+  border-radius: 16px; cursor: pointer; overflow: visible; font: inherit;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 9%, #fff);
+  border: 1.6px solid color-mix(in srgb, var(--c) 32%, #fff);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+  transition: box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
 }
+.node .icon { width: 54%; height: 54%; }
+
 /* input / output ports, sitting exactly on the wire ends */
 .node::before, .node::after {
   content: ""; position: absolute; top: 50%; width: 9px; height: 9px;
   background: #fff; border: 2px solid var(--c); border-radius: 50%;
-  transform: translateY(-50%); transition: background 0.2s;
+  transform: translateY(-50%); transition: background 0.2s; z-index: 1;
 }
 .node::before { left: -5px; }
 .node::after { right: -5px; }
 .node-connectors::before, .node-app::after { display: none; } /* ends of the flow */
 
-.node:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14); z-index: 3; }
-.node.lit { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 8px 20px rgba(15, 23, 42, 0.12); }
+.node:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16); z-index: 5; }
+.node.lit { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 8px 18px rgba(15, 23, 42, 0.14); }
 .node.lit::before, .node.lit::after { background: var(--c); }
-.node.active { transform: translateY(-2px); box-shadow: 0 0 0 3px var(--c), 0 12px 26px rgba(15, 23, 42, 0.2); z-index: 4; }
-.node.selected { border-color: var(--c); box-shadow: 0 0 0 3px var(--c); z-index: 4; }
+.node.active {
+  background: var(--c); color: #fff; border-color: var(--c);
+  transform: translateY(-2px); box-shadow: 0 0 0 3px var(--c), 0 12px 26px rgba(15, 23, 42, 0.22); z-index: 6;
+}
+.node.selected { border-color: var(--c); box-shadow: 0 0 0 3px var(--c); z-index: 6; }
 
-.node-top { display: flex; align-items: center; gap: 5px; min-width: 0; }
-.node-icon { display: inline-flex; align-items: center; color: var(--c); flex: none; }
-.icon { display: block; }
-.node-name {
-  font-size: 11.5px; font-weight: 800; color: var(--c);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+/* the name (+ optional layer chip) floats just below the badge */
+.node-label {
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  white-space: nowrap; pointer-events: none;
 }
+.node-name { font-size: 11.5px; font-weight: 800; color: var(--c); }
 .node-layer {
-  position: absolute; top: 7px; right: 8px; flex: none;
   font-size: 8px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
-  color: var(--c); background: rgba(255, 255, 255, 0.85);
-  border: 1px solid var(--c); border-radius: 999px; padding: 1px 5px;
+  color: var(--c); background: #fff; border: 1px solid var(--c);
+  border-radius: 999px; padding: 0 5px;
 }
-.node-snap {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 9.5px; line-height: 1.2; color: #475569;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.icon { display: block; }
 
 /* per-block accent colours */
 .node-connectors { --c: #0d9488; }
@@ -148,9 +150,9 @@ body { color: var(--ink); background: var(--bg); }
 .node-app        { --c: #16a34a; }
 
 /* the three medallion layers, coloured like the metals */
-.layer-bronze { --c: #b45309; background: linear-gradient(180deg, #fff7ed, #fff); }
-.layer-silver { --c: #475569; background: linear-gradient(180deg, #f3f6fb, #fff); }
-.layer-gold   { --c: #b58a0b; background: linear-gradient(180deg, #fefce8, #fff); }
+.layer-bronze { --c: #b45309; }
+.layer-silver { --c: #475569; }
+.layer-gold   { --c: #b58a0b; }
 
 /* layer 3: the data packet in flight ------------------------------------- */
 .packet {

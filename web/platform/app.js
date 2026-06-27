@@ -13,8 +13,9 @@ const html = htm.bind(h);
 // aspect ratio, so the two layers never drift apart.
 const VB_W = 1240;
 const VB_H = 360;
-const NODE_W = 132;
+const NODE_W = 132; // the slot each node centres in (kept for spacing)
 const NODE_H = 92;
+const BADGE = 56; // the icon badge's size, in viewBox units; wires meet its edge
 
 // A left-to-right flow with a fork at the end: the six-stage spine, then gold
 // branches to a backend AND an agent, and both feed the app.
@@ -43,8 +44,10 @@ const EDGES = [
   ["agent", "app"],
 ];
 
-const portOut = (id) => [LAYOUT[id].x + NODE_W, LAYOUT[id].y + NODE_H / 2];
-const portIn = (id) => [LAYOUT[id].x, LAYOUT[id].y + NODE_H / 2];
+// Each node's badge centre, and the ports on its left/right edge.
+const center = (id) => [LAYOUT[id].x + NODE_W / 2, LAYOUT[id].y + NODE_H / 2];
+const portOut = (id) => [center(id)[0] + BADGE / 2, center(id)[1]];
+const portIn = (id) => [center(id)[0] - BADGE / 2, center(id)[1]];
 
 // A horizontal-tangent cubic bezier from one node's right port to the next
 // node's left port — the classic node-graph "wire" look, fork edges included.
@@ -190,9 +193,12 @@ function App() {
             ]
               .filter(Boolean)
               .join(" ");
+            // Position the badge by its centre: left/top place its top-left
+            // corner, width/height are the badge itself (square in real px).
+            const [cx, cy] = center(box.id);
             const style =
-              `left:${pct(p.x, VB_W)};top:${pct(p.y, VB_H)};` +
-              `width:${pct(NODE_W, VB_W)};height:${pct(NODE_H, VB_H)}`;
+              `left:${pct(cx - BADGE / 2, VB_W)};top:${pct(cy - BADGE / 2, VB_H)};` +
+              `width:${pct(BADGE, VB_W)};height:${pct(BADGE, VB_H)}`;
             return html`
               <button
                 class=${cls}
@@ -200,12 +206,11 @@ function App() {
                 onClick=${() => setSelected(box.id)}
                 aria-pressed=${selected === box.id}
               >
-                <span class="node-top">
-                  <span class="node-icon"><${Icon} name=${box.id} size=${16} /></span>
+                <${Icon} name=${box.id} />
+                <span class="node-label">
                   <span class="node-name">${box.name}</span>
                   ${box.layer && html`<span class="node-layer">${box.layer}</span>`}
                 </span>
-                <code class="node-snap">${box.snapshot}</code>
               </button>
             `;
           })}

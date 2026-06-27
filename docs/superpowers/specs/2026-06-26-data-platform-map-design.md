@@ -51,9 +51,12 @@ style **component diagram**, light/technical theme:
 - A dot-grid **canvas** (a flow-editor viewport) holds the blocks. Everything is
   laid out in one fixed coordinate space (an SVG `viewBox`); the canvas keeps
   that aspect ratio, so the wire layer and the HTML node layer never drift.
-- **Node blocks** are compact cards with input/output **ports** sitting exactly
-  on the wire ends. Each shows icon + name, a corner layer chip for the metals,
-  and the coffee sale's current snapshot (mono, truncated).
+- **Nodes** are icon **badges** (a rounded square holding a Lucide line icon in
+  the node's accent colour) with the name floating underneath and a layer chip
+  for the metals — deliberately NOT cards. Input/output **ports** sit exactly on
+  the badge edges where the wires meet. The coffee sale's snapshot is not shown
+  on the badge; it lives only in the explanation card at the bottom (and rides
+  the wire as a packet during a run).
 - **Wires** are SVG cubic beziers from each block's output port to the next
   block's input port, tinted by the block they leave, with arrowheads. The fork
   is real branching geometry: two wires leave gold (to backend, to agent) and

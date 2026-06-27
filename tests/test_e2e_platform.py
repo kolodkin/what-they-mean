@@ -64,10 +64,15 @@ def test_medallion_layers_are_tagged(platform: Page):
 
 
 def test_one_fact_appears_in_every_form(platform: Page):
-    # The same coffee sale, shown raw at bronze and as a finished card at the app.
-    expect(platform.locator(".node-bronze .node-snap")).to_contain_text("iced coffee")
-    expect(platform.locator(".node-gold .node-snap")).to_contain_text("14 sold")
-    expect(platform.locator(".node-app .node-snap")).to_contain_text("Top seller")
+    # The same coffee sale, shown in the bottom card in the form each block holds:
+    # raw at bronze, an aggregate at gold, a finished screen at the app.
+    snap = platform.locator(".detail-snap code")
+    platform.locator(".node-bronze").click()
+    expect(snap).to_contain_text("iced coffee")
+    platform.locator(".node-gold").click()
+    expect(snap).to_contain_text("14 sold")
+    platform.locator(".node-app").click()
+    expect(snap).to_contain_text("Top seller")
 
 
 def test_running_lights_the_blocks_through_to_the_app(platform: Page):
