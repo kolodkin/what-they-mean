@@ -1,5 +1,6 @@
 """End-to-end tests for the stack-holders (roles) demo."""
 import os
+import re
 
 import pytest
 from playwright.sync_api import Page, expect
@@ -43,7 +44,7 @@ def test_resting_state_has_no_owned_slabs(roles: Page):
 def test_data_engineer_owns_only_engineering(roles: Page):
     roles.locator('.role[data-role="data-engineer"]').click()
     expect(roles.locator(".slab.own")).to_have_count(1)
-    expect(roles.locator('.slab[data-layer="engineering"]')).to_have_class(__import__("re").compile(r"\bown\b"))
+    expect(roles.locator('.slab[data-layer="engineering"]')).to_have_class(re.compile(r"\bown\b"))
     expect(roles.locator(".detail")).to_contain_text("bronze-to-gold")
     roles.screenshot(path=os.path.join(SHOTS, "13-roles-engineer.png"))
 
@@ -59,7 +60,7 @@ def test_backend_broad_owns_everything_behind_the_frontend(roles: Page):
     owned = {el.get_attribute("data-layer") for el in roles.locator(".slab.own").all()}
     assert owned == {"backend", "science", "engineering"}
     # the frontend is the one slab it does NOT hold
-    expect(roles.locator('.slab[data-layer="frontend"]')).to_have_class(__import__("re").compile(r"\boff\b"))
+    expect(roles.locator('.slab[data-layer="frontend"]')).to_have_class(re.compile(r"\boff\b"))
     roles.screenshot(path=os.path.join(SHOTS, "14-roles-backend-broad.png"))
 
 

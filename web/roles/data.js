@@ -115,4 +115,3 @@ export const ROLES = [
 ];
 
 export const ROLE_BY_ID = Object.fromEntries(ROLES.map((r) => [r.id, r]));
-export const LAYER_BY_ID = Object.fromEntries(LAYERS.map((l) => [l.id, l]));
