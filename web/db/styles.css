@@ -14,7 +14,9 @@ body { color: var(--ink); background: var(--bg); }
 .split { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
 .pane { position: relative; padding: 18px 22px; overflow: auto; }
 
-.pane-sheet { background: #ecfdf5; border-bottom: 3px solid var(--ink); }
+/* Cap the context pane at half the viewport; it still hugs its content below
+   that, and scrolls internally (via .pane overflow) if it would grow taller. */
+.pane-sheet { background: #ecfdf5; border-bottom: 3px solid var(--ink); max-height: 50vh; }
 .pane-db { background: #0f172a; color: #e2e8f0; }
 
 .pane-label { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
