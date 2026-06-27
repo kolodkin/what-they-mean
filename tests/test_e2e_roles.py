@@ -1,4 +1,9 @@
-"""End-to-end tests for the stack-holders (roles) demo."""
+"""End-to-end tests for the stack-holders (roles) demo.
+
+The role chips ARE the stack: picking a role lights up the basic-role chip for
+every layer it holds, so a composite role visibly contains the smaller roles it
+is built from. (There is no separate board — it only restated these chips.)
+"""
 import os
 import re
 
@@ -17,7 +22,11 @@ def roles(page: Page, server_url: str):
     return page
 
 
-def test_six_roles_and_four_slabs_render(roles: Page):
+def held_roles(page: Page):
+    return {el.get_attribute("data-role") for el in page.locator(".role.held").all()}
+
+
+def test_six_roles_render(roles: Page):
     expect(roles.locator(".role")).to_have_count(6)
     for role_id, name in [
         ("data-engineer", "Data Engineer"),
@@ -28,46 +37,45 @@ def test_six_roles_and_four_slabs_render(roles: Page):
         ("backend-broad", "Backend (broad sense)"),
     ]:
         expect(roles.locator(f".role-{role_id}")).to_contain_text(name)
-    expect(roles.locator(".slab")).to_have_count(4)
-    for layer_id in ["frontend", "backend", "science", "engineering"]:
-        expect(roles.locator(f".slab-{layer_id}")).to_have_count(1)
+    # The redundant middle board is gone.
+    expect(roles.locator(".board")).to_have_count(0)
+    expect(roles.locator(".slab")).to_have_count(0)
     roles.screenshot(path=os.path.join(SHOTS, "12-roles-idle.png"))
 
 
-def test_resting_state_has_no_owned_slabs(roles: Page):
-    # Nothing picked yet: the board isn't in the "picked" mode and no slab owns.
-    expect(roles.locator(".board.picked")).to_have_count(0)
-    expect(roles.locator(".slab.own")).to_have_count(0)
+def test_resting_state_has_no_lit_chips(roles: Page):
+    # Nothing picked yet: no chip is lit or dimmed, and the prompt shows.
+    expect(roles.locator(".roles.picked")).to_have_count(0)
+    expect(roles.locator(".role.held")).to_have_count(0)
+    expect(roles.locator(".role.dim")).to_have_count(0)
     expect(roles.locator(".detail-empty")).to_have_count(1)
 
 
-def test_data_engineer_owns_only_engineering(roles: Page):
+def test_data_engineer_holds_only_engineering(roles: Page):
     roles.locator('.role[data-role="data-engineer"]').click()
-    expect(roles.locator(".slab.own")).to_have_count(1)
-    expect(roles.locator('.slab[data-layer="engineering"]')).to_have_class(re.compile(r"\bown\b"))
+    # Data engineer holds one layer (engineering) — its own chip lights up.
+    assert held_roles(roles) == {"data-engineer"}
     expect(roles.locator(".detail")).to_contain_text("bronze-to-gold")
     roles.screenshot(path=os.path.join(SHOTS, "13-roles-engineer.png"))
 
 
-def test_full_stack_owns_backend_and_frontend(roles: Page):
+def test_full_stack_lights_backend_and_frontend(roles: Page):
     roles.locator('.role[data-role="fullstack"]').click()
-    owned = {el.get_attribute("data-layer") for el in roles.locator(".slab.own").all()}
-    assert owned == {"backend", "frontend"}
+    assert held_roles(roles) == {"backend", "frontend"}
 
 
-def test_backend_broad_owns_everything_behind_the_frontend(roles: Page):
+def test_backend_broad_lights_everything_behind_the_frontend(roles: Page):
     roles.locator('.role[data-role="backend-broad"]').click()
-    owned = {el.get_attribute("data-layer") for el in roles.locator(".slab.own").all()}
-    assert owned == {"backend", "science", "engineering"}
-    # the frontend is the one slab it does NOT hold
-    expect(roles.locator('.slab[data-layer="frontend"]')).to_have_class(re.compile(r"\boff\b"))
+    assert held_roles(roles) == {"backend", "data-scientist", "data-engineer"}
+    # the frontend is the one role it does NOT hold, so its chip dims
+    expect(roles.locator('.role[data-role="frontend"]')).to_have_class(re.compile(r"\bdim\b"))
     roles.screenshot(path=os.path.join(SHOTS, "14-roles-backend-broad.png"))
 
 
 def test_clicking_a_selected_role_again_clears_it(roles: Page):
     chip = roles.locator('.role[data-role="frontend"]')
     chip.click()
-    expect(roles.locator(".slab.own")).to_have_count(1)
+    expect(roles.locator(".role.held")).to_have_count(1)
     chip.click()
-    expect(roles.locator(".slab.own")).to_have_count(0)
+    expect(roles.locator(".role.held")).to_have_count(0)
     expect(roles.locator(".detail-empty")).to_have_count(1)

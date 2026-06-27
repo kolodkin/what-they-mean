@@ -1,44 +1,14 @@
-// "Stack holders": who builds which slab of a data product.
+// "Stack holders": who builds which layer of a data product.
 //
-// A data product is built in layers. This demo shows the same stack the data
-// platform demo wires together — but seen from the side of the PEOPLE who own
-// each layer. Pick a role and the slabs it holds light up.
-//
-// The stack, top (what a person sees) to bottom (raw data coming in). Every
-// role lights up one or more of these slabs.
-export const LAYERS = [
-  {
-    id: "frontend",
-    name: "Frontend",
-    icon: "🖥️",
-    tag: "UI / UX",
-    parts: ["Layout", "Interactions", "Visualisation"],
-  },
-  {
-    id: "backend",
-    name: "Backend",
-    icon: "⚙️",
-    tag: "Gold → UI/API",
-    parts: ["Endpoints", "Auth", "Gold API"],
-  },
-  {
-    id: "science",
-    name: "Data Science",
-    icon: "🧠",
-    tag: "Algo / ML / LLM",
-    parts: ["Algorithms", "ML models", "LLM", "Agent backend"],
-  },
-  {
-    id: "engineering",
-    name: "Data Engineering",
-    icon: "🛠️",
-    tag: "ETL · bronze → gold",
-    parts: ["Sources", "Bronze", "Silver", "Gold"],
-  },
-];
+// A data product is built in layers: frontend, backend, data science and data
+// engineering. This demo shows the same stack the data platform demo wires
+// together — but seen from the side of the PEOPLE who own each layer. Pick a
+// role and the chips for the layers it holds light up.
 
-// The roles. `owns` lists the layer ids that light up when the role is picked;
-// `color` tints both the role chip and the slabs it holds.
+// The roles. `owns` lists the layer ids the role holds; each "basic" role holds
+// exactly one layer, and the composite roles (full stack, "backend in the broad
+// sense") are just combinations of those basic ones. `color` tints both the
+// role chip and the chips it lights up when picked.
 export const ROLES = [
   {
     id: "data-engineer",
@@ -115,3 +85,9 @@ export const ROLES = [
 ];
 
 export const ROLE_BY_ID = Object.fromEntries(ROLES.map((r) => [r.id, r]));
+
+// Maps a layer id to the basic role that holds exactly that one layer, so a
+// composite role can light up the smaller role chips it's built from.
+export const LAYER_HOLDER = Object.fromEntries(
+  ROLES.filter((r) => r.owns.length === 1).map((r) => [r.owns[0], r.id])
+);
