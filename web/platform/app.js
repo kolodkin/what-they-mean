@@ -2,6 +2,7 @@ import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
 import { ALL, BY_ID, TRACE } from "./data.js";
+import { Icon } from "./icons.js";
 
 const html = htm.bind(h);
 
@@ -200,7 +201,7 @@ function App() {
                 aria-pressed=${selected === box.id}
               >
                 <span class="node-top">
-                  <span class="node-icon">${box.icon}</span>
+                  <span class="node-icon"><${Icon} name=${box.id} size=${16} /></span>
                   <span class="node-name">${box.name}</span>
                   ${box.layer && html`<span class="node-layer">${box.layer}</span>`}
                 </span>
@@ -274,7 +275,7 @@ function Detail({ box }) {
   return html`
     <section class=${cls}>
       <div class="detail-head">
-        <span class="node-icon">${box.icon}</span>
+        <span class="node-icon"><${Icon} name=${box.id} size=${22} /></span>
         <h2>${box.name}</h2>
         ${box.layer && html`<span class="node-layer">${box.layer}</span>`}
       </div>
