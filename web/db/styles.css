@@ -9,8 +9,9 @@
 html, body { margin: 0; height: 100%; }
 body { color: var(--ink); background: var(--bg); }
 
-/* 100vh page split exactly in the middle: 50vh / 50vh. */
-.split { height: 100vh; display: grid; grid-template-rows: 50vh 50vh; }
+/* Full-height page: the top (context) pane sizes to its content, the database
+   pane takes whatever's left. Both panes still scroll internally if needed. */
+.split { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
 .pane { position: relative; padding: 18px 22px; overflow: auto; }
 
 .pane-sheet { background: #ecfdf5; border-bottom: 3px solid var(--ink); }
