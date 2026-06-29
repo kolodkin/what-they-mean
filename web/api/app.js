@@ -56,6 +56,12 @@ function App() {
   }, [status, data]);
 
   return html`
+    <header class="page-head">
+      <p class="page-explain">
+        The app asks the server for data. It never says <em>how</em> to draw
+        anything — it just asks <strong>"give me the recipe"</strong>.
+      </p>
+    </header>
     <main class="split">
       <${AppPane} status=${status} data=${data} active=${active} setActive=${setActive} />
       <${ApiPane}
@@ -156,10 +162,6 @@ function ApiPane({ status, data, error, elapsed, active, setActive, onSend }) {
           <button class="send" onClick=${onSend} disabled=${status === "loading"}>
             ${status === "loading" ? "Sending…" : "Send request"}
           </button>
-          <p class="explain">
-            The app asks the server for data. It never says <em>how</em> to draw
-            anything — it just asks <strong>"give me the recipe"</strong>.
-          </p>
         </div>
 
         <div class="response">

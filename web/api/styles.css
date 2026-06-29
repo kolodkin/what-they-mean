@@ -18,11 +18,37 @@ body {
   background: var(--bg);
 }
 
-/* 100vh page split exactly in the middle: 50vh / 50vh. */
-.split {
+/* The page is a column: an explanation header at the very top, then the split
+   pane filling whatever's left. */
+#app {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The explanation that introduces the concept, shown above the demo. */
+.page-head {
+  flex: none;
+  background: #fff;
+  border-bottom: 3px solid var(--ink);
+  padding: 14px 56px 14px 22px;
+}
+.page-explain {
+  margin: 0;
+  max-width: 900px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.page-explain em { font-style: normal; font-weight: 600; }
+.page-explain strong { color: #04263a; }
+
+/* The two halves split the remaining space evenly. */
+.split {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-rows: 50vh 50vh;
+  grid-template-rows: 1fr 1fr;
 }
 
 .pane {
@@ -211,10 +237,6 @@ body {
 }
 .send:hover:not(:disabled) { filter: brightness(1.08); }
 .send:disabled { opacity: 0.6; cursor: default; }
-
-.explain { color: #94a3b8; font-size: 13px; line-height: 1.5; }
-.explain em { color: #cbd5e1; font-style: normal; }
-.explain strong { color: #f8fafc; }
 
 .status-ok { color: #4ade80; font-weight: 700; }
 .status-err { color: #f87171; font-weight: 700; }
