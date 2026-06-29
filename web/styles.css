@@ -21,6 +21,7 @@ body { color: var(--ink); background: var(--bg); }
 }
 .menu-head { text-align: center; max-width: 620px; }
 .menu-head h1 { margin: 0 0 8px; font-size: 40px; letter-spacing: -0.02em; }
+.menu-head .menu-lead { margin: 0 0 6px; color: var(--ink); font-size: 19px; font-weight: 600; }
 .menu-head p { margin: 0; color: var(--muted); font-size: 17px; }
 
 .cards {
