@@ -14,31 +14,51 @@
       <p>Tech concepts for non-developers — one idea per screen, shown rather than told.</p>
     </header>
     <nav class="cards">
-      <a class="card" href="api/">
+      <article class="card">
         <h2>What is an API?</h2>
-        <p>Every pretty app is really just data, drawn nicely — peek behind one and watch the request fetch the raw JSON underneath.</p>
-        <span class="card-go">Open demo →</span>
-      </a>
-      <a class="card" href="db/">
+        <p class="card-lead">Every pretty app is really just data, drawn nicely — peek behind one and watch the request fetch the raw JSON underneath.</p>
+        <details class="card-learn">
+          <summary>Learn more</summary>
+          <p>An API is a waiter between programs. Your app asks for something — "today's weather", "this user's orders" — and the API brings back the raw facts as text. The screen you see is just those facts dressed up; change the data and the screen changes.</p>
+        </details>
+        <a class="card-go" href="api/">Open demo →</a>
+      </article>
+      <article class="card">
         <h2>What is a database?</h2>
-        <p>A spreadsheet many machines can share at once — flip between its sheets and ask it precise questions.</p>
-        <span class="card-go">Open demo →</span>
-      </a>
-      <a class="card" href="etl/">
+        <p class="card-lead">A spreadsheet many machines can share at once — flip between its sheets and ask it precise questions.</p>
+        <details class="card-learn">
+          <summary>Learn more</summary>
+          <p>A database is a giant shared spreadsheet that thousands of people and programs can read and write at the same time without stepping on each other. Instead of scrolling, you ask it precise questions — "all orders over $50 from June" — and it hands back just those rows.</p>
+        </details>
+        <a class="card-go" href="db/">Open demo →</a>
+      </article>
+      <article class="card">
         <h2>What is ETL?</h2>
-        <p>Three mismatched feeds become one clean table — watch each row get extracted, normalized to a shared shape, and loaded in.</p>
-        <span class="card-go">Open demo →</span>
-      </a>
-      <a class="card" href="platform/">
+        <p class="card-lead">Three mismatched feeds become one clean table — watch each row get extracted, normalized to a shared shape, and loaded in.</p>
+        <details class="card-learn">
+          <summary>Learn more</summary>
+          <p>ETL is how messy data from many places becomes one tidy table. <strong>Extract</strong> pulls each feed in as-is, <strong>Transform</strong> rewrites every row into one shared shape (same column names, same units), and <strong>Load</strong> drops the clean rows into their final home.</p>
+        </details>
+        <a class="card-go" href="etl/">Open demo →</a>
+      </article>
+      <article class="card">
         <h2>What is a data platform?</h2>
-        <p>The whole stack as one wiring diagram — connectors, bronze, silver, gold, backend, agent, app. Send a single coffee sale down the wires, block by block.</p>
-        <span class="card-go">Open demo →</span>
-      </a>
-      <a class="card" href="roles/">
+        <p class="card-lead">The whole stack as one wiring diagram — connectors, bronze, silver, gold, backend, agent, app. Send a single coffee sale down the wires, block by block.</p>
+        <details class="card-learn">
+          <summary>Learn more</summary>
+          <p>A data platform is the full assembly line that carries one fact — say, a single coffee sale — from the app where it happened all the way to a dashboard or AI answer. Each stage (raw "bronze", cleaned "silver", business-ready "gold", then backend, agent, app) refines it a little more.</p>
+        </details>
+        <a class="card-go" href="platform/">Open demo →</a>
+      </article>
+      <article class="card">
         <h2>Who holds the stack?</h2>
-        <p>Data engineer, data scientist, backend, frontend, full stack — pick a role and watch the slabs of the stack it owns light up.</p>
-        <span class="card-go">Open demo →</span>
-      </a>
+        <p class="card-lead">Data engineer, data scientist, backend, frontend, full stack — pick a role and watch the slabs of the stack it owns light up.</p>
+        <details class="card-learn">
+          <summary>Learn more</summary>
+          <p>Software is built in layers, and different people own different layers. A <strong>frontend</strong> engineer owns what you see; a <strong>backend</strong> engineer owns the logic behind it; <strong>data</strong> engineers move and shape the data; <strong>data scientists</strong> find patterns in it; a <strong>full-stack</strong> engineer spans several layers.</p>
+        </details>
+        <a class="card-go" href="roles/">Open demo →</a>
+      </article>
     </nav>
   </main>
 </body>
