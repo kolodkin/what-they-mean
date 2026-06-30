@@ -9,9 +9,23 @@
 html, body { margin: 0; height: 100%; }
 body { color: var(--ink); background: var(--bg); }
 
-/* Full-height page: the top (context) pane sizes to its content, the database
+/* The page is a column: an explanation header at the very top, then the split
+   pane filling whatever's left. */
+#app { height: 100vh; display: flex; flex-direction: column; }
+
+/* The explanation that introduces the concept, shown above the demo. */
+.page-head {
+  flex: none; background: #fff; border-bottom: 3px solid var(--ink);
+  padding: 14px 56px 14px 22px;
+}
+.page-explain {
+  margin: 0; max-width: 900px; font-size: 15px; line-height: 1.5; color: var(--ink);
+}
+.page-explain strong { color: #04263a; }
+
+/* Full-height split: the top (context) pane sizes to its content, the database
    pane takes whatever's left. Both panes still scroll internally if needed. */
-.split { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+.split { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr; }
 .pane { position: relative; padding: 18px 22px; overflow: auto; }
 
 /* Cap the context pane at half the viewport; it still hugs its content below
@@ -69,11 +83,6 @@ body { color: var(--ink); background: var(--bg); }
 }
 
 /* --- database (bottom) --------------------------------------------------- */
-.db-caption {
-  font-size: 14px; line-height: 1.6; color: #cbd5e1; max-width: 760px; margin: 0 0 12px;
-}
-.db-caption strong { color: #f8fafc; }
-
 .machines { display: flex; align-items: center; gap: 10px; font-size: 22px; margin-bottom: 16px; }
 .machines .arrow { color: #64748b; font-size: 18px; }
 .machines .db-can { font-size: 14px; font-weight: 700; color: #38bdf8; }

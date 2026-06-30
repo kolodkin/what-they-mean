@@ -33,6 +33,13 @@ function App() {
   }, []);
 
   return html`
+    <header class="page-head">
+      <p class="page-explain">
+        A database is a <strong>spreadsheet many computers can read and write at
+        the same time</strong> — and can be asked <strong>precise questions
+        (queries)</strong> instead of scrolled.
+      </p>
+    </header>
     <main class="split">
       <${SpreadsheetPane}
         sheet=${sheet}
@@ -139,12 +146,6 @@ function DatabasePane({ result, active, setActive }) {
         <span class="badge badge-db">The database</span>
         <span class="pane-sub">the same tables, underneath</span>
       </div>
-
-      <p class="db-caption">
-        A database is a <strong>spreadsheet many computers can read and write at
-        the same time</strong> — and can be asked <strong>precise questions
-        (queries)</strong> instead of scrolled.
-      </p>
 
       <div class="machines">
         <span class="machine">💻</span><span class="machine">📱</span><span class="machine">🖥️</span>
