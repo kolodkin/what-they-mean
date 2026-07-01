@@ -67,3 +67,15 @@ def test_hover_links_field_to_ui(app: Page):
     # A non-matching field should be dimmed.
     expect(app.locator(".field-name")).to_have_class(re.compile(r"\bdim\b"))
     _shot(app, "04-hover-link-ingredients.png")
+
+
+def test_play_demo_tours_fields(app: Page):
+    """'Play demo' walks the highlight across each field, 2 seconds apart."""
+    app.get_by_text("Play demo").click()
+    # The first field lights up right away.
+    expect(app.locator(".field-name")).to_have_class(re.compile(r"\bglow\b"))
+    # ~2s later the highlight has moved on to the next field.
+    expect(app.locator(".field-ingredients")).to_have_class(
+        re.compile(r"\bglow\b"), timeout=4000
+    )
+    _shot(app, "08-api-play-demo.png")

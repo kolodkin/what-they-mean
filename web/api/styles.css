@@ -97,6 +97,24 @@ body {
 .pane-sub { color: var(--muted); font-size: 13px; }
 .pane-api .pane-sub { color: #94a3b8; }
 
+/* "Play demo" auto-tour button — sits at the top-right of the API pane and
+   walks the highlight across each field, 2s apart. */
+.play {
+  margin-left: auto;
+  background: transparent;
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.play:hover:not(:disabled) { background: rgba(56, 189, 248, 0.14); }
+.play.active { background: #38bdf8; color: #04263a; }
+.play:disabled { opacity: 0.45; cursor: default; }
+
 /* --- the app (top) ------------------------------------------------------- */
 .card {
   background: #fff;

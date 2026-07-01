@@ -43,6 +43,17 @@ body { color: var(--ink); background: var(--bg); }
 .pane-sub { color: var(--muted); font-size: 13px; }
 .pane-db .pane-sub { color: #94a3b8; }
 
+/* "Play demo" auto-tour button — sits at the top-right of the database pane and
+   glows each table in turn, 2s apart. */
+.play {
+  margin-left: auto; background: transparent; color: #38bdf8;
+  border: 1px solid #38bdf8; border-radius: 999px; padding: 4px 12px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.play:hover { background: rgba(56, 189, 248, 0.14); }
+.play.active { background: #38bdf8; color: #04263a; }
+
 /* --- back link ----------------------------------------------------------- */
 .back {
   position: absolute; top: 12px; right: 16px; z-index: 10;

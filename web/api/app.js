@@ -1,5 +1,5 @@
 import { h, render } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
 
 const html = htm.bind(h);
@@ -25,6 +25,36 @@ function App() {
   const [error, setError] = useState(null);
   const [elapsed, setElapsed] = useState(null);
   const [active, setActive] = useState(null); // which field is being hovered
+  const [playing, setPlaying] = useState(false); // auto-tour running?
+  const timers = useRef([]); // pending setTimeout ids, so we can cancel
+
+  // Auto-tour: highlight each field in turn, 2 seconds apart, so a
+  // non-developer can watch the data light up without hunting for what to hover.
+  function stopTour() {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setActive(null);
+    setPlaying(false);
+  }
+
+  function playTour() {
+    if (playing) return stopTour();
+    setPlaying(true);
+    const fields = Object.keys(FIELDS);
+    fields.forEach((key, i) => {
+      timers.current.push(setTimeout(() => setActive(key), i * 2000));
+    });
+    timers.current.push(
+      setTimeout(() => {
+        timers.current = [];
+        setActive(null);
+        setPlaying(false);
+      }, fields.length * 2000)
+    );
+  }
+
+  // Cancel any pending highlights if the app is torn down mid-tour.
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   async function sendRequest() {
     setStatus("loading");
@@ -72,6 +102,8 @@ function App() {
         active=${active}
         setActive=${setActive}
         onSend=${sendRequest}
+        playing=${playing}
+        onPlay=${playTour}
       />
     </main>
   `;
@@ -147,12 +179,19 @@ function AppPane({ status, data, active, setActive }) {
 // ---------------------------------------------------------------------------
 // BOTTOM HALF — what the developer sees: the raw API request and response.
 // ---------------------------------------------------------------------------
-function ApiPane({ status, data, error, elapsed, active, setActive, onSend }) {
+function ApiPane({ status, data, error, elapsed, active, setActive, onSend, playing, onPlay }) {
   return html`
     <section class="pane pane-api">
       <div class="pane-label">
         <span class="badge badge-api">The API</span>
         <span class="pane-sub">the data underneath</span>
+        <button
+          class=${`play ${playing ? "active" : ""}`}
+          onClick=${onPlay}
+          disabled=${status !== "done"}
+        >
+          ${playing ? "■ Stop" : "▶ Play demo"}
+        </button>
       </div>
 
       <div class="api-grid">
