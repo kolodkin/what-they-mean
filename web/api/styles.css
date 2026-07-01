@@ -43,9 +43,12 @@ body {
   line-height: 1.5;
   color: var(--ink);
 }
-/* Play-demo button lives in this header now; push it to the right edge of the
-   flow, clear of the absolutely-positioned back link. */
-.page-head .play { flex: none; margin-left: auto; }
+/* Play-demo button sits in the top-right corner, tucked just below the
+   absolutely-positioned "← All concepts" back link (top:12px). */
+.page-head .play {
+  position: absolute; top: 44px; right: 16px; z-index: 10; margin: 0;
+  background: #fff; /* opaque so the pill reads cleanly over the header divider */
+}
 .page-explain em { font-style: normal; font-weight: 600; }
 .page-explain strong { color: #04263a; }
 
