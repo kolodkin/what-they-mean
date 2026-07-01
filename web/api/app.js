@@ -91,6 +91,13 @@ function App() {
         The app asks the server for data. It never says <em>how</em> to draw
         anything — it just asks <strong>"give me the recipe"</strong>.
       </p>
+      <button
+        class=${`play ${playing ? "active" : ""}`}
+        onClick=${playTour}
+        disabled=${status !== "done"}
+      >
+        ${playing ? "■ Stop" : "▶ Play demo"}
+      </button>
     </header>
     <main class="split">
       <${AppPane} status=${status} data=${data} active=${active} setActive=${setActive} />
@@ -102,8 +109,6 @@ function App() {
         active=${active}
         setActive=${setActive}
         onSend=${sendRequest}
-        playing=${playing}
-        onPlay=${playTour}
       />
     </main>
   `;
@@ -179,19 +184,12 @@ function AppPane({ status, data, active, setActive }) {
 // ---------------------------------------------------------------------------
 // BOTTOM HALF — what the developer sees: the raw API request and response.
 // ---------------------------------------------------------------------------
-function ApiPane({ status, data, error, elapsed, active, setActive, onSend, playing, onPlay }) {
+function ApiPane({ status, data, error, elapsed, active, setActive, onSend }) {
   return html`
     <section class="pane pane-api">
       <div class="pane-label">
         <span class="badge badge-api">The API</span>
         <span class="pane-sub">the data underneath</span>
-        <button
-          class=${`play ${playing ? "active" : ""}`}
-          onClick=${onPlay}
-          disabled=${status !== "done"}
-        >
-          ${playing ? "■ Stop" : "▶ Play demo"}
-        </button>
       </div>
 
       <div class="api-grid">

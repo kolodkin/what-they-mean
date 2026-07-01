@@ -31,7 +31,10 @@ body {
   flex: none;
   background: #fff;
   border-bottom: 3px solid var(--ink);
-  padding: 14px 56px 14px 22px;
+  padding: 14px 150px 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 .page-explain {
   margin: 0;
@@ -40,6 +43,9 @@ body {
   line-height: 1.5;
   color: var(--ink);
 }
+/* Play-demo button lives in this header now; push it to the right edge of the
+   flow, clear of the absolutely-positioned back link. */
+.page-head .play { flex: none; margin-left: auto; }
 .page-explain em { font-style: normal; font-weight: 600; }
 .page-explain strong { color: #04263a; }
 

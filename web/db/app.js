@@ -69,6 +69,9 @@ function App() {
         the same time</strong> — and can be asked <strong>precise questions
         (queries)</strong> instead of scrolled.
       </p>
+      <button class=${`play ${playing ? "active" : ""}`} onClick=${playTour}>
+        ${playing ? "■ Stop" : "▶ Play demo"}
+      </button>
     </header>
     <main class="split">
       <${SpreadsheetPane}
@@ -81,8 +84,6 @@ function App() {
         result=${result}
         active=${active}
         setActive=${setActive}
-        playing=${playing}
-        onPlay=${playTour}
       />
     </main>
   `;
@@ -146,7 +147,7 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
 // ---------------------------------------------------------------------------
 // BOTTOM — the database: an ERD, a SQL query and its (computed) result.
 // ---------------------------------------------------------------------------
-function DatabasePane({ result, active, setActive, playing, onPlay }) {
+function DatabasePane({ result, active, setActive }) {
   const tableBox = (name) => {
     const t = byName(name);
     return html`
@@ -181,9 +182,6 @@ function DatabasePane({ result, active, setActive, playing, onPlay }) {
       <div class="pane-label">
         <span class="badge badge-db">The database</span>
         <span class="pane-sub">the same tables, underneath</span>
-        <button class=${`play ${playing ? "active" : ""}`} onClick=${onPlay}>
-          ${playing ? "■ Stop" : "▶ Play demo"}
-        </button>
       </div>
 
       <div class="machines">
