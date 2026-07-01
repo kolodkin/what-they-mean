@@ -16,11 +16,15 @@ body { color: var(--ink); background: var(--bg); }
 /* The explanation that introduces the concept, shown above the demo. */
 .page-head {
   flex: none; background: #fff; border-bottom: 3px solid var(--ink);
-  padding: 14px 56px 14px 22px;
+  padding: 14px 150px 14px 22px;
+  display: flex; align-items: center; gap: 16px;
 }
 .page-explain {
   margin: 0; max-width: 900px; font-size: 15px; line-height: 1.5; color: var(--ink);
 }
+/* Play-demo button lives in this header now; push it to the right edge of the
+   flow, clear of the absolutely-positioned back link. */
+.page-head .play { flex: none; margin-left: auto; }
 .page-explain strong { color: #04263a; }
 
 /* Full-height split: the top (context) pane sizes to its content, the database
@@ -125,6 +129,10 @@ body { color: var(--ink); background: var(--bg); }
 }
 @media (max-width: 720px) {
   .erd-row { flex-direction: column; align-items: stretch; }
+  /* In a column the main axis is height; erd-table's overflow:hidden forces
+     min-height to 0, so flex-basis:0 would collapse each box to a thin line.
+     Size them to their content instead. */
+  .erd-table { flex: none; }
   .erd-link { flex-basis: auto; padding: 6px 0; }
   .erd-via { position: static; transform: none; }
 }
