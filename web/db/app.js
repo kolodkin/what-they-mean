@@ -1,5 +1,5 @@
 import { h, render } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
 import { SCHEMA, QUERY_SQL, runQuery } from "./data.js";
 
@@ -25,12 +25,42 @@ const ERD_LAYOUT = [
 function App() {
   const [sheet, setSheet] = useState("recipes"); // which sheet is open
   const [active, setActive] = useState(null); // which table is hover-linked
+  const [playing, setPlaying] = useState(false); // auto-tour running?
+  const timers = useRef([]); // pending setTimeout ids, so we can cancel
   const result = runQuery();
+
+  // Auto-tour: glow each table in turn, 2 seconds apart, so the link between a
+  // "sheet" and a "table" is visible without anyone having to hover.
+  function stopTour() {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setActive(null);
+    setPlaying(false);
+  }
+
+  function playTour() {
+    if (playing) return stopTour();
+    setPlaying(true);
+    const tables = SCHEMA.map((t) => t.name);
+    tables.forEach((name, i) => {
+      timers.current.push(setTimeout(() => setActive(name), i * 2000));
+    });
+    timers.current.push(
+      setTimeout(() => {
+        timers.current = [];
+        setActive(null);
+        setPlaying(false);
+      }, tables.length * 2000)
+    );
+  }
 
   // Readiness signal for end-to-end tests to wait on.
   useEffect(() => {
     window.__APP = { ready: true };
   }, []);
+
+  // Cancel any pending highlights if the app is torn down mid-tour.
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   return html`
     <header class="page-head">
@@ -47,7 +77,13 @@ function App() {
         active=${active}
         setActive=${setActive}
       />
-      <${DatabasePane} result=${result} active=${active} setActive=${setActive} />
+      <${DatabasePane}
+        result=${result}
+        active=${active}
+        setActive=${setActive}
+        playing=${playing}
+        onPlay=${playTour}
+      />
     </main>
   `;
 }
@@ -110,7 +146,7 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
 // ---------------------------------------------------------------------------
 // BOTTOM — the database: an ERD, a SQL query and its (computed) result.
 // ---------------------------------------------------------------------------
-function DatabasePane({ result, active, setActive }) {
+function DatabasePane({ result, active, setActive, playing, onPlay }) {
   const tableBox = (name) => {
     const t = byName(name);
     return html`
@@ -145,6 +181,9 @@ function DatabasePane({ result, active, setActive }) {
       <div class="pane-label">
         <span class="badge badge-db">The database</span>
         <span class="pane-sub">the same tables, underneath</span>
+        <button class=${`play ${playing ? "active" : ""}`} onClick=${onPlay}>
+          ${playing ? "■ Stop" : "▶ Play demo"}
+        </button>
       </div>
 
       <div class="machines">

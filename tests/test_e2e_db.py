@@ -47,3 +47,15 @@ def test_hover_links_sheet_to_erd(db: Page):
     expect(db.locator('.erd-table[data-table="ingredients"]')).to_have_class(re.compile(r"\bglow\b"))
     expect(db.locator('.erd-table[data-table="recipes"]')).to_have_class(re.compile(r"\bdim\b"))
     db.screenshot(path=os.path.join(SHOTS, "07-db-hover.png"))
+
+
+def test_play_demo_tours_tables(db: Page):
+    """'Play demo' glows each table in turn, 2 seconds apart."""
+    db.get_by_text("Play demo").click()
+    # The first table glows right away.
+    expect(db.locator('.erd-table[data-table="recipes"]')).to_have_class(re.compile(r"\bglow\b"))
+    # ~2s later the highlight has moved on to the second table.
+    expect(db.locator('.erd-table[data-table="ingredients"]')).to_have_class(
+        re.compile(r"\bglow\b"), timeout=4000
+    )
+    db.screenshot(path=os.path.join(SHOTS, "08-db-play-demo.png"))
