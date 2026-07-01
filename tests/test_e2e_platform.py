@@ -17,10 +17,10 @@ def platform(page: Page, server_url: str):
 
 
 def test_all_ten_nodes_render(platform: Page):
-    # connectors → bronze → normalize → silver → db → logic → gold → {backend, agent} → app
+    # ingest → bronze → normalize → silver → db → logic → gold → {backend, agent} → app
     expect(platform.locator(".node")).to_have_count(10)
     for node_id, name in [
-        ("connectors", "Connectors"),
+        ("ingest", "Ingest"),
         ("bronze", "Bronze"),
         ("normalize", "Normalize"),
         ("silver", "Silver"),
@@ -40,7 +40,7 @@ def test_wires_connect_every_hop_including_the_fork(platform: Page):
     # agent, and both converge on the app.
     expect(platform.locator(".wire")).to_have_count(10)
     for wire in [
-        "wire-connectors",  # → bronze
+        "wire-ingest",      # → bronze
         "wire-bronze",      # → normalize
         "wire-normalize",   # → silver
         "wire-silver",      # → db

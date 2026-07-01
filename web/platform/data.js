@@ -20,17 +20,18 @@
 // The spine: the straight run from the outside world to the business answer.
 export const SPINE = [
   {
-    id: "connectors",
-    name: "Connectors",
-    icon: "🔌",
+    id: "ingest",
+    name: "Ingest",
+    icon: "📥",
     layer: null,
-    role: "go out and fetch data from outside apps, files & APIs",
+    role: "bring data in from outside apps, files & live feeds",
     detail:
-      "Little programs that reach out to the systems where data is actually " +
-      "made — the till, a spreadsheet, a website's API — and pull copies back " +
-      "in. Think delivery drivers collecting parcels from all over town.",
-    form: "a fetched receipt",
-    snapshot: "GET till-api/sales/latest → 1 receipt",
+      "The front door. Everything the platform does to bring outside data in — " +
+      "connecting to the till, importing a spreadsheet, receiving a live feed — " +
+      "and copy it inside. However the data arrives, it comes through here. " +
+      "Think the loading dock where every delivery in town is dropped off.",
+    form: "an incoming receipt",
+    snapshot: "till-api → 1 receipt in",
   },
   {
     id: "bronze",
@@ -166,7 +167,7 @@ export const BY_ID = Object.fromEntries(ALL.map((b) => [b.id, b]));
 // The order the trace lights boxes in. Each entry is the set of boxes lit at
 // that step — backend and agent light together, since gold feeds both at once.
 export const TRACE = [
-  ["connectors"],
+  ["ingest"],
   ["bronze"],
   ["normalize"],
   ["silver"],
