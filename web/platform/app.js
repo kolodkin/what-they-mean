@@ -21,7 +21,7 @@ const BADGE = 60; // the icon badge's size, in viewBox units; wires meet its edg
 // between the database and gold), then gold branches to a backend AND an agent,
 // and both feed the app.
 const LAYOUT = {
-  connectors: { x: 0, y: 144 },
+  ingest: { x: 0, y: 144 },
   bronze: { x: 138, y: 144 },
   normalize: { x: 276, y: 144 },
   silver: { x: 414, y: 144 },
@@ -35,7 +35,7 @@ const LAYOUT = {
 
 // Directed wires between nodes. Order matters: the trace lights them in turn.
 const EDGES = [
-  ["connectors", "bronze"],
+  ["ingest", "bronze"],
   ["bronze", "normalize"],
   ["normalize", "silver"],
   ["silver", "db"],

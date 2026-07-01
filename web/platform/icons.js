@@ -10,8 +10,8 @@ const html = htm.bind(h);
 // Keyed by node id. Bronze, silver and gold deliberately share the medal glyph
 // — the metal is told apart by each node's accent colour, not the shape.
 const SHAPES = {
-  // satellite-dish — reaches out and pulls feeds in
-  connectors: () => html`
+  // satellite-dish — pulls data in from the outside world
+  ingest: () => html`
     <path d="M4 10a7.31 7.31 0 0 0 10 10Z" />
     <path d="m9 15 3-3" />
     <path d="M17 13a6 6 0 0 0-6-6" />
