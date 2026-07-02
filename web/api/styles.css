@@ -31,9 +31,9 @@ body {
   flex: none;
   background: #fff;
   border-bottom: 3px solid var(--ink);
-  padding: 14px 150px 14px 22px;
+  padding: 14px 22px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
 }
 .page-explain {
@@ -43,12 +43,18 @@ body {
   line-height: 1.5;
   color: var(--ink);
 }
-/* Play-demo button sits in the top-right corner, tucked just below the
-   absolutely-positioned "← All concepts" back link (top:12px). */
-.page-head .play {
-  position: absolute; top: 44px; right: 16px; z-index: 10; margin: 0;
-  background: #fff; /* opaque so the pill reads cleanly over the header divider */
+/* The two controls — "← All concepts" and "▶ Play demo" — stack in a
+   right-aligned column in the upper part of the header (no absolute
+   positioning; pushed to the right edge with margin-left:auto). */
+.page-controls {
+  flex: none;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 }
+.page-head .play { margin: 0; }
 .page-explain em { font-style: normal; font-weight: 600; }
 .page-explain strong { color: #04263a; }
 
@@ -322,17 +328,13 @@ body {
 
 /* --- back link ----------------------------------------------------------- */
 .back {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  z-index: 10;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.8);
+  background: #fff;
   padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
 }
-.back:hover { background: #fff; }
+.back:hover { background: var(--bg); }

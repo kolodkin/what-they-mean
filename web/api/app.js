@@ -91,13 +91,16 @@ function App() {
         The app asks the server for data. It never says <em>how</em> to draw
         anything — it just asks <strong>"give me the recipe"</strong>.
       </p>
-      <button
-        class=${`play ${playing ? "active" : ""}`}
-        onClick=${playTour}
-        disabled=${status !== "done"}
-      >
-        ${playing ? "■ Stop" : "▶ Play demo"}
-      </button>
+      <div class="page-controls">
+        <a class="back" href="../">← All concepts</a>
+        <button
+          class=${`play ${playing ? "active" : ""}`}
+          onClick=${playTour}
+          disabled=${status !== "done"}
+        >
+          ${playing ? "■ Stop" : "▶ Play demo"}
+        </button>
+      </div>
     </header>
     <main class="split">
       <${AppPane} status=${status} data=${data} active=${active} setActive=${setActive} />
