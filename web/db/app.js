@@ -14,6 +14,15 @@ const COLORS = {
 
 const byName = (name) => SCHEMA.find((t) => t.name === name);
 
+// One step of the auto-tour, in ms — the cadence both the per-table walk and
+// the query finale march to.
+const STEP_MS = 2000;
+
+// The tallest sheet's row count, used to reserve a constant workbook height so
+// switching sheets never reflows the page. Derived from the data, so adding
+// rows can't silently make the shorter sheets clip.
+const MAX_SHEET_ROWS = Math.max(...SCHEMA.map((t) => t.rows.length));
+
 // How the ERD reads left-to-right: one `recipes` row has many `ingredients`
 // rows (each linked back by recipe_id), drawn with a crow's-foot "1 ──< ∞".
 const ERD_LAYOUT = [
@@ -48,10 +57,9 @@ function App() {
   function playTour() {
     if (playing) return stopTour();
     setPlaying(true);
-    setShowQuery(false);
     const tables = SCHEMA.map((t) => t.name);
     tables.forEach((name, i) => {
-      timers.current.push(setTimeout(() => setActive(name), i * 2000));
+      timers.current.push(setTimeout(() => setActive(name), i * STEP_MS));
     });
     // Finale: drop the table glow and spotlight the query that ties them
     // together — the whole point of having a database.
@@ -59,15 +67,10 @@ function App() {
       setTimeout(() => {
         setActive(null);
         setShowQuery(true);
-      }, tables.length * 2000)
+      }, tables.length * STEP_MS)
     );
-    timers.current.push(
-      setTimeout(() => {
-        timers.current = [];
-        setShowQuery(false);
-        setPlaying(false);
-      }, (tables.length + 1) * 2000)
-    );
+    // One step later the finale is over — stopTour clears everything.
+    timers.current.push(setTimeout(stopTour, (tables.length + 1) * STEP_MS));
   }
 
   // Readiness signal for end-to-end tests to wait on.
@@ -125,8 +128,8 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
         <!-- Fixed-height scroll area: the grid keeps the same footprint whether
              the open sheet has 2 rows or 7, so switching sheets (by tab or by
              touching the ERD below) never reflows the page and shifts what
-             you're pointing at. -->
-        <div class="grid-scroll">
+             you're pointing at. Height is reserved for the tallest sheet. -->
+        <div class="grid-scroll" style=${`--rows:${MAX_SHEET_ROWS}`}>
           <table class="grid">
             <thead>
               <tr>

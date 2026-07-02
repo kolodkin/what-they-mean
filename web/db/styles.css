@@ -77,10 +77,11 @@ body { color: var(--ink); background: var(--bg); }
   max-width: 820px; margin: 0 auto; overflow: hidden;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
-/* Constant footprint for the tallest sheet (7 rows + header). Shorter sheets
-   leave blank space below their rows — like empty cells in any spreadsheet —
-   rather than shrinking the workbook and jolting the layout. */
-.grid-scroll { height: 264px; overflow: auto; }
+/* Constant footprint sized to the tallest sheet, so switching sheets never
+   shrinks the workbook and jolts the layout. --rows (the tallest sheet's row
+   count) is set from the data in app.js; +1 covers the header row. Shorter
+   sheets leave blank space below their rows, like empty spreadsheet cells. */
+.grid-scroll { height: calc((var(--rows, 7) + 1) * 33px); overflow: auto; }
 .grid-scroll .grid thead th { position: sticky; top: 0; z-index: 1; }
 .grid { width: 100%; border-collapse: collapse; font-size: 14px; }
 .grid th, .grid td {
