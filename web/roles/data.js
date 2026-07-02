@@ -28,7 +28,7 @@ export const ROLES = [
     icon: "🧠",
     color: "#9333ea",
     owns: ["science"],
-    short: "Owns the Algo / ML / LLM, and the agent backend.",
+    short: "Owns the algorithms and AI, and the agent's brain.",
     detail:
       "Responsible for the algorithms, ML and LLMs used along the data " +
       "journey — the module that lives in the logic block. Also owns the " +

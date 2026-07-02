@@ -26,10 +26,11 @@ export const SPINE = [
     layer: null,
     role: "bring data in from outside apps, files & live feeds",
     detail:
-      "The front door. Everything the platform does to bring outside data in — " +
-      "connecting to the till, importing a spreadsheet, receiving a live feed — " +
-      "and copy it inside. However the data arrives, it comes through here. " +
-      "Think the loading dock where every delivery in town is dropped off.",
+      "The front door. Everything the platform does to bring outside data in " +
+      "happens here — connecting to the till, importing a spreadsheet, " +
+      "receiving a live feed — and a copy is kept inside. However the data " +
+      "arrives, it comes through here. Think of the loading dock where every " +
+      "delivery in town is dropped off.",
     form: "an incoming receipt",
     snapshot: "till-api → 1 receipt in",
   },
