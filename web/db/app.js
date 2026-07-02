@@ -69,9 +69,12 @@ function App() {
         the same time</strong> — and can be asked <strong>precise questions
         (queries)</strong> instead of scrolled.
       </p>
-      <button class=${`play ${playing ? "active" : ""}`} onClick=${playTour}>
-        ${playing ? "■ Stop" : "▶ Play demo"}
-      </button>
+      <div class="page-controls">
+        <a class="back" href="../">← All concepts</a>
+        <button class=${`play ${playing ? "active" : ""}`} onClick=${playTour}>
+          ${playing ? "■ Stop" : "▶ Play demo"}
+        </button>
+      </div>
     </header>
     <main class="split">
       <${SpreadsheetPane}
