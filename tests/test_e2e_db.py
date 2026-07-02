@@ -49,6 +49,18 @@ def test_hover_links_sheet_to_erd(db: Page):
     db.screenshot(path=os.path.join(SHOTS, "07-db-hover.png"))
 
 
+def test_hover_erd_switches_top_sheet(db: Page):
+    """The upper spreadsheet follows the ERD: hovering a table opens its sheet."""
+    # Starts on recipes (2 rows). Hover the ingredients table below.
+    expect(db.locator(".grid tbody tr")).to_have_count(2)
+    db.locator('.erd-table[data-table="ingredients"]').hover()
+    # The top grid now shows the ingredients sheet (7 rows) and its tab is current.
+    expect(db.locator(".grid tbody tr")).to_have_count(7)
+    expect(db.locator(".sheet-tab", has_text="ingredients")).to_have_class(
+        re.compile(r"\bcurrent\b")
+    )
+
+
 def test_play_demo_tours_tables(db: Page):
     """'Play demo' glows each table in turn, 2 seconds apart."""
     db.get_by_text("Play demo").click()
@@ -59,3 +71,11 @@ def test_play_demo_tours_tables(db: Page):
         re.compile(r"\bglow\b"), timeout=4000
     )
     db.screenshot(path=os.path.join(SHOTS, "08-db-play-demo.png"))
+
+
+def test_play_demo_spotlights_query_at_end(db: Page):
+    """After touring both tables, the finale spotlights the SQL query."""
+    db.get_by_text("Play demo").click()
+    # Two tables at 2s each, then the query lights up — allow generous timeout.
+    expect(db.locator(".query")).to_have_class(re.compile(r"\bspotlight\b"), timeout=8000)
+    db.screenshot(path=os.path.join(SHOTS, "09-db-query-spotlight.png"))

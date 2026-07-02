@@ -14,6 +14,15 @@ const COLORS = {
 
 const byName = (name) => SCHEMA.find((t) => t.name === name);
 
+// One step of the auto-tour, in ms — the cadence both the per-table walk and
+// the query finale march to.
+const STEP_MS = 2000;
+
+// The tallest sheet's row count, used to reserve a constant workbook height so
+// switching sheets never reflows the page. Derived from the data, so adding
+// rows can't silently make the shorter sheets clip.
+const MAX_SHEET_ROWS = Math.max(...SCHEMA.map((t) => t.rows.length));
+
 // How the ERD reads left-to-right: one `recipes` row has many `ingredients`
 // rows (each linked back by recipe_id), drawn with a crow's-foot "1 ──< ∞".
 const ERD_LAYOUT = [
@@ -23,11 +32,17 @@ const ERD_LAYOUT = [
 ];
 
 function App() {
-  const [sheet, setSheet] = useState("recipes"); // which sheet is open
+  const [sheet, setSheet] = useState("recipes"); // which sheet was last picked
   const [active, setActive] = useState(null); // which table is hover-linked
+  const [showQuery, setShowQuery] = useState(false); // query highlighted (tour finale)
   const [playing, setPlaying] = useState(false); // auto-tour running?
   const timers = useRef([]); // pending setTimeout ids, so we can cancel
   const result = runQuery();
+
+  // The upper spreadsheet follows the ERD: whenever a table is hover-linked or
+  // toured, its sheet opens on top; otherwise it falls back to the last-picked
+  // tab. So the sheet and the table below always show the same thing.
+  const shownSheet = active || sheet;
 
   // Auto-tour: glow each table in turn, 2 seconds apart, so the link between a
   // "sheet" and a "table" is visible without anyone having to hover.
@@ -35,6 +50,7 @@ function App() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     setActive(null);
+    setShowQuery(false);
     setPlaying(false);
   }
 
@@ -43,15 +59,18 @@ function App() {
     setPlaying(true);
     const tables = SCHEMA.map((t) => t.name);
     tables.forEach((name, i) => {
-      timers.current.push(setTimeout(() => setActive(name), i * 2000));
+      timers.current.push(setTimeout(() => setActive(name), i * STEP_MS));
     });
+    // Finale: drop the table glow and spotlight the query that ties them
+    // together — the whole point of having a database.
     timers.current.push(
       setTimeout(() => {
-        timers.current = [];
         setActive(null);
-        setPlaying(false);
-      }, tables.length * 2000)
+        setShowQuery(true);
+      }, tables.length * STEP_MS)
     );
+    // One step later the finale is over — stopTour clears everything.
+    timers.current.push(setTimeout(stopTour, (tables.length + 1) * STEP_MS));
   }
 
   // Readiness signal for end-to-end tests to wait on.
@@ -78,7 +97,7 @@ function App() {
     </header>
     <main class="split">
       <${SpreadsheetPane}
-        sheet=${sheet}
+        sheet=${shownSheet}
         setSheet=${setSheet}
         active=${active}
         setActive=${setActive}
@@ -87,6 +106,7 @@ function App() {
         result=${result}
         active=${active}
         setActive=${setActive}
+        showQuery=${showQuery}
       />
     </main>
   `;
@@ -105,24 +125,30 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
       </div>
 
       <div class="workbook">
-        <table class="grid">
-          <thead>
-            <tr>
-              <th class="rownum"></th>
-              ${table.columns.map((c) => html`<th key=${c.name}>${c.name}</th>`)}
-            </tr>
-          </thead>
-          <tbody>
-            ${table.rows.map(
-              (row, i) => html`
-                <tr key=${i}>
-                  <td class="rownum">${i + 1}</td>
-                  ${table.columns.map((c) => html`<td key=${c.name}>${row[c.name]}</td>`)}
-                </tr>
-              `
-            )}
-          </tbody>
-        </table>
+        <!-- Fixed-height scroll area: the grid keeps the same footprint whether
+             the open sheet has 2 rows or 7, so switching sheets (by tab or by
+             touching the ERD below) never reflows the page and shifts what
+             you're pointing at. Height is reserved for the tallest sheet. -->
+        <div class="grid-scroll" style=${`--rows:${MAX_SHEET_ROWS}`}>
+          <table class="grid">
+            <thead>
+              <tr>
+                <th class="rownum"></th>
+                ${table.columns.map((c) => html`<th key=${c.name}>${c.name}</th>`)}
+              </tr>
+            </thead>
+            <tbody>
+              ${table.rows.map(
+                (row, i) => html`
+                  <tr key=${i}>
+                    <td class="rownum">${i + 1}</td>
+                    ${table.columns.map((c) => html`<td key=${c.name}>${row[c.name]}</td>`)}
+                  </tr>
+                `
+              )}
+            </tbody>
+          </table>
+        </div>
 
         <div class="sheet-tabs">
           ${SCHEMA.map(
@@ -142,7 +168,9 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
         </div>
       </div>
 
-      <p class="sheet-hint">Two tabs, two sheets — like any workbook.</p>
+      <p class="sheet-hint">
+        Two tabs, two sheets — the open one follows the table you touch below.
+      </p>
     </section>
   `;
 }
@@ -150,7 +178,7 @@ function SpreadsheetPane({ sheet, setSheet, active, setActive }) {
 // ---------------------------------------------------------------------------
 // BOTTOM — the database: an ERD, a SQL query and its (computed) result.
 // ---------------------------------------------------------------------------
-function DatabasePane({ result, active, setActive }) {
+function DatabasePane({ result, active, setActive, showQuery }) {
   const tableBox = (name) => {
     const t = byName(name);
     return html`
@@ -209,7 +237,7 @@ function DatabasePane({ result, active, setActive }) {
         )}
       </div>
 
-      <div class="query">
+      <div class=${`query ${showQuery ? "spotlight" : ""}`}>
         <div class="block-title">A query asks a precise question</div>
         <pre class="sql">${QUERY_SQL}</pre>
         <div class="block-title">Result</div>
