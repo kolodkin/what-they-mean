@@ -17,6 +17,10 @@ def test_menu_lists_all_demos(page: Page, server_url: str):
     expect(page.locator('.card[href="platform/"]')).to_contain_text("data platform")
     expect(page.locator('.card[href="rag/"]')).to_contain_text("RAG")
     expect(page.locator('.card[href="roles/"]')).to_contain_text("stack")
+    # All six cards must sit above the fold at a normal laptop size.
+    for href in ("api/", "db/", "etl/", "platform/", "rag/", "roles/"):
+        box = page.locator(f'.card[href="{href}"]').bounding_box()
+        assert box["y"] + box["height"] <= 800, f"{href} card falls below the fold"
     page.screenshot(path=os.path.join(SHOTS, "00-menu.png"))
 
 
