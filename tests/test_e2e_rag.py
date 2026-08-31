@@ -81,6 +81,16 @@ def test_generation_gets_the_chunks_in_its_prompt_and_cites_them(rag: Page):
     expect(rag.locator(".stage-generate .answer")).to_contain_text("30 days")
 
 
+def test_the_page_says_no_llm_actually_runs(rag: Page):
+    # The input box invites any question, so the page has to be plain about
+    # which half is genuinely running: retrieval yes, generation no.
+    ask(rag, "How many days off do I get?")
+    staged = rag.locator(".stage-generate .staged")
+    expect(staged).to_contain_text("No language model runs on this page")
+    expect(staged).to_contain_text("stitched")
+    expect(rag.locator(".stage-retrieve")).to_contain_text("Every score below is really computed")
+
+
 def test_hovering_a_written_line_lights_up_its_source(rag: Page):
     ask(rag, "When do I get paid back for buying milk?")
     rag.locator(".stage-generate .a-line").first.hover()

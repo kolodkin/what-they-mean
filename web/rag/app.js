@@ -322,7 +322,8 @@ function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, se
       badge=${reached && result ? `nearest ${TOP_K} of ${CHUNKS.length}` : ""}
       sub="Your question goes through the same encoder the index did — it has to
            be the same one, or the numbers wouldn't be comparable. Then it is
-           pure arithmetic: how close is each chunk?"
+           pure arithmetic: how close is each chunk? Every score below is really
+           computed, here, as you watch."
       active=${active}
       reached=${reached}
     >
@@ -484,6 +485,16 @@ function GenerateStage({ phase, reached, result, asked, preset, promptLines, wri
                       `}
                   ${written === 0 && html`<p class="a-wait">…</p>`}
                 </div>
+                <p class="staged">
+                  <strong>No language model runs on this page.</strong> Retrieval
+                  above is real — your words are encoded and scored in your
+                  browser. This reply is stitched from the sentences the
+                  retrieved chunks carry, so the demo needs no server and no API
+                  key. In a real app the prompt on the left is exactly what gets
+                  sent, and the reply comes back written. Type your own question
+                  and you'll see the difference: the chunks it finds are genuinely
+                  found, but the wording won't bend to fit what you asked.
+                </p>
                 <p class="pane-note">
                   Every sentence carries the chunk it came from — hover one to
                   light it up in the prompt and the index. That traceability is
