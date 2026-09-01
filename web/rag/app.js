@@ -463,8 +463,8 @@ function GenerateStage({ phase, reached, result, asked, preset, promptLines, wri
                   html`<div class="p-line p-q">Question: ${asked}</div>`}
                 </div>
                 <p class="pane-note">
-                  Nothing was retrained and nothing was remembered. Next question,
-                  this prompt is thrown away and built again.
+                  Nothing was retrained or remembered — next question, this prompt
+                  is built again from scratch.
                 </p>
               </div>
               <div class="pane">
@@ -496,33 +496,28 @@ function GenerateStage({ phase, reached, result, asked, preset, promptLines, wri
                   ${written === 0 && html`<p class="a-wait">…</p>`}
                 </div>
                 <p class="staged">
-                  <strong>No language model runs on this page.</strong> Retrieval
-                  above is real — your words are encoded and scored in your
-                  browser. This reply is stitched from the sentences the
-                  retrieved chunks carry, so the demo needs no server and no API
-                  key. In a real app the prompt on the left is exactly what gets
-                  sent, and the reply comes back written. Type your own question
-                  and you'll see the difference: the chunks it finds are genuinely
-                  found, but the wording won't bend to fit what you asked.
+                  <strong>No language model runs here.</strong> Retrieval above is
+                  real; this reply is stitched from the chunks it found, so the
+                  page needs no server. A real app sends the prompt on the left to
+                  an LLM.
                 </p>
                 <p class="pane-note">
-                  Every sentence carries the chunk it came from — hover one to
-                  light it up in the prompt and the index. That traceability is
-                  the other thing RAG buys you: an answer you can check.
+                  Each sentence cites its chunk — hover one to light it up in the
+                  prompt and the index. RAG answers can be checked.
                 </p>
-                <div class="norag">
-                  <h4>Same question, no retrieval</h4>
-                  ${preset
-                    ? html`
-                        <p class="norag-answer">“${preset.guess}”</p>
-                        <p class="norag-note">${preset.guessNote}</p>
-                      `
-                    : html`<p class="norag-note">
-                        Ask one of the four questions above to see what the model
-                        says with no handbook in front of it.
-                      </p>`}
-                </div>
               </div>
+            </div>
+            <div class="norag">
+              <h4>Same question,<br />no retrieval</h4>
+              ${preset
+                ? html`
+                    <p class="norag-answer">“${preset.guess}”</p>
+                    <p class="norag-note">${preset.guessNote}</p>
+                  `
+                : html`<p class="norag-note">
+                    Ask one of the four questions above to see what the model says
+                    with no handbook in front of it.
+                  </p>`}
             </div>
           `}
     </${StageShell}>

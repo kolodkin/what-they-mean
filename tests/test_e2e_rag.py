@@ -112,7 +112,7 @@ def test_the_page_says_no_llm_actually_runs(rag: Page):
     # which half is genuinely running: retrieval yes, generation no.
     ask(rag, "How many days off do I get?")
     staged = rag.locator(".stage-generate .staged")
-    expect(staged).to_contain_text("No language model runs on this page")
+    expect(staged).to_contain_text("No language model runs here")
     expect(staged).to_contain_text("stitched")
     expect(rag.locator(".stage-retrieve")).to_contain_text("Every score below is really computed")
 
