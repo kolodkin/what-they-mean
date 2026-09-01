@@ -57,8 +57,11 @@ def test_index_is_encoded_before_any_question(rag: Page):
     expect(rag.locator(".stage-index .chunk")).to_have_count(8)
     # …and the page says in one place what those six numbers even are.
     expect(rag.locator(".stage-index .why")).to_contain_text("Six numbers is a position")
-    # Every chunk carries its six numbers.
-    expect(rag.locator(".stage-index .chunk").first.locator(".vec-axis")).to_have_count(6)
+    # Every chunk carries its six numbers, written out as numbers.
+    expect(rag.locator(".stage-index .vecnum")).to_have_count(8)
+    expect(
+        rag.locator(".stage-index .chunk", has_text="Holiday allowance").locator(".vecnum")
+    ).to_have_text("[0.94, 0.18, 0.22, 0.00, 0.17, 0.00]")
     # Retrieval and generation wait for a question.
     expect(rag.locator(".stage-empty")).to_have_count(2)
 

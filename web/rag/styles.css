@@ -153,10 +153,6 @@ body { color: var(--ink); background: var(--bg); }
 }
 .vec-bar i { display: block; width: 100%; background: var(--enc); border-radius: 3px; transition: height 0.4s; }
 .vec-num { font-size: 9.5px; color: var(--muted); font-family: "SF Mono", Menlo, Consolas, monospace; }
-.chunk .vec { width: 100%; gap: 4px; }
-.chunk .vec-axis { flex: 1; width: auto; }
-.chunk .vec-bar { height: 26px; }
-
 .vec-labelled { gap: 10px; }
 .vec-labelled .vec-axis { width: 56px; }
 .vec-labelled .vec-bar { height: 58px; }
@@ -183,6 +179,15 @@ body { color: var(--ink); background: var(--bg); }
 }
 .chunk-text { min-width: 0; flex: 1; }
 .chunk-title { display: block; font-size: 12px; font-weight: 800; color: var(--index); margin-bottom: 3px; }
+/* In the index a chunk's vector is written out — it IS a list of numbers. */
+.vecnum {
+  display: block; font-size: 9.5px; line-height: 1.5; color: var(--index);
+  font-family: "SF Mono", Menlo, Consolas, monospace; letter-spacing: -0.02em;
+  white-space: nowrap; overflow-x: auto;
+  background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 6px; padding: 4px 6px;
+}
+.chunk.hi .vecnum { background: #ccfbf1; }
+
 .chunk-body {
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   font-size: 10.5px; line-height: 1.45; color: var(--muted);

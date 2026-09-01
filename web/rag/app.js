@@ -306,7 +306,9 @@ function IndexStage({ hi, setHi }) {
                 <span class="chunk-title">${c.title}</span>
                 <span class="chunk-body">${c.text}</span>
               </div>
-              <${Vector} vec=${c.vec} />
+              <code class="vecnum" title=${AXES.map((a) => a.label).join(" · ")}>
+                [${AXES.map((a) => c.vec[a.key].toFixed(2)).join(", ")}]
+              </code>
             </div>
           `
         )}
