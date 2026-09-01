@@ -285,6 +285,14 @@ function IndexStage({ hi, setHi }) {
       active=${false}
       reached=${true}
     >
+      <p class="why">
+        <strong>Six numbers is a position.</strong> Two numbers pick a spot on a
+        map, three pick a spot in a room — six picks a spot in a space nobody can
+        picture, but “how far apart are these two?” is the same arithmetic however
+        many there are. That's all this step does: turn text into a position, so
+        that text about the same thing ends up near other text about the same
+        thing. Related becomes near, and near is something a computer can measure.
+      </p>
       <div class="chunks">
         ${CHUNKS.map(
           (c) => html`

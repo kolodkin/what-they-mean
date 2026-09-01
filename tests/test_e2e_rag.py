@@ -55,6 +55,8 @@ def test_the_selected_question_stays_legible_under_the_cursor(rag: Page):
 def test_index_is_encoded_before_any_question(rag: Page):
     # Stage 0 is filled at rest — the handbook was encoded ahead of time.
     expect(rag.locator(".stage-index .chunk")).to_have_count(8)
+    # …and the page says in one place what those six numbers even are.
+    expect(rag.locator(".stage-index .why")).to_contain_text("Six numbers is a position")
     # Every chunk carries its six numbers.
     expect(rag.locator(".stage-index .chunk").first.locator(".vec-axis")).to_have_count(6)
     # Retrieval and generation wait for a question.
