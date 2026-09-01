@@ -31,6 +31,27 @@ def test_both_models_are_named_up_front(rag: Page):
     rag.screenshot(path=os.path.join(SHOTS, "16-rag-idle.png"), full_page=True)
 
 
+def test_the_selected_question_stays_legible_under_the_cursor(rag: Page):
+    # The chip you just clicked keeps the cursor on it. Its hover tint must not
+    # win over its selected style, or the label goes teal-on-teal and vanishes.
+    chip = rag.locator("button.chip").first
+    chip.click()
+    # The hover style only applies once the run finishes and the chip re-enables.
+    rag.wait_for_function("() => window.__APP.phase === 'done'", timeout=20000)
+    chip.hover()
+    # Poll: the colour transition takes a moment to settle.
+    rag.wait_for_function(
+        """() => {
+             const el = document.querySelector('button.chip.on');
+             const cs = getComputedStyle(el);
+             const rgb = (c) => c.match(/\\d+/g).slice(0, 3).map(Number);
+             const [f, b] = [rgb(cs.color), rgb(cs.backgroundColor)];
+             return f.reduce((d, v, i) => d + Math.abs(v - b[i]), 0) > 200;
+           }""",
+        timeout=5000,
+    )
+
+
 def test_index_is_encoded_before_any_question(rag: Page):
     # Stage 0 is filled at rest — the handbook was encoded ahead of time.
     expect(rag.locator(".stage-index .chunk")).to_have_count(8)

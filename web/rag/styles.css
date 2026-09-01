@@ -60,7 +60,7 @@ body { color: var(--ink); background: var(--bg); }
   padding: 7px 13px; font-size: 13px; color: #334155; cursor: pointer;
   font-family: inherit; transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
 }
-.chip:hover:not(:disabled) { border-color: var(--enc); color: var(--enc); }
+.chip:hover:not(:disabled):not(.on) { border-color: var(--enc); color: var(--enc); }
 .chip.on {
   border-color: var(--enc); color: #fff; background: var(--enc); font-weight: 600;
   box-shadow: 0 4px 12px rgba(13, 148, 136, 0.28);
