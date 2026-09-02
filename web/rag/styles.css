@@ -144,19 +144,18 @@ body { color: var(--ink); background: var(--bg); }
 }
 .pane-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.5; color: #94a3b8; }
 
-/* --- vectors (text as numbers) ------------------------------------------- */
-.vec { display: flex; gap: 6px; align-items: flex-start; }
-.vec-axis { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 26px; }
-.vec-bar {
-  width: 100%; height: 34px; background: #f1f5f9; border-radius: 3px;
-  display: flex; align-items: flex-end; overflow: hidden;
+/* --- vectors: what the encoder returns, written out ---------------------- */
+.vec { display: flex; align-items: flex-start; gap: 9px; }
+.vec-bracket {
+  font-size: 26px; line-height: 0.95; color: #cbd5e1; font-weight: 300;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-.vec-bar i { display: block; width: 100%; background: var(--enc); border-radius: 3px; transition: height 0.4s; }
-.vec-num { font-size: 9.5px; color: var(--muted); font-family: "SF Mono", Menlo, Consolas, monospace; }
-.vec-labelled { gap: 10px; }
-.vec-labelled .vec-axis { width: 56px; }
-.vec-labelled .vec-bar { height: 58px; }
-.vec-labelled .vec-num { font-size: 11px; color: var(--ink); font-weight: 700; }
+.vec-axis { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; }
+.vec-num {
+  font-size: 14px; font-weight: 700; color: #cbd5e1;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+.vec-num.on { color: var(--enc); }
 .vec-label { font-size: 9.5px; line-height: 1.2; color: var(--muted); text-align: center; }
 
 /* --- stage 0: the index -------------------------------------------------- */

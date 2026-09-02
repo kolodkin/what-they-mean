@@ -232,21 +232,24 @@ function ModelCard({ kind, step, name, io, blurb }) {
   `;
 }
 
-// A vector drawn as five bars — the only honest picture of "text as numbers".
-function Vector({ vec, labels }) {
+// The question as what the encoder actually returns: a list of numbers. The
+// names under them are what each slot counts IN THIS DEMO — see the note below
+// the component's use; a real model's numbers have no names.
+function Vector({ vec }) {
   return html`
-    <div class=${`vec ${labels ? "vec-labelled" : ""}`}>
+    <div class="vec">
+      <span class="vec-bracket">[</span>
       ${AXES.map(
-        (a) => html`
-          <div class="vec-axis" key=${a.key} title=${a.label}>
-            <span class="vec-bar">
-              <i style=${`height:${Math.max(Math.round(vec[a.key] * 100), 2)}%`}></i>
+        (a, i) => html`
+          <div class="vec-axis" key=${a.key}>
+            <span class=${`vec-num ${vec[a.key] > 0 ? "on" : ""}`}>
+              ${vec[a.key].toFixed(2)}${i < AXES.length - 1 ? "," : ""}
             </span>
-            <span class="vec-num">${vec[a.key].toFixed(2)}</span>
-            ${labels && html`<span class="vec-label">${a.label}</span>`}
+            <span class="vec-label">${a.label}</span>
           </div>
         `
       )}
+      <span class="vec-bracket">]</span>
     </div>
   `;
 }
@@ -355,10 +358,14 @@ function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, se
                         position at all, and nothing can be near it.
                       </span>`}
                 </p>
-                <${Vector} vec=${result.q.vec} labels=${true} />
+                <${Vector} vec=${result.q.vec} />
                 <p class="pane-note">
-                  Six numbers here; a real embedding model gives back several
-                  hundred, and no human chose what any of them mean.
+                  <strong>These six only have names because this model is a toy</strong>${" "}
+                  — the axes and the word list feeding them were picked by hand, so
+                  here “time off” really is what that slot counts. A real embedding
+                  model hands back several hundred numbers with no names at all:
+                  nobody can say what its third number means. The arithmetic is the
+                  same either way.
                 </p>
               </div>
               <div class="pane">
