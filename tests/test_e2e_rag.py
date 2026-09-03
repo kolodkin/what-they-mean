@@ -71,12 +71,13 @@ def test_retrieval_encodes_the_question_and_ranks_every_chunk(rag: Page):
     # The question was encoded by the same model, and the words it knows are shown.
     expect(rag.locator(".stage-retrieve .qtext")).to_contain_text("How many days off")
     expect(rag.locator(".stage-retrieve .w-hit")).to_have_count(2)  # "day", "off"
-    # Its vector is written out as numbers, and only "time off" is non-zero.
+    # Its vector is written out as bare numbers — one slot non-zero, none named.
     expect(rag.locator(".stage-retrieve .vec-num")).to_have_count(6)
     expect(rag.locator(".stage-retrieve .vec-num.on")).to_have_count(1)
     expect(rag.locator(".stage-retrieve .vec-num").first).to_contain_text("1.00")
-    # And the page is straight about the axis names being a teaching device.
-    expect(rag.locator(".stage-retrieve")).to_contain_text("only have names because this model is a toy")
+    expect(rag.locator(".stage-retrieve .vec-label")).to_have_count(0)
+    # And the page says why they are nameless.
+    expect(rag.locator(".stage-retrieve")).to_contain_text("The slots have no names")
     # All 8 chunks scored; the nearest two clear the threshold and are handed over.
     expect(rag.locator(".stage-retrieve .rank")).to_have_count(8)
     used = rag.locator(".stage-retrieve .rank.used")

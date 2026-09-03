@@ -145,18 +145,16 @@ body { color: var(--ink); background: var(--bg); }
 .pane-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.5; color: #94a3b8; }
 
 /* --- vectors: what the encoder returns, written out ---------------------- */
-.vec { display: flex; align-items: flex-start; gap: 9px; }
+.vec { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .vec-bracket {
   font-size: 26px; line-height: 0.95; color: #cbd5e1; font-weight: 300;
   font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-.vec-axis { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; }
 .vec-num {
-  font-size: 14px; font-weight: 700; color: #cbd5e1;
+  font-size: 15px; font-weight: 700; color: #cbd5e1;
   font-family: "SF Mono", Menlo, Consolas, monospace;
 }
 .vec-num.on { color: var(--enc); }
-.vec-label { font-size: 9.5px; line-height: 1.2; color: var(--muted); text-align: center; }
 
 /* --- stage 0: the index -------------------------------------------------- */
 .why {

@@ -232,21 +232,18 @@ function ModelCard({ kind, step, name, io, blurb }) {
   `;
 }
 
-// The question as what the encoder actually returns: a list of numbers. The
-// names under them are what each slot counts IN THIS DEMO — see the note below
-// the component's use; a real model's numbers have no names.
+// The question as what the encoder actually returns: a list of numbers, and
+// nothing else. The slots are deliberately unlabelled — a real embedding
+// model's numbers have no names, and naming these would teach the wrong thing.
 function Vector({ vec }) {
   return html`
     <div class="vec">
       <span class="vec-bracket">[</span>
       ${AXES.map(
         (a, i) => html`
-          <div class="vec-axis" key=${a.key}>
-            <span class=${`vec-num ${vec[a.key] > 0 ? "on" : ""}`}>
-              ${vec[a.key].toFixed(2)}${i < AXES.length - 1 ? "," : ""}
-            </span>
-            <span class="vec-label">${a.label}</span>
-          </div>
+          <span class=${`vec-num ${vec[a.key] > 0 ? "on" : ""}`} key=${a.key}>
+            ${vec[a.key].toFixed(2)}${i < AXES.length - 1 ? "," : ""}
+          </span>
         `
       )}
       <span class="vec-bracket">]</span>
@@ -309,7 +306,7 @@ function IndexStage({ hi, setHi }) {
                 <span class="chunk-title">${c.title}</span>
                 <span class="chunk-body">${c.text}</span>
               </div>
-              <code class="vecnum" title=${AXES.map((a) => a.label).join(" · ")}>
+              <code class="vecnum">
                 [${AXES.map((a) => c.vec[a.key].toFixed(2)).join(", ")}]
               </code>
             </div>
@@ -360,12 +357,11 @@ function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, se
                 </p>
                 <${Vector} vec=${result.q.vec} />
                 <p class="pane-note">
-                  <strong>These six only have names because this model is a toy</strong>${" "}
-                  — the axes and the word list feeding them were picked by hand, so
-                  here “time off” really is what that slot counts. A real embedding
-                  model hands back several hundred numbers with no names at all:
-                  nobody can say what its third number means. The arithmetic is the
-                  same either way.
+                  <strong>The slots have no names</strong>, and in a real embedding
+                  model they couldn't: it returns several hundred numbers, and
+                  nobody can say what any one of them means. What matters is only
+                  that the same encoder always sends the same kind of text to the
+                  same place — that's what makes two pieces of text comparable.
                 </p>
               </div>
               <div class="pane">
