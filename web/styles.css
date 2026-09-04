@@ -23,17 +23,17 @@ body { color: var(--ink); background: var(--bg); }
 .menu-head h1 { margin: 0 0 14px; font-size: 52px; letter-spacing: -0.02em; }
 .menu-head p { margin: 0; color: var(--muted); font-size: 21px; line-height: 1.45; }
 
+/* Columns fall out of the available width, so adding a demo needs no retuning
+   here: three across on a laptop, two on a tablet, one on a phone. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 330px));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 330px));
+  justify-content: center;
   gap: 22px;
-}
-/* Six demos: three across keeps the whole menu above the fold on a laptop. */
-@media (max-width: 1080px) {
-  .cards { grid-template-columns: repeat(2, minmax(0, 330px)); }
+  width: 100%;
+  max-width: 1034px;
 }
 @media (max-width: 720px) {
-  .cards { grid-template-columns: 1fr; }
   .menu-head h1 { font-size: 44px; }
   .menu-head p { font-size: 19px; }
 }

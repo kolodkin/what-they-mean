@@ -1,23 +1,17 @@
 // The staff handbook of a small coffee shop, chopped into eight CHUNKS, plus a
-// deliberately tiny EMBEDDING MODEL that turns any text into five numbers.
+// deliberately tiny EMBEDDING MODEL that turns any text into one number per AXIS.
 //
 // Nothing here is faked: the question you ask is encoded by the same function
 // that encoded the handbook, and the ranking really is cosine similarity
 // between those vectors, computed in your browser. The only shortcut is the
 // size of the model — see the note on LEXICON below.
 
-// --- the five "meaning" axes ----------------------------------------------
-// A real embedding model has hundreds or thousands of these, and no human
-// picked what any of them mean. Five named ones fit on screen and let you SEE
-// the coordinates a piece of text lands on.
-export const AXES = [
-  { key: "timeoff", label: "time off" },
-  { key: "money", label: "money & buying" },
-  { key: "shifts", label: "shifts & hours" },
-  { key: "kit", label: "the machines" },
-  { key: "staff", label: "staff & training" },
-  { key: "customers", label: "customers" },
-];
+// --- the "meaning" axes ----------------------------------------------------
+// A real embedding model has hundreds or thousands of these, and nobody can say
+// what any one of them means. This many fit on screen, and what each one counts
+// is the LEXICON section it heads below. They stay unnamed on the page — naming
+// them would suggest a real model's numbers can be read, and they can't.
+export const AXES = ["timeoff", "money", "shifts", "kit", "staff", "customers"];
 
 // --- the toy encoder's whole vocabulary -----------------------------------
 // THIS is the shortcut. A real embedding model learned its own idea of meaning
@@ -74,33 +68,29 @@ function lookup(word) {
   return null;
 }
 
-// ENCODE — text in, one point in five-dimensional space out. This is the whole
-// job of the retrieval model: it never writes a word, it only places text.
-// Vectors are scaled to length 1 so long text can't out-shout short text.
+// ENCODE — text in, one point out, with an axis per coordinate. This is the
+// whole job of the retrieval model: it never writes a word, it only places
+// text. Vectors are scaled to length 1 so long text can't out-shout short text.
 export function encode(text) {
   const raw = {};
-  for (const a of AXES) raw[a.key] = 0;
+  for (const axis of AXES) raw[axis] = 0;
   const hits = [];
-  const misses = [];
   for (const token of String(text).toLowerCase().match(WORD_RE) || []) {
     const found = lookup(token);
-    if (!found) {
-      if (token.length > 2) misses.push(token);
-      continue;
-    }
+    if (!found) continue;
     hits.push(found);
     for (const [axis, weight] of Object.entries(LEXICON[found])) raw[axis] += weight;
   }
-  const length = Math.hypot(...AXES.map((a) => raw[a.key]));
+  const length = Math.hypot(...AXES.map((axis) => raw[axis]));
   const vec = {};
-  for (const a of AXES) vec[a.key] = length ? raw[a.key] / length : 0;
-  return { vec, hits: [...new Set(hits)], misses: [...new Set(misses)], empty: length === 0 };
+  for (const axis of AXES) vec[axis] = length ? raw[axis] / length : 0;
+  return { vec, hits: [...new Set(hits)] };
 }
 
 // Similarity between two already-scaled vectors: 1 = same direction, 0 = nothing
 // in common. "Nearest" in this space is what "relevant" means to a retriever.
 export function cosine(a, b) {
-  return AXES.reduce((sum, ax) => sum + a[ax.key] * b[ax.key], 0);
+  return AXES.reduce((sum, axis) => sum + a[axis] * b[axis], 0);
 }
 
 // --- the handbook ----------------------------------------------------------
@@ -159,10 +149,7 @@ const HANDBOOK = [
 
 // The INDEX: every chunk encoded once, up front — long before anyone asks
 // anything. At question time only the question still needs encoding.
-export const CHUNKS = HANDBOOK.map((c) => {
-  const { vec, hits } = encode(`${c.title} ${c.text}`);
-  return { ...c, vec, hits };
-});
+export const CHUNKS = HANDBOOK.map((c) => ({ ...c, vec: encode(`${c.title} ${c.text}`).vec }));
 
 export const TOP_K = 3; // how many nearest chunks retrieval hands over
 export const MIN_SCORE = 0.4; // below this, a chunk is near-ish but not useful

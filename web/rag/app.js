@@ -1,5 +1,5 @@
 import { h, render } from "preact";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import htm from "htm";
 import { AXES, CHUNKS, MIN_SCORE, QUESTIONS, TOP_K, retrieve } from "./data.js";
 
@@ -22,42 +22,66 @@ const T_PROMPT = 520; // between each line of the prompt being assembled
 const T_LINE = 620; // between each sentence the model "writes"
 
 const ORDER = ["idle", "encode", "score", "select", "prompt", "generate", "done"];
+const reached = (phase, step) => ORDER.indexOf(phase) >= ORDER.indexOf(step);
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const fmt = (n) => n.toFixed(2);
+const fmtVec = (vec) => `[${AXES.map((axis) => fmt(vec[axis])).join(", ")}]`;
+
+// The prompt as data — one entry per line, in the order they appear. Built here
+// so the reveal animation and the markup can never disagree on how many lines
+// there are.
+function buildPrompt(used, question) {
+  return [
+    {
+      kind: "sys",
+      text: "Answer using only the context below. If it isn't there, say you don't know.",
+    },
+    ...(used.length
+      ? used.map((s, i) => ({ kind: "ctx", id: s.chunk.id, cite: i + 1, text: s.chunk.text }))
+      : [{ kind: "empty", text: "Context: (nothing was retrieved)" }]),
+    { kind: "q", text: `Question: ${question}` },
+  ];
+}
 
 function App() {
   const [phase, setPhase] = useState("idle");
   const [asked, setAsked] = useState(null); // the question being run
-  const [result, setResult] = useState(null); // what retrieve() returned
   const [draft, setDraft] = useState(""); // the text box
   const [scored, setScored] = useState(0); // how many chunks have been scored
   const [promptLines, setPromptLines] = useState(0);
   const [written, setWritten] = useState(0); // how many answer sentences exist
   const [hi, setHi] = useState(null); // chunk id highlighted everywhere
   const timers = useRef([]);
+  const result = useMemo(() => (asked ? retrieve(asked) : null), [asked]);
 
   useEffect(() => {
     window.__APP = {
       ready: true,
       phase,
+      order: ORDER,
       question: asked,
       retrieved: result ? result.top.map((s) => s.chunk.id) : [],
       used: result ? result.used.map((s) => s.chunk.id) : [],
     };
   }, [phase, asked, result]);
 
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-
+  // Cancel every pending step of a run: on unmount, on Reset, and before a new
+  // question starts, so two runs can never animate over each other.
+  const stop = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  };
   const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
-  const reached = (p) => ORDER.indexOf(phase) >= ORDER.indexOf(p);
+  const done = (step) => reached(phase, step);
+
+  useEffect(() => stop, []);
 
   function ask(question) {
     const text = question.trim();
     if (!text) return;
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    stop();
     const r = retrieve(text);
     setAsked(text);
-    setResult(r);
     setScored(0);
     setPromptLines(0);
     setWritten(0);
@@ -81,7 +105,7 @@ function App() {
     // 4 — those chunks are pasted into a prompt, line by line.
     t += T_SELECT;
     at(t, () => setPhase("prompt"));
-    const lines = 2 + Math.max(r.used.length, 1);
+    const lines = buildPrompt(r.used, text).length;
     for (let i = 0; i < lines; i++) {
       t += T_PROMPT;
       at(t, () => setPromptLines(i + 1));
@@ -101,11 +125,9 @@ function App() {
   }
 
   function reset() {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    stop();
     setPhase("idle");
     setAsked(null);
-    setResult(null);
     setDraft("");
     setScored(0);
     setPromptLines(0);
@@ -133,7 +155,7 @@ function App() {
             kind="enc"
             step="Step 1 · Retrieval"
             name="The embedding model"
-            io="text → [0.94, 0.18, 0.22, 0.00, 0.17, 0.00]"
+            io=${`text → ${fmtVec(CHUNKS[0].vec)}`}
             blurb="Turns any text into a list of numbers — a position, so that
                    “closest” becomes something you can actually compute.
                    It reads. It never writes a word."
@@ -192,21 +214,18 @@ function App() {
       </header>
 
       <${IndexStage} hi=${hi} setHi=${setHi} />
-      <div class=${`flow ${reached("encode") ? "on" : ""}`}>↓</div>
+      <div class=${`flow ${done("encode") ? "on" : ""}`}>↓</div>
       <${RetrieveStage}
         phase=${phase}
-        reached=${reached("encode")}
         result=${result}
         asked=${asked}
         scored=${scored}
-        selected=${reached("select")}
         hi=${hi}
         setHi=${setHi}
       />
-      <div class=${`flow ${reached("prompt") ? "on" : ""}`}>↓</div>
+      <div class=${`flow ${done("prompt") ? "on" : ""}`}>↓</div>
       <${GenerateStage}
         phase=${phase}
-        reached=${reached("prompt")}
         result=${result}
         asked=${asked}
         preset=${preset}
@@ -240,9 +259,9 @@ function Vector({ vec }) {
     <div class="vec">
       <span class="vec-bracket">[</span>
       ${AXES.map(
-        (a, i) => html`
-          <span class=${`vec-num ${vec[a.key] > 0 ? "on" : ""}`} key=${a.key}>
-            ${vec[a.key].toFixed(2)}${i < AXES.length - 1 ? "," : ""}
+        (axis, i) => html`
+          <span class=${`vec-num ${vec[axis] > 0 ? "on" : ""}`} key=${axis}>
+            ${fmt(vec[axis])}${i < AXES.length - 1 ? "," : ""}
           </span>
         `
       )}
@@ -306,9 +325,7 @@ function IndexStage({ hi, setHi }) {
                 <span class="chunk-title">${c.title}</span>
                 <span class="chunk-body">${c.text}</span>
               </div>
-              <code class="vecnum">
-                [${AXES.map((a) => c.vec[a.key].toFixed(2)).join(", ")}]
-              </code>
+              <code class="vecnum">${fmtVec(c.vec)}</code>
             </div>
           `
         )}
@@ -321,23 +338,25 @@ function IndexStage({ hi, setHi }) {
 // index (it has to be — two different models put text in two different spaces),
 // then every chunk is scored by how close it sits. No language is generated
 // anywhere in this stage.
-function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, setHi }) {
+function RetrieveStage({ phase, result, asked, scored, hi, setHi }) {
   const active = ["encode", "score", "select"].includes(phase);
+  const shown = result && reached(phase, "encode");
+  const selected = reached(phase, "select");
   return html`
     <${StageShell}
       kind="retrieve"
       num="1"
       title="Retrieval"
       by="the embedding model"
-      badge=${reached && result ? `nearest ${TOP_K} of ${CHUNKS.length}` : ""}
+      badge=${shown && result ? `nearest ${TOP_K} of ${CHUNKS.length}` : ""}
       sub="Your question goes through the same encoder the index did — it has to
            be the same one, or the numbers wouldn't be comparable. Then it is
            pure arithmetic: how close is each chunk? Every score below is really
            computed, here, as you watch."
       active=${active}
-      reached=${reached}
+      reached=${shown}
     >
-      ${!reached
+      ${!shown
         ? html`<${Waiting} label="waiting for a question" />`
         : html`
             <div class="split">
@@ -369,8 +388,8 @@ function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, se
                 <ol class="ranks">
                   ${result.scored.map((s, i) => {
                     const shown = scored > i;
-                    const isTop = selected && i < TOP_K;
-                    const isUsed = isTop && s.score >= MIN_SCORE;
+                    const isTop = selected && result.top.includes(s);
+                    const isUsed = selected && result.used.includes(s);
                     const cls = [
                       "rank",
                       shown ? "shown" : "",
@@ -417,8 +436,9 @@ function RetrieveStage({ phase, reached, result, asked, scored, selected, hi, se
 
 // 2 — GENERATION. Retrieval is over; the embedding model is done for good. The
 // chunks it found are pasted into a prompt, and the LLM writes from that.
-function GenerateStage({ phase, reached, result, asked, preset, promptLines, written, hi, setHi }) {
+function GenerateStage({ phase, result, asked, preset, promptLines, written, hi, setHi }) {
   const active = ["prompt", "generate"].includes(phase);
+  const shown = result && reached(phase, "prompt");
   const used = result ? result.used : [];
   return html`
     <${StageShell}
@@ -426,44 +446,34 @@ function GenerateStage({ phase, reached, result, asked, preset, promptLines, wri
       num="2"
       title="Generation"
       by="the LLM"
-      badge=${reached ? (used.length ? `${used.length} chunks in the prompt` : "no context found") : ""}
+      badge=${shown ? (used.length ? `${used.length} chunks in the prompt` : "no context found") : ""}
       sub="The retrieved text is pasted into the prompt above the question — that
            paste is the whole trick. The model answers from what's in front of
            it rather than from memory."
       active=${active}
-      reached=${reached}
+      reached=${shown}
     >
-      ${!reached
+      ${!shown
         ? html`<${Waiting} label="waiting for retrieval" />`
         : html`
             <div class="split">
               <div class="pane">
                 <h3 class="pane-title">What the LLM actually receives</h3>
                 <div class="prompt">
-                  ${promptLines > 0 &&
-                  html`<div class="p-line p-sys">
-                    Answer using only the context below. If it isn't there, say you
-                    don't know.
-                  </div>`}
-                  ${used.length === 0
-                    ? promptLines > 1 &&
-                      html`<div class="p-line p-empty">Context: (nothing was retrieved)</div>`
-                    : used.map(
-                        (s, i) =>
-                          promptLines > i + 1 &&
-                          html`
-                            <div
-                              key=${s.chunk.id}
-                              class=${`p-line p-ctx ${hi === s.chunk.id ? "hi" : ""}`}
-                              onMouseEnter=${() => setHi(s.chunk.id)}
-                              onMouseLeave=${() => setHi(null)}
-                            >
-                              <span class="cite">[${i + 1}]</span> ${s.chunk.text}
-                            </div>
-                          `
-                      )}
-                  ${promptLines >= 2 + Math.max(used.length, 1) &&
-                  html`<div class="p-line p-q">Question: ${asked}</div>`}
+                  ${buildPrompt(used, asked)
+                    .slice(0, promptLines)
+                    .map(
+                      (line) => html`
+                        <div
+                          key=${line.text}
+                          class=${`p-line p-${line.kind} ${hi === line.id ? "hi" : ""}`}
+                          onMouseEnter=${() => setHi(line.id || null)}
+                          onMouseLeave=${() => setHi(null)}
+                        >
+                          ${line.cite && html`<span class="cite">[${line.cite}]</span> `}${line.text}
+                        </div>
+                      `
+                    )}
                 </div>
                 <p class="pane-note">
                   Nothing was retrained or remembered — next question, this prompt
