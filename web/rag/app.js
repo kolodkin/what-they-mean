@@ -15,11 +15,11 @@ const html = htm.bind(h);
 //                the answer. It writes; it never searches.
 //
 // The stages fill in one at a time so each hand-off is visible.
-const T_ENCODE = 820; // question -> its five numbers
-const T_SCORE = 110; // between each chunk being scored
-const T_SELECT = 620; // pause on the nearest few
-const T_PROMPT = 520; // between each line of the prompt being assembled
-const T_LINE = 620; // between each sentence the model "writes"
+const T_ENCODE = 1000; // question -> its list of numbers
+const T_SCORE = 140; // between each chunk being scored
+const T_SELECT = 760; // pause on the nearest few
+const T_PROMPT = 640; // between each line of the prompt being assembled
+const T_LINE = 760; // between each sentence the model "writes"
 
 const ORDER = ["idle", "encode", "score", "select", "prompt", "generate", "done"];
 const reached = (phase, step) => ORDER.indexOf(phase) >= ORDER.indexOf(step);
@@ -173,7 +173,15 @@ function App() {
   return html`
     <main class="wrap">
       <header class="head">
-        <h1>What is RAG?</h1>
+        <div class="head-top">
+          <h1>What is RAG?</h1>
+          <button class="demo" type="button" disabled=${running} onClick=${() => {
+            setDraft("");
+            ask(QUESTIONS[0].q);
+          }}>
+            ${running ? "Running…" : "▶ Play demo"}
+          </button>
+        </div>
         <p class="lede">
           An LLM only knows what it was trained on — not your handbook, your
           tickets or your docs. <strong>RAG</strong> (retrieval-augmented
@@ -584,7 +592,7 @@ function GenerateStage({ panelRef, phase, result, asked, preset, promptLines, wr
                     <p class="norag-note">${preset.guessNote}</p>
                   `
                 : html`<p class="norag-note">
-                    Ask one of the four questions above to see what the model says
+                    Ask one of the questions above to see what the model says
                     with no handbook in front of it.
                   </p>`}
             </div>
