@@ -188,8 +188,8 @@ function App() {
             step="Step 0 · The index"
             name="The handbook, encoded"
             io=${`${CHUNKS.length} chunks → ${CHUNKS.length} positions, once`}
-            blurb="Done ahead of time, by the embedding model: the handbook is cut
-                   into chunks and each chunk becomes its list of numbers.
+            blurb="Done once, ahead of time, by the embedding model: the handbook
+                   is cut into chunks and each chunk becomes its list of numbers.
                    Nobody has asked anything yet."
           />
           <${ModelCard}

@@ -52,6 +52,7 @@ def test_both_models_are_named_up_front(rag: Page):
     expect(rag.locator(".model")).to_have_count(3)
     expect(rag.locator(".model-idx")).to_contain_text("Step 0")
     expect(rag.locator(".model-idx")).to_contain_text("index")
+    expect(rag.locator(".model-idx")).to_contain_text("Done once")
     expect(rag.locator(".model-idx")).to_contain_text("embedding model")
     expect(rag.locator(".model-enc")).to_contain_text("embedding model")
     expect(rag.locator(".model-enc")).to_contain_text("Retrieval")
