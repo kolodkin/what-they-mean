@@ -40,6 +40,10 @@ That's it — nothing else to wire up.
   tests can wait on it.
 - Links are relative (`href="api/"`, `href="../"`) so the project-path GitHub
   Pages URL works.
+- **Tests assert structure and behaviour, not wording.** Check that an element
+  exists, how many there are, their order, their state (class, disabled, in
+  view) and what a run does — never the exact copy in a card, label or note.
+  Copy gets rewritten freely and shouldn't break a test when it does.
 
 ## Run / test / deploy
 

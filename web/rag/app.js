@@ -23,6 +23,26 @@ const T_LINE = 620; // between each sentence the model "writes"
 
 const ORDER = ["idle", "encode", "score", "select", "prompt", "generate", "done"];
 const reached = (phase, step) => ORDER.indexOf(phase) >= ORDER.indexOf(step);
+
+// The whole pipeline is taller than a screen, so a run would otherwise play out
+// below the fold: each panel is brought into view as it starts working. Gently —
+// the page only moves when the panel isn't already readable, it moves the
+// shortest way, and it doesn't animate for anyone who asked their system not to.
+const FOCUS = { idle: "ask", encode: "retrieve", prompt: "generate" };
+
+const motionOK = () =>
+  !window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function reveal(el) {
+  if (!el) return;
+  const box = el.getBoundingClientRect();
+  const view = window.innerHeight || document.documentElement.clientHeight;
+  // Already somewhere it can be read? Leave the page where the reader put it —
+  // scrolling under someone who is looking at the right thing is the rude case.
+  if (box.top >= 0 && (box.bottom <= view || box.top <= view * 0.35)) return;
+  el.scrollIntoView({ block: "start", behavior: motionOK() ? "smooth" : "auto" });
+}
+
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const fmt = (n) => n.toFixed(2);
 const fmtVec = (vec) => `[${AXES.map((axis) => fmt(vec[axis])).join(", ")}]`;
@@ -52,6 +72,8 @@ function App() {
   const [written, setWritten] = useState(0); // how many answer sentences exist
   const [hi, setHi] = useState(null); // chunk id highlighted everywhere
   const timers = useRef([]);
+  const panels = { ask: useRef(null), retrieve: useRef(null), generate: useRef(null) };
+  const follow = useRef(false); // only scroll along with a run the reader started
   const result = useMemo(() => (asked ? retrieve(asked) : null), [asked]);
 
   useEffect(() => {
@@ -76,10 +98,19 @@ function App() {
 
   useEffect(() => stop, []);
 
+  // Asking hands the scroll position over to the run: each time the work moves
+  // to another panel, the page follows it there. Reset walks back to the box.
+  useEffect(() => {
+    if (!follow.current) return;
+    const panel = panels[FOCUS[phase]];
+    if (panel) reveal(panel.current);
+  }, [phase]);
+
   function ask(question) {
     const text = question.trim();
     if (!text) return;
     stop();
+    follow.current = true;
     const r = retrieve(text);
     setAsked(text);
     setScored(0);
@@ -126,6 +157,7 @@ function App() {
 
   function reset() {
     stop();
+    follow.current = true;
     setPhase("idle");
     setAsked(null);
     setDraft("");
@@ -152,6 +184,15 @@ function App() {
         </p>
         <div class="two-models">
           <${ModelCard}
+            kind="idx"
+            step="Step 0 · The index"
+            name="The handbook, encoded"
+            io=${`${CHUNKS.length} chunks → ${CHUNKS.length} positions, once`}
+            blurb="Done once, ahead of time, by the embedding model: the handbook
+                   is cut into chunks and each chunk becomes its list of numbers.
+                   Nobody has asked anything yet."
+          />
+          <${ModelCard}
             kind="enc"
             step="Step 1 · Retrieval"
             name="The embedding model"
@@ -170,52 +211,62 @@ function App() {
                    It writes. It never searches."
           />
         </div>
-        <div class="controls">
-          <span class="controls-label">Ask the handbook:</span>
-          <div class="chips">
-            ${QUESTIONS.map(
-              (q) => html`
-                <button
-                  key=${q.id}
-                  class=${`chip ${asked === q.q ? "on" : ""}`}
-                  disabled=${running}
-                  onClick=${() => {
-                    setDraft("");
-                    ask(q.q);
-                  }}
-                >
-                  ${q.q}
-                </button>
-              `
-            )}
-          </div>
-          <form
-            class="askbar"
-            onSubmit=${(e) => {
-              e.preventDefault();
-              ask(draft);
-            }}
-          >
-            <input
-              class="ask-input"
-              placeholder="…or type your own question"
-              value=${draft}
-              disabled=${running}
-              onInput=${(e) => setDraft(e.currentTarget.value)}
-            />
-            <button class="run" type="submit" disabled=${running || !draft.trim()}>
-              ${running ? "Running…" : "▶ Ask"}
-            </button>
-            <button class="reset" type="button" onClick=${reset} disabled=${phase === "idle"}>
-              Reset
-            </button>
-          </form>
-        </div>
       </header>
 
       <${IndexStage} hi=${hi} setHi=${setHi} />
+      <section class="ask" ref=${panels.ask}>
+        <div class="ask-head">
+          <span class="ask-mark">?</span>
+          <h2 class="ask-title">Your question</h2>
+          <span class="ask-by">you</span>
+        </div>
+        <p class="ask-sub">
+          Everything above already happened, before you got here. Everything below
+          happens because you asked — so the question goes in here, and the two
+          models take it from there.
+        </p>
+        <div class="chips">
+          ${QUESTIONS.map(
+            (q) => html`
+              <button
+                key=${q.id}
+                class=${`chip ${asked === q.q ? "on" : ""}`}
+                disabled=${running}
+                onClick=${() => {
+                  setDraft("");
+                  ask(q.q);
+                }}
+              >
+                ${q.q}
+              </button>
+            `
+          )}
+        </div>
+        <form
+          class="askbar"
+          onSubmit=${(e) => {
+            e.preventDefault();
+            ask(draft);
+          }}
+        >
+          <input
+            class="ask-input"
+            placeholder="…or type your own question"
+            value=${draft}
+            disabled=${running}
+            onInput=${(e) => setDraft(e.currentTarget.value)}
+          />
+          <button class="run" type="submit" disabled=${running || !draft.trim()}>
+            ${running ? "Running…" : "▶ Ask"}
+          </button>
+          <button class="reset" type="button" onClick=${reset} disabled=${phase === "idle"}>
+            Reset
+          </button>
+        </form>
+      </section>
       <div class=${`flow ${done("encode") ? "on" : ""}`}>↓</div>
       <${RetrieveStage}
+        panelRef=${panels.retrieve}
         phase=${phase}
         result=${result}
         asked=${asked}
@@ -225,6 +276,7 @@ function App() {
       />
       <div class=${`flow ${done("prompt") ? "on" : ""}`}>↓</div>
       <${GenerateStage}
+        panelRef=${panels.generate}
         phase=${phase}
         result=${result}
         asked=${asked}
@@ -239,7 +291,9 @@ function App() {
   `;
 }
 
-// The two-models banner: the whole answer to "which model does what?", up top.
+// The banner up top: the whole answer to "which model does what?", plus the
+// step that happens before either question — the index the embedding model
+// built ahead of time. Numbered 0 to match the stage it becomes below.
 function ModelCard({ kind, step, name, io, blurb }) {
   return html`
     <div class=${`model model-${kind}`}>
@@ -270,12 +324,12 @@ function Vector({ vec }) {
   `;
 }
 
-function StageShell({ kind, num, title, by, sub, badge, active, reached, children }) {
+function StageShell({ kind, num, title, by, sub, badge, active, reached, panelRef, children }) {
   const cls = ["stage", `stage-${kind}`, active ? "active" : "", reached ? "reached" : ""]
     .filter(Boolean)
     .join(" ");
   return html`
-    <section class=${cls}>
+    <section class=${cls} ref=${panelRef}>
       <div class="stage-head">
         <span class="stage-num">${num}</span>
         <span class="stage-name">${title}</span>
@@ -338,12 +392,13 @@ function IndexStage({ hi, setHi }) {
 // index (it has to be — two different models put text in two different spaces),
 // then every chunk is scored by how close it sits. No language is generated
 // anywhere in this stage.
-function RetrieveStage({ phase, result, asked, scored, hi, setHi }) {
+function RetrieveStage({ panelRef, phase, result, asked, scored, hi, setHi }) {
   const active = ["encode", "score", "select"].includes(phase);
   const shown = result && reached(phase, "encode");
   const selected = reached(phase, "select");
   return html`
     <${StageShell}
+      panelRef=${panelRef}
       kind="retrieve"
       num="1"
       title="Retrieval"
@@ -436,12 +491,13 @@ function RetrieveStage({ phase, result, asked, scored, hi, setHi }) {
 
 // 2 — GENERATION. Retrieval is over; the embedding model is done for good. The
 // chunks it found are pasted into a prompt, and the LLM writes from that.
-function GenerateStage({ phase, result, asked, preset, promptLines, written, hi, setHi }) {
+function GenerateStage({ panelRef, phase, result, asked, preset, promptLines, written, hi, setHi }) {
   const active = ["prompt", "generate"].includes(phase);
   const shown = result && reached(phase, "prompt");
   const used = result ? result.used : [];
   return html`
     <${StageShell}
+      panelRef=${panelRef}
       kind="generate"
       num="2"
       title="Generation"

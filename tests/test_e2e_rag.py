@@ -31,9 +31,28 @@ def ask(page: Page, question: str, until: str = "done"):
     wait_until(page, until)
 
 
+IN_VIEW = """(sel) => {
+    const b = document.querySelector(sel).getBoundingClientRect();
+    const h = window.innerHeight;
+    // Where the page leaves a panel it has scrolled to: top on screen, and
+    // either the whole panel visible or its top in the upper half.
+    return b.top >= -2 && (b.bottom <= h + 2 || b.top <= h * 0.5);
+}"""
+
+
+def wait_in_view(page: Page, selector: str):
+    """Block until `selector` has been scrolled to (smooth scrolling takes a
+    moment, so this polls rather than sampling once)."""
+    page.wait_for_function(IN_VIEW, arg=selector, timeout=5000)
+
+
 def test_both_models_are_named_up_front(rag: Page):
-    # The page's whole point: two models, one per half of the acronym.
-    expect(rag.locator(".model")).to_have_count(2)
+    # The page's whole point: two models, one per half of the acronym — and the
+    # step before both, numbered 0 to match the stage it becomes further down.
+    expect(rag.locator(".model")).to_have_count(3)
+    expect(rag.locator(".model-idx")).to_contain_text("Step 0")
+    expect(rag.locator(".model-idx")).to_contain_text("index")
+    expect(rag.locator(".model-idx")).to_contain_text("embedding model")
     expect(rag.locator(".model-enc")).to_contain_text("embedding model")
     expect(rag.locator(".model-enc")).to_contain_text("Retrieval")
     expect(rag.locator(".model-llm")).to_contain_text("LLM")
@@ -74,6 +93,25 @@ def test_index_is_encoded_before_any_question(rag: Page):
     ).to_have_text("[0.94, 0.18, 0.22, 0.00, 0.17, 0.00]")
     # Retrieval and generation wait for a question.
     expect(rag.locator(".stage-empty")).to_have_count(2)
+
+
+def test_the_question_box_sits_between_the_index_and_retrieval(rag: Page):
+    # Asking is its own step in the flow, and it belongs where it happens: after
+    # the index that was built ahead of time, before the retrieval that cannot
+    # start until you have asked something.
+    order = rag.evaluate(
+        """() => [...document.querySelectorAll(
+                    '.stage-index, .ask, .stage-retrieve, .stage-generate')]
+                   .map((el) => el.classList.contains('ask') ? 'ask'
+                        : el.classList.contains('stage-index') ? 'index'
+                        : el.classList.contains('stage-retrieve') ? 'retrieve'
+                        : 'generate')"""
+    )
+    assert order == ["index", "ask", "retrieve", "generate"]
+    # …which means it is no longer part of the header.
+    expect(rag.locator(".head button.chip")).to_have_count(0)
+    expect(rag.locator(".ask button.chip")).to_have_count(4)
+    expect(rag.locator(".ask .ask-input")).to_be_visible()
 
 
 def test_retrieval_encodes_the_question_and_ranks_every_chunk(rag: Page):
@@ -162,6 +200,49 @@ def test_a_typed_question_is_encoded_the_same_way(rag: Page):
     wait_until(rag)
     assert rag.evaluate("() => window.__APP.used")[0] == "starters"
     expect(rag.locator(".stage-generate .answer")).to_contain_text("supervisor")
+
+
+def test_asking_walks_the_page_down_to_whatever_is_working(rag: Page):
+    # The pipeline is taller than a window, so the interesting half of a run
+    # would otherwise happen off-screen. A short viewport makes that true here.
+    rag.set_viewport_size({"width": 1280, "height": 700})
+    chip = rag.locator("button.chip").first
+    chip.scroll_into_view_if_needed()
+    before = rag.evaluate("() => window.scrollY")
+
+    chip.click()
+    wait_until(rag, "score")
+    wait_in_view(rag, ".stage-retrieve")
+    at_retrieval = rag.evaluate("() => window.scrollY")
+    assert at_retrieval > before
+
+    # …and again when the work hands over to the LLM.
+    wait_until(rag, "generate")
+    wait_in_view(rag, ".stage-generate")
+    assert rag.evaluate("() => window.scrollY") > at_retrieval
+
+
+def test_reset_walks_back_up_to_the_question_box(rag: Page):
+    rag.set_viewport_size({"width": 1280, "height": 700})
+    ask(rag, "How many days off do I get?")
+    wait_in_view(rag, ".stage-generate")
+    # dispatch_event rather than click(): a real click would scroll the button
+    # into view first, and then there would be nothing left for Reset to prove.
+    rag.locator("button.reset").dispatch_event("click")
+    wait_in_view(rag, ".ask")
+
+
+def test_the_page_stays_put_when_the_reader_can_already_see_the_work(rag: Page):
+    # Gently: on a window tall enough to show the whole pipeline, asking must
+    # not yank the page around — there is nothing off-screen to go to.
+    rag.set_viewport_size({"width": 1280, "height": 2400})
+    chip = rag.locator("button.chip").first
+    chip.scroll_into_view_if_needed()
+    before = rag.evaluate("() => window.scrollY")
+    chip.click()
+    wait_until(rag, "generate")
+    rag.wait_for_timeout(600)
+    assert rag.evaluate("() => window.scrollY") == before
 
 
 def test_reset_returns_to_the_index_only(rag: Page):
