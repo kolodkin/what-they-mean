@@ -30,13 +30,15 @@ body { color: var(--ink); background: var(--bg); }
 .lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 760px; margin: 0; }
 .lede strong { color: var(--ink); }
 
-/* the two models, side by side, before any machinery is shown */
-.two-models { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 4px; }
+/* the steps, side by side, before any machinery is shown: the index that was
+   built ahead of time, then the two models */
+.two-models { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0 4px; }
 .model {
   background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--c);
   border-radius: 12px; padding: 13px 16px;
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
 }
+.model-idx { --c: var(--index); }
 .model-enc { --c: var(--enc); }
 .model-llm { --c: var(--llm); }
 .model-step {
@@ -46,14 +48,35 @@ body { color: var(--ink); background: var(--bg); }
 .model-name { margin: 4px 0 6px; font-size: 18px; }
 .model-blurb { margin: 0 0 9px; font-size: 13.5px; line-height: 1.55; color: #334155; }
 .model-io {
-  display: inline-block; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;
+  display: block; width: fit-content; max-width: 100%; white-space: nowrap; overflow-x: auto;
+  font-size: 11.5px; padding: 3px 8px; border-radius: 6px;
   background: #f8fafc; border: 1px solid var(--line); color: var(--muted);
   font-family: "SF Mono", Menlo, Consolas, monospace;
 }
 
 /* --- asking -------------------------------------------------------------- */
-.controls { margin-top: 20px; }
-.controls-label { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+/* The reader's own step, and it sits where it happens: after the index has been
+   built, before retrieval has anything to go on. Slate rather than teal or
+   violet — this is the one panel no model is doing the work in. */
+.ask {
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid #94a3b8;
+  border-radius: 14px; padding: 16px 18px; margin-top: 10px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+.ask-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.ask-mark {
+  width: 21px; height: 21px; border-radius: 999px; background: #475569; color: #fff;
+  font-size: 12px; font-weight: 800; display: inline-flex; align-items: center;
+  justify-content: center; align-self: center;
+}
+.ask-title { margin: 0; font-size: 17px; font-weight: 800; color: #334155; }
+.ask-by {
+  font-size: 11.5px; font-weight: 700; color: #475569;
+  background: #f8fafc; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px;
+}
+.ask-sub {
+  margin: 8px 0 12px; font-size: 12.5px; line-height: 1.55; color: var(--muted); max-width: 780px;
+}
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 10px; }
 .chip {
   background: #fff; border: 1px solid var(--line); border-radius: 999px;
@@ -93,6 +116,10 @@ body { color: var(--ink); background: var(--bg); }
   transition: color 0.25s;
 }
 .flow.on { color: var(--llm); }
+
+/* Each panel is scrolled to as the run reaches it; this is the gap it keeps
+   from the top of the window when it gets there. */
+.ask, .stage { scroll-margin-top: 18px; }
 
 .stage {
   background: #fff; border: 1px solid var(--line); border-top: 4px solid #cbd5e1;
@@ -301,6 +328,7 @@ body { color: var(--ink); background: var(--bg); }
 
 /* --- narrower screens ---------------------------------------------------- */
 @media (max-width: 900px) {
+  .two-models { grid-template-columns: 1fr; }
   .chunks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .split { grid-template-columns: 1fr; }
 }
