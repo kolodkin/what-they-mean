@@ -110,7 +110,7 @@ def test_the_question_box_sits_between_the_index_and_retrieval(rag: Page):
     assert order == ["index", "ask", "retrieve", "generate"]
     # …which means it is no longer part of the header.
     expect(rag.locator(".head button.chip")).to_have_count(0)
-    expect(rag.locator(".ask button.chip")).to_have_count(4)
+    expect(rag.locator(".ask button.chip")).to_have_count(3)
     expect(rag.locator(".ask .ask-input")).to_be_visible()
 
 
@@ -181,17 +181,59 @@ def test_hovering_a_written_line_lights_up_its_source(rag: Page):
 
 
 def test_nothing_relevant_means_the_model_says_it_does_not_know(rag: Page):
-    # The handbook has nothing about wifi, so retrieval hands over nothing and
-    # generation has nothing to answer from — the honest RAG failure mode.
-    ask(rag, "What is the wifi password?")
+    # The handbook has nothing about wifi — and the encoder knows none of those
+    # words either, so the question gets no position at all. Retrieval hands
+    # over nothing and generation has nothing to answer from: the honest RAG
+    # failure mode, reached by typing rather than by a button.
+    rag.locator(".ask-input").fill("what is the wifi password?")
+    rag.locator("button.run").click()
+    wait_until(rag)
     expect(rag.locator(".stage-retrieve .words-none")).to_be_visible()
     expect(rag.locator(".stage-retrieve .rank.used")).to_have_count(0)
     assert rag.evaluate("() => window.__APP.used") == []
-    expect(rag.locator(".stage-generate .p-empty")).to_contain_text("nothing was retrieved")
-    expect(rag.locator(".stage-generate .a-refuse")).to_contain_text("can't find anything")
-    # And the contrast: with no retrieval the model invents a password anyway.
-    expect(rag.locator(".norag-answer")).to_contain_text("northwind-guest")
+    expect(rag.locator(".stage-generate .p-empty")).to_be_visible()
+    expect(rag.locator(".stage-generate .a-refuse")).to_be_visible()
+    # A typed question has no scripted no-retrieval counterpart, so the
+    # comparison panel offers the buttons instead of inventing an answer.
+    expect(rag.locator(".norag-answer")).to_have_count(0)
+    expect(rag.locator(".norag-note")).to_be_visible()
     rag.screenshot(path=os.path.join(SHOTS, "18-rag-no-answer.png"), full_page=True)
+
+
+def test_every_offered_question_retrieves_something(rag: Page):
+    # The buttons are the guided path through the page, so each one has to
+    # reach the handbook. A question the encoder cannot place anywhere belongs
+    # in the text box, not on a button.
+    chips = rag.locator("button.chip")
+    count = chips.count()
+    assert count > 0
+    for i in range(count):
+        chips.nth(i).click()
+        wait_until(rag, "select")
+        assert rag.evaluate("() => window.__APP.used"), f"question {i} retrieved nothing"
+        rag.locator("button.reset").click()
+
+
+def test_the_demo_button_runs_the_first_question_for_you(rag: Page):
+    # One button, above everything else, for a reader who would rather watch
+    # than choose — and it is not one of the question buttons.
+    demo = rag.locator(".head button.demo")
+    expect(demo).to_have_count(1)
+    expect(rag.locator(".head button.chip")).to_have_count(0)
+    wanted = rag.locator("button.chip").first.inner_text().strip()
+
+    demo.click()
+    # It picks the first question, so that chip shows as the one being answered,
+    # and it locks itself for the duration like every other way in does.
+    expect(demo).to_be_disabled()
+    expect(rag.locator("button.chip.on")).to_have_count(1)
+    assert rag.locator("button.chip.on").inner_text().strip() == wanted
+
+    # …and the run goes all the way through, exactly as clicking the chip would.
+    wait_until(rag)
+    assert rag.evaluate("() => window.__APP.question") == wanted
+    assert rag.evaluate("() => window.__APP.used")
+    expect(demo).to_be_enabled()
 
 
 def test_a_typed_question_is_encoded_the_same_way(rag: Page):
@@ -247,11 +289,11 @@ def test_the_page_stays_put_when_the_reader_can_already_see_the_work(rag: Page):
 
 def test_reset_returns_to_the_index_only(rag: Page):
     # Reset mid-run, so this also covers the pending steps being cancelled: the
-    # next scheduled step ("score", 820ms in) lands inside the wait below and
+    # next scheduled step ("score", 1000ms in) lands inside the wait below and
     # would push the phase off "idle" if Reset had not cleared the timers.
     ask(rag, "How many days off do I get?", until="encode")
     rag.locator("button.reset").click()
-    rag.wait_for_timeout(1100)
+    rag.wait_for_timeout(1300)
     assert rag.evaluate("() => window.__APP.phase") == "idle"
     expect(rag.locator(".stage-empty")).to_have_count(2)
     expect(rag.locator(".stage-index .chunk")).to_have_count(8)

@@ -168,6 +168,9 @@ export function retrieve(question) {
 // --- the questions on the buttons -----------------------------------------
 // `guess` is what a model with no handbook says: fluent, confident, and either
 // invented or generic. That gap is the entire reason RAG exists.
+//
+// The first one is also what the "Play demo" button up top asks, so keep a
+// question that retrieves something at the front of the list.
 export const QUESTIONS = [
   {
     id: "days",
@@ -186,11 +189,5 @@ export const QUESTIONS = [
     q: "When do I get paid back for buying milk?",
     guess: "Expense claims are typically reimbursed within 14 days of submission through your company's expenses portal.",
     guessNote: "Invented specifics — plausible numbers, not your numbers.",
-  },
-  {
-    id: "wifi",
-    q: "What is the wifi password?",
-    guess: "It is usually printed on the back of the router — for a shop like this, something like northwind-guest.",
-    guessNote: "Pure invention. Nothing in the handbook covers this at all.",
   },
 ];

@@ -26,7 +26,21 @@ body { color: var(--ink); background: var(--bg); }
 
 /* --- header -------------------------------------------------------------- */
 .head { margin-bottom: 22px; }
-.head h1 { margin: 0 0 8px; font-size: 30px; }
+/* The title and the demo button share a row. The button sits beside the title
+   rather than out at the right edge, where the back link already is. */
+.head-top { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 0 0 8px; }
+.head h1 { margin: 0; font-size: 30px; } /* .head-top carries the gap below */
+
+/* Plays the whole pipeline on the first question, for a reader who would
+   rather watch than choose. Both models run, so it borrows neither colour. */
+.demo {
+  background: var(--ink); color: #fff; border: none; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 700; padding: 9px 16px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.demo:hover:not(:disabled) { background: #1e293b; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
+.demo:disabled { background: #cbd5e1; color: #475569; cursor: default; box-shadow: none; }
 .lede { font-size: 15px; line-height: 1.6; color: #334155; max-width: 760px; margin: 0; }
 .lede strong { color: var(--ink); }
 
