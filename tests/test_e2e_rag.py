@@ -193,10 +193,6 @@ def test_nothing_relevant_means_the_model_says_it_does_not_know(rag: Page):
     assert rag.evaluate("() => window.__APP.used") == []
     expect(rag.locator(".stage-generate .p-empty")).to_be_visible()
     expect(rag.locator(".stage-generate .a-refuse")).to_be_visible()
-    # A typed question has no scripted no-retrieval counterpart, so the
-    # comparison panel offers the buttons instead of inventing an answer.
-    expect(rag.locator(".norag-answer")).to_have_count(0)
-    expect(rag.locator(".norag-note")).to_be_visible()
     rag.screenshot(path=os.path.join(SHOTS, "18-rag-no-answer.png"), full_page=True)
 
 

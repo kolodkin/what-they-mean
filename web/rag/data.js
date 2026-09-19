@@ -166,28 +166,10 @@ export function retrieve(question) {
 }
 
 // --- the questions on the buttons -----------------------------------------
-// `guess` is what a model with no handbook says: fluent, confident, and either
-// invented or generic. That gap is the entire reason RAG exists.
-//
 // The first one is also what the "Play demo" button up top asks, so keep a
 // question that retrieves something at the front of the list.
 export const QUESTIONS = [
-  {
-    id: "days",
-    q: "How many days off do I get?",
-    guess: "Most employers offer around 25 days of annual leave plus bank holidays, so you can expect roughly 25 days.",
-    guessNote: "Fluent, reasonable, and wrong — the handbook says 28.",
-  },
-  {
-    id: "leak",
-    q: "The espresso machine is leaking, what do I do?",
-    guess: "Try descaling the machine and tightening the portafilter gasket. If it still leaks, replace the group head seal yourself.",
-    guessNote: "Generic café advice that contradicts the actual rule: switch it off and call the engineer.",
-  },
-  {
-    id: "milk",
-    q: "When do I get paid back for buying milk?",
-    guess: "Expense claims are typically reimbursed within 14 days of submission through your company's expenses portal.",
-    guessNote: "Invented specifics — plausible numbers, not your numbers.",
-  },
+  { id: "days", q: "How many days off do I get?" },
+  { id: "leak", q: "The espresso machine is leaking, what do I do?" },
+  { id: "milk", q: "When do I get paid back for buying milk?" },
 ];

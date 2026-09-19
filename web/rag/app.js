@@ -168,7 +168,6 @@ function App() {
   }
 
   const running = phase !== "idle" && phase !== "done";
-  const preset = QUESTIONS.find((q) => q.q === asked) || null;
 
   return html`
     <main class="wrap">
@@ -288,7 +287,6 @@ function App() {
         phase=${phase}
         result=${result}
         asked=${asked}
-        preset=${preset}
         promptLines=${promptLines}
         written=${written}
         hi=${hi}
@@ -499,7 +497,7 @@ function RetrieveStage({ panelRef, phase, result, asked, scored, hi, setHi }) {
 
 // 2 — GENERATION. Retrieval is over; the embedding model is done for good. The
 // chunks it found are pasted into a prompt, and the LLM writes from that.
-function GenerateStage({ panelRef, phase, result, asked, preset, promptLines, written, hi, setHi }) {
+function GenerateStage({ panelRef, phase, result, asked, promptLines, written, hi, setHi }) {
   const active = ["prompt", "generate"].includes(phase);
   const shown = result && reached(phase, "prompt");
   const used = result ? result.used : [];
@@ -583,18 +581,6 @@ function GenerateStage({ panelRef, phase, result, asked, preset, promptLines, wr
                   prompt and the index. RAG answers can be checked.
                 </p>
               </div>
-            </div>
-            <div class="norag">
-              <h4>Same question,<br />no retrieval</h4>
-              ${preset
-                ? html`
-                    <p class="norag-answer">“${preset.guess}”</p>
-                    <p class="norag-note">${preset.guessNote}</p>
-                  `
-                : html`<p class="norag-note">
-                    Ask one of the questions above to see what the model says
-                    with no handbook in front of it.
-                  </p>`}
             </div>
           `}
     </${StageShell}>
