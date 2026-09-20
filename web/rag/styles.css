@@ -329,6 +329,12 @@ body { color: var(--ink); background: var(--bg); }
   .split { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  /* Here the header's demo button can reach the right edge, where the floating
+     back link would sit on top of it. The link takes a row of its own instead,
+     which also gives the title the breathing room above it that it had when the
+     link was out of the flow. */
+  .back { position: static; display: block; width: fit-content; margin: 14px 22px 0 auto; }
+  .wrap { padding-top: 14px; }
   .two-models { grid-template-columns: 1fr; }
   .chunks { grid-template-columns: 1fr; }
   .rank { grid-template-columns: 100px 1fr 32px; }
