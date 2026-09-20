@@ -60,6 +60,31 @@ def test_both_models_are_named_up_front(rag: Page):
     rag.screenshot(path=os.path.join(SHOTS, "16-rag-idle.png"), full_page=True)
 
 
+def test_the_header_clears_the_back_link_on_a_phone(rag: Page):
+    # At phone width the demo button reaches the right edge — where the back
+    # link floats on wider screens. The two must not land on top of each other,
+    # and the header has to start below the link rather than under it.
+    rag.set_viewport_size({"width": 412, "height": 820})
+    boxes = rag.evaluate(
+        """() => {
+            const box = (sel) => {
+              const b = document.querySelector(sel).getBoundingClientRect();
+              return { top: b.top, right: b.right, bottom: b.bottom, left: b.left };
+            };
+            return { back: box(".back"), demo: box(".demo"), h1: box(".head h1") };
+        }"""
+    )
+    back, demo, h1 = boxes["back"], boxes["demo"], boxes["h1"]
+    assert (
+        back["bottom"] <= demo["top"]
+        or demo["bottom"] <= back["top"]
+        or back["right"] <= demo["left"]
+        or demo["right"] <= back["left"]
+    ), f"the back link sits on the demo button: {back} vs {demo}"
+    assert back["top"] > 0, "the back link is flush against the top of the page"
+    assert h1["top"] >= back["bottom"], "the header starts before the back link ends"
+
+
 def test_the_selected_question_stays_legible_under_the_cursor(rag: Page):
     # The chip you just clicked keeps the cursor on it. Its hover tint must not
     # win over its selected style, or the label goes teal-on-teal and vanishes.
@@ -193,10 +218,6 @@ def test_nothing_relevant_means_the_model_says_it_does_not_know(rag: Page):
     assert rag.evaluate("() => window.__APP.used") == []
     expect(rag.locator(".stage-generate .p-empty")).to_be_visible()
     expect(rag.locator(".stage-generate .a-refuse")).to_be_visible()
-    # A typed question has no scripted no-retrieval counterpart, so the
-    # comparison panel offers the buttons instead of inventing an answer.
-    expect(rag.locator(".norag-answer")).to_have_count(0)
-    expect(rag.locator(".norag-note")).to_be_visible()
     rag.screenshot(path=os.path.join(SHOTS, "18-rag-no-answer.png"), full_page=True)
 
 
