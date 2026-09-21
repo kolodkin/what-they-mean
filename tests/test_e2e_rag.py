@@ -295,6 +295,23 @@ def test_reset_walks_back_up_to_the_question_box(rag: Page):
     wait_in_view(rag, ".ask")
 
 
+def test_the_reader_can_scroll_away_while_the_page_is_following_a_run(rag: Page):
+    # Following a run must never lock the page: if the reader scrolls while the
+    # page is on its way to a panel, the reader wins and the page stays where
+    # they put it instead of dragging them back down.
+    rag.set_viewport_size({"width": 1280, "height": 700})
+    chip = rag.locator("button.chip").first
+    chip.scroll_into_view_if_needed()
+    chip.click()
+    rag.wait_for_timeout(150)  # the page has started moving toward retrieval
+    for _ in range(5):
+        rag.mouse.wheel(0, -600)
+        rag.wait_for_timeout(50)
+    assert rag.evaluate("() => window.scrollY") == 0
+    rag.wait_for_timeout(1200)  # long enough for any scroll to have finished
+    assert rag.evaluate("() => window.scrollY") == 0
+
+
 def test_the_page_stays_put_when_the_reader_can_already_see_the_work(rag: Page):
     # Gently: on a window tall enough to show the whole pipeline, asking must
     # not yank the page around — there is nothing off-screen to go to.

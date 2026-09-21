@@ -30,29 +30,8 @@ const reached = (phase, step) => ORDER.indexOf(phase) >= ORDER.indexOf(step);
 // shortest way, and it doesn't animate for anyone who asked their system not to.
 const FOCUS = { idle: "ask", encode: "retrieve", prompt: "generate" };
 
-const T_SCROLL = 1000; // the page gliding from one panel to the next
-
 const motionOK = () =>
   !window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-// The browser's own smooth scroll is over in a blink, which reads as a jump
-// when the panels are far apart. This one takes its time: T_SCROLL from start
-// to finish, easing in and out, and any newer glide cancels the one before.
-let glide = 0;
-const easeInOut = (p) => (p < 0.5 ? 2 * p * p : 1 - (2 - 2 * p) ** 2 / 2);
-
-function scrollPageTo(top) {
-  cancelAnimationFrame(glide);
-  const from = window.scrollY;
-  const dist = top - from;
-  const t0 = performance.now();
-  const step = (now) => {
-    const p = Math.min((now - t0) / T_SCROLL, 1);
-    window.scrollTo(0, from + dist * easeInOut(p));
-    if (p < 1) glide = requestAnimationFrame(step);
-  };
-  glide = requestAnimationFrame(step);
-}
 
 function reveal(el) {
   if (!el) return;
@@ -61,12 +40,10 @@ function reveal(el) {
   // Already somewhere it can be read? Leave the page where the reader put it —
   // scrolling under someone who is looking at the right thing is the rude case.
   if (box.top >= 0 && (box.bottom <= view || box.top <= view * 0.35)) return;
-  // Land with the panel's top at the top of the window, as far as the page
-  // can scroll — the last panel can't go higher than the page's end allows.
-  const limit = document.documentElement.scrollHeight - view;
-  const top = Math.max(0, Math.min(box.top + window.scrollY, limit));
-  if (motionOK()) scrollPageTo(top);
-  else window.scrollTo(0, top);
+  // The browser's own scroll, not a hand-rolled one: it yields the moment the
+  // reader scrolls, where a script moving the page frame by frame would fight
+  // them and feel frozen.
+  el.scrollIntoView({ block: "start", behavior: motionOK() ? "smooth" : "auto" });
 }
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
