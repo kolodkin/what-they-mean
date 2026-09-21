@@ -14,12 +14,14 @@ const html = htm.bind(h);
 //   generation — an LLM reads the question plus whatever came back, and writes
 //                the answer. It writes; it never searches.
 //
-// The stages fill in one at a time so each hand-off is visible.
-const T_ENCODE = 2000; // question -> its list of numbers
-const T_SCORE = 280; // between each chunk being scored
-const T_SELECT = 1520; // pause on the nearest few
-const T_PROMPT = 1280; // between each line of the prompt being assembled
-const T_LINE = 1520; // between each sentence the model "writes"
+// The stages fill in one at a time so each hand-off is visible. Slow enough
+// that each step registers, but never so slow that nothing on screen changes
+// for seconds at a stretch — a pause with nothing moving reads as stuck.
+const T_ENCODE = 1400; // question -> its list of numbers
+const T_SCORE = 220; // between each chunk being scored
+const T_SELECT = 1000; // pause on the nearest few
+const T_PROMPT = 900; // between each line of the prompt being assembled
+const T_LINE = 1000; // between each sentence the model "writes"
 
 const ORDER = ["idle", "encode", "score", "select", "prompt", "generate", "done"];
 const reached = (phase, step) => ORDER.indexOf(phase) >= ORDER.indexOf(step);

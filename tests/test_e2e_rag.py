@@ -327,7 +327,7 @@ def test_the_page_stays_put_when_the_reader_can_already_see_the_work(rag: Page):
 
 def test_reset_returns_to_the_index_only(rag: Page):
     # Reset mid-run, so this also covers the pending steps being cancelled: the
-    # next scheduled step ("score", 2000ms in) lands inside the wait below and
+    # next scheduled step ("score", 1400ms in) lands inside the wait below and
     # would push the phase off "idle" if Reset had not cleared the timers.
     ask(rag, "How many days off do I get?", until="encode")
     rag.locator("button.reset").click()
