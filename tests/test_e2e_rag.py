@@ -22,7 +22,7 @@ def wait_until(page: Page, phase: str = "done"):
     page.wait_for_function(
         f"() => window.__APP.order.indexOf(window.__APP.phase) >= "
         f"window.__APP.order.indexOf('{phase}')",
-        timeout=20000,
+        timeout=40000,
     )
 
 
@@ -310,11 +310,11 @@ def test_the_page_stays_put_when_the_reader_can_already_see_the_work(rag: Page):
 
 def test_reset_returns_to_the_index_only(rag: Page):
     # Reset mid-run, so this also covers the pending steps being cancelled: the
-    # next scheduled step ("score", 1000ms in) lands inside the wait below and
+    # next scheduled step ("score", 2000ms in) lands inside the wait below and
     # would push the phase off "idle" if Reset had not cleared the timers.
     ask(rag, "How many days off do I get?", until="encode")
     rag.locator("button.reset").click()
-    rag.wait_for_timeout(1300)
+    rag.wait_for_timeout(2300)
     assert rag.evaluate("() => window.__APP.phase") == "idle"
     expect(rag.locator(".stage-empty")).to_have_count(2)
     expect(rag.locator(".stage-index .chunk")).to_have_count(8)
