@@ -63,3 +63,15 @@ def test_put_replaces_and_patch_keeps_the_rest(rest: Page):
     expect(item.locator("strong")).to_have_text(name_before)
     rest.locator(".req").nth(3).click()  # PUT: the whole record is swapped
     expect(item.locator("strong")).not_to_have_text(name_before)
+
+
+def test_on_a_phone_the_demo_brings_the_answer_into_view(page: Page, server_url: str):
+    page.set_viewport_size({"width": 375, "height": 740})
+    page.goto(server_url + "/rest/")
+    page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
+    assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    expect(page.locator(".status")).to_have_count(0)
+    page.get_by_text("Play demo").click()
+    expect(page.locator(".status")).to_be_in_viewport(timeout=4000)
+    expect(page.locator(".shelf")).to_be_in_viewport()
+    page.screenshot(path=os.path.join(SHOTS, "32-rest-phone.png"))

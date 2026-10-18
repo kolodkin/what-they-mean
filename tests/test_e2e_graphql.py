@@ -98,3 +98,28 @@ def test_play_demo_sends_mutations(change: Page):
     expect(change.locator(".mut").nth(0)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
     expect(change.locator(".mut").nth(2)).to_have_class(re.compile(r"\bcurrent\b"), timeout=8000)
     expect(change.locator(".shelf .item")).to_have_count(3)
+
+
+@pytest.fixture()
+def phone(page: Page, server_url: str):
+    page.set_viewport_size({"width": 375, "height": 740})
+    page.goto(server_url + "/graphql/")
+    page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
+    assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    return page
+
+
+def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
+    expect(phone.locator(".answer")).not_to_be_in_viewport()
+    phone.get_by_text("Play demo").click()
+    expect(phone.locator(".answer")).to_be_in_viewport(timeout=5000)
+
+
+def test_on_a_phone_a_mutation_brings_the_shelf_into_view(phone: Page):
+    phone.locator(".tab").nth(1).click()
+    phone.evaluate("scrollTo(0, document.body.scrollHeight)")
+    # Recipe 2 is what the update mutation changes; it starts off screen.
+    expect(phone.locator(".shelf .item").nth(1)).not_to_be_in_viewport()
+    phone.locator(".mut").nth(1).click()
+    expect(phone.locator(".shelf .item.glow")).to_be_in_viewport(timeout=4000)
+    phone.screenshot(path=os.path.join(SHOTS, "43-graphql-phone.png"))

@@ -27,7 +27,7 @@ body { color: var(--ink); background: var(--bg); }
    here: five across on a laptop, fewer on a tablet, one on a phone. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 196px));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   justify-content: center;
   gap: 16px;
   width: 100%;

@@ -5,6 +5,14 @@ import { SEED, REQUESTS, handle, STATUS_TEXT } from "./data.js";
 
 const html = htm.bind(h);
 
+// On a phone the panes stack, so what a step changes can land below the fold.
+// Bring it into view the shortest way, only if it isn't already, and without
+// animating for anyone who asked their system for less motion.
+function reveal(el) {
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+}
+
 function App() {
   const [shelf, setShelf] = useState(SEED);
   const [last, setLast] = useState(null); // { req, status, body, touched }
@@ -42,6 +50,10 @@ function App() {
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  useEffect(() => {
+    if (last) reveal(document.querySelector(".pane-server"));
+  }, [last]);
 
   useEffect(() => {
     window.__APP = { ready: true, count: shelf.length, status: last ? last.status : null };
@@ -108,7 +120,9 @@ function App() {
           ${shelf.length === 0 && html`<p class="empty">The shelf is empty.</p>`}
         </div>
 
-        <div class="block-title">Response</div>
+        <div class="block-title">
+          Response${last && html` to <code class="sent">${last.req.method} ${last.req.path}</code>`}
+        </div>
         ${last
           ? html`
               <div class="response">

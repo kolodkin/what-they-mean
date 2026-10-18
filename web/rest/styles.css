@@ -176,3 +176,15 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   line-height: 1.5;
   overflow: auto;
 }
+
+/* --- phone: one column, and the whole page scrolls ------------------------
+   Locked to the screen height, the stacked halves would each shrink into a
+   small scroll box with the interesting part hidden inside it. */
+@media (max-width: 720px) {
+  #app { height: auto; min-height: 100vh; }
+  .page-head { flex-direction: column; }
+  .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
+  .pane { overflow: visible; }
+  .pane-server { border-left: none; border-top: 3px solid var(--ink); }
+}
+.sent { text-transform: none; letter-spacing: 0; color: var(--ink); font-weight: 700; }

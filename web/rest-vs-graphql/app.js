@@ -6,6 +6,14 @@ import { SCENARIOS, SIDES } from "./data.js";
 const html = htm.bind(h);
 const STEP_MS = 4000;
 
+// On a phone the panes stack, so what a step changes can land below the fold.
+// Bring it into view the shortest way, only if it isn't already, and without
+// animating for anyone who asked their system for less motion.
+function reveal(el) {
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+}
+
 function App() {
   const [picked, setPicked] = useState("all"); // "all" or a scenario id
   const [playing, setPlaying] = useState(false);
@@ -28,6 +36,15 @@ function App() {
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  useEffect(() => {
+    // The chip row scrolls sideways on its own; moving it directly leaves the
+    // page alone, so the two scrolls can't cancel each other.
+    const row = document.querySelector(".scenarios");
+    const chip = row.querySelector(".scenario.current");
+    if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: chip.offsetLeft - 16, behavior: "smooth" });
+    if (picked !== "all") reveal(document.querySelector(".side.wins"));
+  }, [picked]);
 
   useEffect(() => {
     window.__APP = { ready: true, picked };
