@@ -24,14 +24,14 @@ body { color: var(--ink); background: var(--bg); }
 .menu-head p { margin: 0; color: var(--muted); font-size: 21px; line-height: 1.45; }
 
 /* Columns fall out of the available width, so adding a demo needs no retuning
-   here: four across on a laptop, two or three on a tablet, one on a phone. */
+   here: five across on a laptop, fewer on a tablet, one on a phone. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 245px));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 196px));
   justify-content: center;
-  gap: 22px;
+  gap: 16px;
   width: 100%;
-  max-width: 1046px;
+  max-width: 1060px;
 }
 @media (max-width: 720px) {
   .menu-head h1 { font-size: 44px; }
@@ -42,7 +42,7 @@ body { color: var(--ink); background: var(--bg); }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
+  padding: 16px;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 18px;
@@ -55,8 +55,8 @@ body { color: var(--ink); background: var(--bg); }
   transform: translateY(-3px);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
 }
-.card h2 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
-.card-lead { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; flex: 1; }
+.card h2 { margin: 0; font-size: 19px; letter-spacing: -0.01em; }
+.card-lead { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; flex: 1; }
 
 .card-go {
   margin-top: auto;
