@@ -176,9 +176,12 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
     position: sticky; top: 0; z-index: 1;
     flex-wrap: nowrap; overflow-x: auto;
     scroll-snap-type: x proximity; scroll-padding-left: 16px;
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid var(--line);
   }
-  .scenario { flex: none; max-width: 78vw; scroll-snap-align: start; }
+  /* Plain chips here: half-scrolled-off winner stripes at both edges read as
+     stray colour, and the sides below already say who wins. */
+  .scenario { flex: none; max-width: 78vw; scroll-snap-align: start; border-left: 1px solid var(--line); }
+  .scenario.current { border-left-color: var(--ink); }
   /* Stacked, the side that wins the picked situation comes first — right under
      the situations — instead of sometimes falling below the fold. */
   .side { padding: 14px; scroll-margin-top: 76px; }
