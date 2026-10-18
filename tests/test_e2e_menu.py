@@ -10,15 +10,17 @@ os.makedirs(SHOTS, exist_ok=True)
 def test_menu_lists_all_demos(page: Page, server_url: str):
     page.set_viewport_size({"width": 1100, "height": 800})
     page.goto(server_url + "/")
-    expect(page.locator(".card")).to_have_count(6)
+    expect(page.locator(".card")).to_have_count(8)
     expect(page.locator('.card[href="api/"]')).to_contain_text("API")
+    expect(page.locator('.card[href="rest/"]')).to_be_visible()
+    expect(page.locator('.card[href="graphql/"]')).to_be_visible()
     expect(page.locator('.card[href="db/"]')).to_contain_text("database")
     expect(page.locator('.card[href="etl/"]')).to_contain_text("ETL")
     expect(page.locator('.card[href="platform/"]')).to_contain_text("data platform")
     expect(page.locator('.card[href="rag/"]')).to_contain_text("RAG")
     expect(page.locator('.card[href="roles/"]')).to_contain_text("stack")
-    # All six cards must sit above the fold at a normal laptop size.
-    for href in ("api/", "db/", "etl/", "platform/", "rag/", "roles/"):
+    # All eight cards must sit above the fold at a normal laptop size.
+    for href in ("api/", "rest/", "graphql/", "db/", "etl/", "platform/", "rag/", "roles/"):
         box = page.locator(f'.card[href="{href}"]').bounding_box()
         assert box["y"] + box["height"] <= 800, f"{href} card falls below the fold"
     page.screenshot(path=os.path.join(SHOTS, "00-menu.png"))
@@ -58,3 +60,15 @@ def test_menu_card_opens_db_demo(page: Page, server_url: str):
     page.goto(server_url + "/")
     page.locator('.card[href="db/"]').click()
     expect(page).to_have_url(server_url + "/db/")
+
+
+def test_menu_card_opens_rest_demo(page: Page, server_url: str):
+    page.goto(server_url + "/")
+    page.locator('.card[href="rest/"]').click()
+    expect(page).to_have_url(server_url + "/rest/")
+
+
+def test_menu_card_opens_graphql_demo(page: Page, server_url: str):
+    page.goto(server_url + "/")
+    page.locator('.card[href="graphql/"]').click()
+    expect(page).to_have_url(server_url + "/graphql/")
