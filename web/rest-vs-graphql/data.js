@@ -2,18 +2,33 @@
 // becomes a pro for that side, and the other side's `point` becomes a con.
 export const SCENARIOS = [
   {
-    id: "author",
-    title: "Show a recipe with its author's name",
+    id: "fields",
+    title: "Show just a recipe's name",
     winner: "graphql",
     rest: {
-      lines: ["GET /recipes/1", "GET /authors/7"],
-      note: "Two trips, and each one sends back the whole record — bio, dates and all.",
-      point: "Extra trips and extra data you didn't ask for",
+      lines: ["GET /recipes/1", "← name, minutes, servings, calories, description, ingredients…"],
+      note: "The address decides what comes back — the whole record, even if you need one field.",
+      point: "Sends whole records, even when you need one field",
     },
     graphql: {
-      lines: ["POST /graphql", "{ recipe(id: 1) { name author { name } } }"],
-      note: "One trip, and only the two names come back.",
-      point: "Exactly the fields you need, in one trip",
+      lines: ["{ recipe(id: 1) { name } }", "← { name }"],
+      note: "You list the fields; only those come back.",
+      point: "Exactly the fields you need, nothing more",
+    },
+  },
+  {
+    id: "relations",
+    title: "Follow links: a recipe → its author → their other recipes",
+    winner: "graphql",
+    rest: {
+      lines: ["GET /recipes/1          → authorId: 7", "GET /authors/7          → then…", "GET /authors/7/recipes"],
+      note: "Three trips, one after another — each one needs the answer of the one before.",
+      point: "Related things mean a chain of trips, one after another",
+    },
+    graphql: {
+      lines: ["{ recipe(id: 1) {", "    author { name  recipes { name } } } }"],
+      note: "One query follows the links for you, however deep.",
+      point: "Follows relationships in one query",
     },
   },
   {
