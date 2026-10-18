@@ -208,3 +208,16 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .mut .code { margin: 0; font-size: 12px; }
 .says { font-size: 13px; color: #94a3b8; padding: 0 4px; }
 .has-errors { color: #fca5a5; }
+
+/* --- phone: one column, and the whole page scrolls ------------------------
+   Locked to the screen height, the stacked halves would each shrink into a
+   small scroll box with the interesting part hidden inside it. */
+@media (max-width: 720px) {
+  #app { height: auto; min-height: 100vh; }
+  .page-head { flex-direction: column; }
+  .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
+  .pane { overflow: visible; }
+  .pane-ask { border-right: none; border-bottom: 3px solid var(--ink); }
+}
+.badge { white-space: nowrap; }
+.sent { color: var(--ink); font-weight: 700; }

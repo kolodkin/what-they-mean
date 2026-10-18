@@ -79,3 +79,9 @@ def test_menu_card_opens_rest_vs_graphql_demo(page: Page, server_url: str):
     page.goto(server_url + "/")
     page.locator('.card[href="rest-vs-graphql/"]').click()
     expect(page).to_have_url(server_url + "/rest-vs-graphql/")
+
+
+def test_menu_cards_fill_a_phone(page: Page, server_url: str):
+    page.set_viewport_size({"width": 375, "height": 740})
+    page.goto(server_url + "/")
+    assert page.locator(".card").first.bounding_box()["width"] > 375 * 0.8

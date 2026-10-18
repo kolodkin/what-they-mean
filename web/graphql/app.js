@@ -5,6 +5,14 @@ import { SCHEMA, LEAVES, buildQuery, runQuery, restTrips, SEED, MUTATIONS, mutat
 
 const html = htm.bind(h);
 
+// On a phone the panes stack, so what a step changes can land below the fold.
+// Bring it into view the shortest way, only if it isn't already, and without
+// animating for anyone who asked their system for less motion.
+function reveal(el) {
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+}
+
 function App() {
   const [mode, setMode] = useState("read"); // read | change
   const [picked, setPicked] = useState(() => new Set(["name", "minutes"]));
@@ -62,6 +70,14 @@ function App() {
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  useEffect(() => {
+    if (playing) reveal(document.querySelector(".pane-wire"));
+  }, [picked]);
+
+  useEffect(() => {
+    if (last) reveal(document.querySelector(".pane-ask"));
+  }, [last]);
 
   useEffect(() => {
     window.__APP = { ready: true, mode, picked: [...picked], count: shelf.length };
@@ -193,7 +209,7 @@ function ChangeView({ shelf, last, send, reset, playing }) {
 
         <div class="pane-label">
           <span class="badge badge-app">The answer</span>
-          <span class="pane-sub">only the fields the mutation asked for</span>
+          <span class="pane-sub">${last ? html`to <code class="sent">${last.m.op}</code> — ` : ""}only the fields it asked for</span>
         </div>
         ${last
           ? html`<pre class=${`code answer ${last.answer.errors ? "has-errors" : ""}`}>${JSON.stringify(last.answer, null, 2)}</pre>`
