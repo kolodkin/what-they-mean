@@ -10,6 +10,7 @@ on:
       - "vendor.sh"
       - "pyproject.toml"
       - "uv.lock"
+      - ".python-version"
       - "pytest.ini"
       - ".github/workflows/e2e.yml"
   workflow_dispatch:
@@ -42,4 +43,4 @@ jobs:
         run: uv run playwright install --with-deps chromium
 
       - name: Run e2e tests
-        run: uv run pytest -v
+        run: uv run pytest -v -n auto

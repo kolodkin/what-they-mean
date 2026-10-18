@@ -11,4 +11,5 @@ dev = [
     # Pinned to the Playwright build whose bundled Chromium (revision 1194) is
     # pre-installed in the dev image, so e2e tests don't download a browser.
     "playwright==1.56.0",
+    "pytest-xdist>=3.8.0",
 ]
