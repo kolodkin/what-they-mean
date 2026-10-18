@@ -1,6 +1,7 @@
 """End-to-end tests for the GraphQL demo."""
 import json
 import os
+import re
 
 import pytest
 from playwright.sync_api import Page, expect
@@ -48,3 +49,52 @@ def test_play_demo_ticks_fields(gql: Page):
     expect(gql.locator(".fields input:checked")).to_have_count(0)
     expect(gql.locator(".fields input:checked")).to_have_count(1, timeout=4000)
     expect(gql.locator(".fields input:checked")).to_have_count(2, timeout=4000)
+
+
+@pytest.fixture()
+def change(gql: Page):
+    gql.locator(".tab").nth(1).click()
+    expect(gql.locator(".mut")).to_have_count(3)
+    return gql
+
+
+def test_tabs_switch_modes(gql: Page):
+    expect(gql.locator(".tab")).to_have_count(2)
+    expect(gql.locator(".tab").nth(0)).to_have_class(re.compile(r"\bcurrent\b"))
+    gql.locator(".tab").nth(1).click()
+    expect(gql.locator(".fields")).to_have_count(0)
+    expect(gql.locator(".shelf .item")).to_have_count(3)
+    gql.locator(".tab").nth(0).click()
+    expect(gql.locator(".fields")).to_have_count(1)
+
+
+def _mut_answer(page: Page):
+    return json.loads(page.locator(".answer").inner_text())
+
+
+def test_create_update_delete(change: Page):
+    change.locator(".mut").nth(0).click()  # create
+    expect(change.locator(".shelf .item")).to_have_count(4)
+    expect(change.locator(".shelf .item.glow")).to_have_count(1)
+    change.locator(".mut").nth(1).click()  # update
+    expect(change.locator(".shelf .item.glow")).to_have_count(1)
+    assert "errors" not in _mut_answer(change)
+    change.locator(".mut").nth(2).click()  # delete
+    expect(change.locator(".shelf .item")).to_have_count(3)
+    change.screenshot(path=os.path.join(SHOTS, "42-graphql-mutations.png"))
+
+
+def test_delete_missing_answers_with_errors(change: Page):
+    change.locator(".mut").nth(2).click()
+    change.locator(".mut").nth(2).click()
+    expect(change.locator(".answer")).to_have_class(re.compile(r"\bhas-errors\b"))
+    assert _mut_answer(change)["errors"]
+    change.get_by_role("button", name=re.compile("Reset")).click()
+    expect(change.locator(".shelf .item")).to_have_count(3)
+
+
+def test_play_demo_sends_mutations(change: Page):
+    change.get_by_text("Play demo").click()
+    expect(change.locator(".mut").nth(0)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
+    expect(change.locator(".mut").nth(2)).to_have_class(re.compile(r"\bcurrent\b"), timeout=8000)
+    expect(change.locator(".shelf .item")).to_have_count(3)

@@ -75,3 +75,50 @@ export function restTrips(picked) {
   }
   return trips;
 }
+
+// --- changing data: mutations -----------------------------------------------
+// Same single address, but the request starts with "mutation". It still names
+// which fields of the result to send back.
+export const SEED = [
+  { id: 1, name: "Pancakes", minutes: 20 },
+  { id: 2, name: "Omelette", minutes: 10 },
+  { id: 3, name: "Porridge", minutes: 8 },
+];
+
+export const MUTATIONS = [
+  {
+    op: "createRecipe",
+    says: "Add a new recipe",
+    text: 'mutation {\n  createRecipe(name: "Waffles", minutes: 25) {\n    id\n    name\n  }\n}',
+  },
+  {
+    op: "updateRecipe",
+    says: "Change only the fields you send",
+    text: "mutation {\n  updateRecipe(id: 2, minutes: 15) {\n    name\n    minutes\n  }\n}",
+  },
+  {
+    op: "deleteRecipe",
+    says: "Throw away recipe 2",
+    text: "mutation {\n  deleteRecipe(id: 2)\n}",
+  },
+];
+
+// A pretend GraphQL server for the three mutations above. A missing recipe
+// isn't a 404 here: GraphQL answers normally and lists what went wrong.
+export function mutate(shelf, { op }) {
+  if (op === "createRecipe") {
+    const made = { id: Math.max(0, ...shelf.map((r) => r.id)) + 1, name: "Waffles", minutes: 25 };
+    return { shelf: [...shelf, made], touched: made.id, answer: { data: { [op]: { id: made.id, name: made.name } } } };
+  }
+  const found = shelf.find((r) => r.id === 2);
+  if (!found) return { shelf, answer: { data: { [op]: null }, errors: [{ message: "No recipe 2" }] } };
+  if (op === "updateRecipe") {
+    const next = { ...found, minutes: 15 };
+    return {
+      shelf: shelf.map((r) => (r.id === 2 ? next : r)),
+      touched: 2,
+      answer: { data: { [op]: { name: next.name, minutes: next.minutes } } },
+    };
+  }
+  return { shelf: shelf.filter((r) => r.id !== 2), answer: { data: { [op]: true } } };
+}
