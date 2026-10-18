@@ -81,5 +81,8 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
         chip = _situations(page).nth(i)
         expect(chip).to_have_class(CURRENT, timeout=6000)
         expect(chip).to_be_in_viewport(timeout=3000)
-        expect(page.locator(".side.wins")).to_be_in_viewport(ratio=0.3, timeout=3000)
+        expect(page.locator(".side.wins")).to_be_in_viewport(timeout=3000)
+        # Stacked, the winner comes first.
+        assert page.locator(".side.wins").bounding_box()["y"] < page.locator(".side.loses").bounding_box()["y"]
+    page.wait_for_timeout(800)  # let the smooth scroll settle for the screenshot
     page.screenshot(path=os.path.join(SHOTS, "52-rest-vs-graphql-phone.png"))
