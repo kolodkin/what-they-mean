@@ -12,7 +12,7 @@ export const REQUESTS = [
   { method: "GET", path: "/recipes/2", says: "Show me recipe number 2" },
   { method: "POST", path: "/recipes", says: "Add this new recipe", body: { name: "Waffles", minutes: 25 } },
   { method: "PUT", path: "/recipes/2", says: "Replace recipe 2 with this", body: { name: "Cheese omelette", minutes: 12 } },
-  { method: "PATCH", path: "/recipes/2", says: "Change just the time on recipe 2", body: { minutes: 15 } },
+  { method: "PATCH", path: "/recipes/2", says: "Change only what I send — here, the time", body: { minutes: 15 } },
   { method: "DELETE", path: "/recipes/2", says: "Throw away recipe 2" },
 ];
 

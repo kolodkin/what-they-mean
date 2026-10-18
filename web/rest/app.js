@@ -53,7 +53,7 @@ function App() {
         A <strong>REST API</strong> is a menu of <em>addresses</em>, one per kind of
         thing — <code>/recipes</code>, <code>/recipes/2</code>. You pair an address
         with a <em>verb</em> — GET to look, POST to add, PUT to replace the whole thing,
-        PATCH to change one part of it, DELETE to remove — and the server answers with a number saying how it went, plus the data.
+        PATCH to change only the fields you send, DELETE to remove — and the server answers with a number saying how it went, plus the data.
       </p>
       <div class="page-controls">
         <a class="back" href="../">← All concepts</a>
