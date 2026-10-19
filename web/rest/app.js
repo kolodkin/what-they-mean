@@ -17,20 +17,29 @@ function App() {
   const [shelf, setShelf] = useState(SEED);
   const [last, setLast] = useState(null); // { req, status, body, touched }
   const [playing, setPlaying] = useState(false);
+  const [leaving, setLeaving] = useState(null); // id of a card fading out after DELETE
   const timers = useRef([]);
+  const fade = useRef(null);
   // The handler reads the latest shelf even when fired from a tour timer.
   const shelfRef = useRef(shelf);
 
   function send(req) {
     const res = handle(shelfRef.current, req);
+    const gone = shelfRef.current.find((r) => !res.shelf.some((s) => s.id === r.id));
     shelfRef.current = res.shelf;
-    setShelf(res.shelf);
+    clearTimeout(fade.current);
+    setLeaving(gone ? gone.id : null);
+    // A deleted card stays on screen while it fades, then the shelf catches up.
+    if (gone) fade.current = setTimeout(() => (setShelf(res.shelf), setLeaving(null)), 300);
+    else setShelf(res.shelf);
     setLast({ req, ...res });
   }
 
   function reset() {
+    clearTimeout(fade.current);
     shelfRef.current = SEED;
     setShelf(SEED);
+    setLeaving(null);
     setLast(null);
   }
 
@@ -111,7 +120,7 @@ function App() {
         <div class="shelf">
           ${shelf.map(
             (r) => html`
-              <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""}`}>
+              <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""} ${r.id === leaving ? "leaving" : ""}`}>
                 <span class="item-id">${r.id}</span>
                 <strong>${r.name}</strong>
                 <span class="item-min">${r.minutes} min</span>

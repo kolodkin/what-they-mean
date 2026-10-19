@@ -47,6 +47,13 @@ def test_post_adds_and_delete_removes(rest: Page):
     expect(rest.locator(".response")).to_have_count(0)
 
 
+def test_delete_fades_the_card_out_before_removing_it(rest: Page):
+    rest.locator(".req").nth(5).click()  # DELETE
+    expect(rest.locator(".shelf .item.leaving")).to_have_count(1)
+    expect(rest.locator(".shelf .item")).to_have_count(3)
+    expect(rest.locator(".shelf .item.leaving")).to_have_count(0)
+
+
 def test_play_demo_walks_requests(rest: Page):
     rest.get_by_text("Play demo").click()
     expect(rest.locator(".req").nth(0)).to_have_class(re.compile(r"\bcurrent\b"))
