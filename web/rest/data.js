@@ -40,3 +40,6 @@ export function handle(shelf, { method, path, body }) {
 }
 
 export const STATUS_TEXT = { 200: "OK", 201: "Created", 204: "No Content", 404: "Not Found" };
+
+// What the server is busy doing for each verb, shown beside it during the demo.
+export const DOING = { GET: "Reading…", POST: "Adding…", PUT: "Replacing…", PATCH: "Patching…", DELETE: "Deleting…" };

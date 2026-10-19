@@ -169,7 +169,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   #app { height: auto; min-height: 100vh; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
-  .split { overflow: visible; padding: 12px; gap: 12px; }
+  .split { overflow: visible; padding: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
   /* The situations ride along in one swipeable row, so the one being shown
      stays in sight while the two sides scroll past under it. */
   .scenarios {
@@ -184,9 +184,14 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .scenario.current { border-left-color: var(--ink); }
   /* Stacked, the side that wins the picked situation comes first — right under
      the situations — instead of sometimes falling below the fold. */
-  .side { padding: 14px; scroll-margin-top: 76px; }
+  .side { padding: 10px 12px; scroll-margin-top: 76px; }
+  .side-head { margin-bottom: 8px; }
+  .side-head h2 { font-size: 20px; }
   .side.wins { order: -1; }
-  .wire { font-size: 12px; white-space: pre; overflow-x: auto; }
-  .lists { grid-template-columns: 1fr; }
+  .wire { font-size: 11px; line-height: 1.5; padding: 8px 10px; min-height: 0; white-space: pre; overflow-x: auto; }
+  .note { margin-bottom: 8px; min-height: 0; }
+  .list-title { margin-bottom: 4px; }
+  .point { font-size: 15px; }
+  .lists { grid-template-columns: 1fr; gap: 8px; }
   .lists > div:has(.none) { display: none; }
 }

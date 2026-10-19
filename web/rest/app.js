@@ -1,7 +1,7 @@
 import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
-import { SEED, REQUESTS, handle, STATUS_TEXT } from "./data.js";
+import { SEED, REQUESTS, handle, STATUS_TEXT, DOING } from "./data.js";
 
 const html = htm.bind(h);
 
@@ -105,6 +105,7 @@ function App() {
       <section class="pane pane-server">
         <div class="pane-label">
           <span class="badge badge-app">The server</span>
+          ${playing && last && html`<span class=${`doing m-${last.req.method}`}>${DOING[last.req.method]}</span>`}
           <span class="pane-sub">what it keeps, and what it said back</span>
         </div>
         <div class="shelf">
