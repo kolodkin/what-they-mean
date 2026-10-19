@@ -87,11 +87,12 @@ function App() {
     <header class="page-head">
       <div>
         <p class="page-explain">
-          <strong>GraphQL</strong> is one single address you send a <em>shopping list</em> to.
-          Instead of picking from a menu of fixed answers, you write down exactly the
-          fields you want — even from related things, like the recipe's author — and
-          get back exactly that, in <em>one trip</em>. Changing data goes to the very same
-          address: a <em>mutation</em> says what to add, change or delete.
+          <strong>GraphQL</strong> has a <em>single endpoint</em> — one address for everything.
+          Your data is a <em>graph</em>: a recipe links to its author, the author to their
+          other recipes. You send a <em>query</em> shaped like a tree — the fields you want,
+          nested under the things they belong to — and get back exactly that shape, in
+          <em>one trip</em>. Changing data goes to the same endpoint: a <em>mutation</em>
+          says what to add, change or delete.
         </p>
         <div class="tabs">
           <button class=${`tab ${mode === "read" ? "current" : ""}`} onClick=${() => switchMode("read")}>
