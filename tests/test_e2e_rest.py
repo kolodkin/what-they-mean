@@ -22,6 +22,7 @@ def test_menu_of_six_requests(rest: Page):
     assert rest.locator(".method").all_inner_texts() == ["GET", "GET", "POST", "PUT", "PATCH", "DELETE"]
     expect(rest.locator(".shelf .item")).to_have_count(3)
     expect(rest.locator(".response")).to_have_count(0)
+    expect(rest.locator(".doing")).to_have_count(0)
     rest.screenshot(path=os.path.join(SHOTS, "30-rest.png"))
 
 
@@ -49,11 +50,18 @@ def test_post_adds_and_delete_removes(rest: Page):
 def test_play_demo_walks_requests(rest: Page):
     rest.get_by_text("Play demo").click()
     expect(rest.locator(".req").nth(0)).to_have_class(re.compile(r"\bcurrent\b"))
+    # The server says what it's doing, coloured by the verb it's handling.
+    expect(rest.locator(".pane-server .doing")).to_have_class(re.compile(r"\bm-GET\b"))
     expect(rest.locator(".req").nth(1)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
     # By the end the POST added one and the DELETE took one away.
     expect(rest.locator(".req").nth(5)).to_have_class(re.compile(r"\bcurrent\b"), timeout=14000)
     expect(rest.locator(".shelf .item")).to_have_count(3)
     rest.screenshot(path=os.path.join(SHOTS, "31-rest-play-demo.png"))
+    # Then it cleans the shelf back to how the page loaded.
+    expect(rest.locator(".response")).to_have_count(0, timeout=4000)
+    assert rest.locator(".item-id").all_inner_texts() == ["1", "2", "3"]
+    expect(rest.locator(".doing")).to_have_count(0)
+    expect(rest.locator(".play")).not_to_have_class(re.compile(r"\bactive\b"))
 
 
 def test_put_replaces_and_patch_keeps_the_rest(rest: Page):

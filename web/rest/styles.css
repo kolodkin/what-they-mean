@@ -88,6 +88,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .badge-app { background: var(--ink); color: #fff; }
 .badge-api { background: #38bdf8; color: #04263a; }
 .pane-sub { color: var(--muted); font-size: 13px; }
+.doing { font-size: 13px; font-weight: 700; }
 .pane-menu .pane-sub { color: #94a3b8; }
 
 /* --- the request menu ---------------------------------------------------- */

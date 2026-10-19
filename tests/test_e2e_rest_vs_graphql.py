@@ -84,5 +84,8 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
         expect(page.locator(".side.wins")).to_be_in_viewport(timeout=3000)
         # Stacked, the winner comes first.
         assert page.locator(".side.wins").bounding_box()["y"] < page.locator(".side.loses").bounding_box()["y"]
+        # A long query line scrolls inside its box instead of pushing the card off screen.
+        box = page.locator(".side.loses").bounding_box()
+        assert box["x"] + box["width"] <= 375
     page.wait_for_timeout(800)  # let the smooth scroll settle for the screenshot
     page.screenshot(path=os.path.join(SHOTS, "52-rest-vs-graphql-phone.png"))
