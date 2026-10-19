@@ -40,13 +40,13 @@ function App() {
     setPlaying(false);
   }
 
-  // Auto-tour: start from a fresh shelf, then send each request 2s apart.
+  // Auto-tour: start from a fresh shelf, send each request 2s apart, then clean the shelf.
   function playTour() {
     if (playing) return stopTour();
     reset();
     setPlaying(true);
     REQUESTS.forEach((req, i) => timers.current.push(setTimeout(() => send(req), i * 2000)));
-    timers.current.push(setTimeout(stopTour, REQUESTS.length * 2000));
+    timers.current.push(setTimeout(() => (reset(), stopTour()), REQUESTS.length * 2000));
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);

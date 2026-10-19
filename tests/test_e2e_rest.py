@@ -54,6 +54,10 @@ def test_play_demo_walks_requests(rest: Page):
     expect(rest.locator(".req").nth(5)).to_have_class(re.compile(r"\bcurrent\b"), timeout=14000)
     expect(rest.locator(".shelf .item")).to_have_count(3)
     rest.screenshot(path=os.path.join(SHOTS, "31-rest-play-demo.png"))
+    # Then it cleans the shelf back to how the page loaded.
+    expect(rest.locator(".response")).to_have_count(0, timeout=4000)
+    assert rest.locator(".item-id").all_inner_texts() == ["1", "2", "3"]
+    expect(rest.locator(".play")).not_to_have_class(re.compile(r"\bactive\b"))
 
 
 def test_put_replaces_and_patch_keeps_the_rest(rest: Page):
