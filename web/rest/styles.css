@@ -62,19 +62,8 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 }
 .play.active { background: #0284c7; color: #fff; }
 
-/* --- two panes side by side: requests (dark) | server (light) ------------ */
-.split {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(300px, 0.9fr) 1.1fr;
-}
-@media (max-width: 720px) {
-  .split { grid-template-columns: 1fr; }
-}
-.pane { padding: 18px 22px; overflow: auto; }
-.pane-menu { background: #0f172a; color: #e2e8f0; }
-.pane-server { background: #fff; border-left: 3px solid var(--ink); }
+/* --- one column: shelf, then the request bar, then the answer ------------- */
+.pane { flex: 1; min-height: 0; padding: 18px 22px; overflow: auto; background: #fff; }
 
 .pane-label { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
 .badge {
@@ -89,19 +78,16 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .badge-api { background: #38bdf8; color: #04263a; }
 .pane-sub { color: var(--muted); font-size: 13px; }
 .doing { font-size: 13px; font-weight: 700; }
-.pane-menu .pane-sub { color: #94a3b8; }
 
-/* --- the request menu ---------------------------------------------------- */
-.requests { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+/* --- the request bar: a button group on a dark strip ---------------------- */
+.ask { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+.ask .pane-sub { color: #94a3b8; }
+.requests { display: flex; flex-wrap: wrap; gap: 8px; }
 .req {
-  width: 100%;
-  text-align: left;
-  display: grid;
-  gap: 6px;
   background: #1e293b;
   border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
   color: inherit;
   font: inherit;
   cursor: pointer;
@@ -110,24 +96,24 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .req:hover:not(:disabled) { border-color: #64748b; }
 .req.current { border-color: #38bdf8; background: #172554; }
 .req:disabled { cursor: default; }
-.http-line { font-size: 15px; color: #e2e8f0; }
-.method { font-weight: 700; display: inline-block; min-width: 4.2em; }
+.http-line { font-size: 14px; color: #e2e8f0; white-space: nowrap; }
+.method { font-weight: 700; }
 .m-GET { color: var(--get); }
 .m-POST { color: var(--post); }
 .m-PUT { color: var(--put); }
 .m-PATCH { color: var(--patch); }
 .m-DELETE { color: var(--delete); }
-.body { font-size: 12px; color: #fcd34d; }
-.says { font-size: 13px; color: #94a3b8; }
+.says { margin: 12px 0 0; font-size: 14px; color: #cbd5e1; }
+.body { display: block; margin-top: 6px; font-size: 13px; color: #fcd34d; }
 
 .reset {
-  margin-top: 14px;
+  margin-left: auto;
   background: transparent;
   color: #94a3b8;
   border: 1px solid #334155;
   border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 4px 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -182,14 +168,11 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   overflow: auto;
 }
 
-/* --- phone: one column, and the whole page scrolls ------------------------
-   Locked to the screen height, the stacked halves would each shrink into a
-   small scroll box with the interesting part hidden inside it. */
+/* --- phone: the whole page scrolls, not a small box inside it ------------ */
 @media (max-width: 720px) {
   #app { height: auto; min-height: 100vh; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
   .pane { overflow: visible; }
-  .pane-server { border-left: none; border-top: 3px solid var(--ink); }
 }
 .sent { text-transform: none; letter-spacing: 0; color: var(--ink); font-weight: 700; }

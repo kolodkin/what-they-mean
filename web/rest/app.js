@@ -5,8 +5,8 @@ import { SEED, REQUESTS, handle, STATUS_TEXT, DOING } from "./data.js";
 
 const html = htm.bind(h);
 
-// On a phone the panes stack, so what a step changes can land below the fold.
-// Bring it into view the shortest way, only if it isn't already, and without
+// The answer sits under the requests, so on a short screen it can land below
+// the fold. Bring it into view the shortest way, only if it isn't already, and without
 // animating for anyone who asked their system for less motion.
 function reveal(el) {
   const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -61,7 +61,7 @@ function App() {
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (last) reveal(document.querySelector(".pane-server"));
+    if (last) reveal(document.querySelector(".response"));
   }, [last]);
 
   useEffect(() => {
@@ -71,8 +71,8 @@ function App() {
   return html`
     <header class="page-head">
       <p class="page-explain">
-        A <strong>REST API</strong> is a menu of <em>addresses</em>, one per
-        <em>resource</em> (a thing the server keeps) — <code>/recipes</code>, <code>/recipes/2</code>. You pair an address
+        A <strong>REST API</strong> is a menu of <em>addresses</em>, one per <em>resource</em> (a thing the
+        server keeps) — <code>/recipes</code>, <code>/recipes/2</code>. You pair an address
         with a <em>verb</em> — GET to look, POST to add, PUT to replace the whole thing,
         PATCH to change only the fields you send, DELETE to remove — and the server answers with a number saying how it went, plus the data.
       </p>
@@ -83,67 +83,66 @@ function App() {
         </button>
       </div>
     </header>
-    <main class="split">
-      <section class="pane pane-menu">
+    <main class="pane pane-server">
+      <div class="pane-label">
+        <span class="badge badge-app">The server</span>
+        ${playing && last && html`<span class=${`doing m-${last.req.method}`}>${DOING[last.req.method]}</span>`}
+        <span class="pane-sub">what it keeps</span>
+      </div>
+      <div class="shelf">
+        ${shelf.map(
+          (r) => html`
+            <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""} ${r.id === leaving ? "leaving" : ""}`}>
+              <span class="item-id">${r.id}</span>
+              <strong>${r.name}</strong>
+              <span class="item-min">${r.minutes} min</span>
+            </div>
+          `
+        )}
+        ${shelf.length === 0 && html`<p class="empty">The shelf is empty.</p>`}
+      </div>
+
+      <section class="ask">
         <div class="pane-label">
-          <span class="badge badge-api">The requests</span>
+          <span class="badge badge-api">Send a request</span>
           <span class="pane-sub">verb + address</span>
+          <button class="reset" onClick=${reset} disabled=${playing}>Reset the shelf</button>
         </div>
-        <ul class="requests">
+        <div class="requests" role="group" aria-label="Requests">
           ${REQUESTS.map(
             (req, i) => html`
-              <li key=${i}>
-                <button
-                  class=${`req ${last && last.req === req ? "current" : ""}`}
-                  onClick=${() => send(req)}
-                  disabled=${playing}
-                >
-                  <code class="http-line">
-                    <span class=${`method m-${req.method}`}>${req.method}</span> ${req.path}
-                  </code>
-                  ${req.body && html`<code class="body">${JSON.stringify(req.body)}</code>`}
-                  <span class="says">${req.says}</span>
-                </button>
-              </li>
+              <button
+                key=${i}
+                class=${`req ${last && last.req === req ? "current" : ""}`}
+                onClick=${() => send(req)}
+                disabled=${playing}
+                title=${req.says}
+              >
+                <code class="http-line"><span class=${`method m-${req.method}`}>${req.method}</span> ${req.path}</code>
+              </button>
             `
           )}
-        </ul>
-        <button class="reset" onClick=${reset} disabled=${playing}>Reset the shelf</button>
-      </section>
-
-      <section class="pane pane-server">
-        <div class="pane-label">
-          <span class="badge badge-app">The server</span>
-          ${playing && last && html`<span class=${`doing m-${last.req.method}`}>${DOING[last.req.method]}</span>`}
-          <span class="pane-sub">what it keeps, and what it said back</span>
-        </div>
-        <div class="shelf">
-          ${shelf.map(
-            (r) => html`
-              <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""} ${r.id === leaving ? "leaving" : ""}`}>
-                <span class="item-id">${r.id}</span>
-                <strong>${r.name}</strong>
-                <span class="item-min">${r.minutes} min</span>
-              </div>
-            `
-          )}
-          ${shelf.length === 0 && html`<p class="empty">The shelf is empty.</p>`}
-        </div>
-
-        <div class="block-title">
-          Response${last && html` to <code class="sent">${last.req.method} ${last.req.path}</code>`}
         </div>
         ${last
           ? html`
-              <div class="response">
-                <span class=${`status s${String(last.status)[0]}`}>
-                  ${last.status} ${STATUS_TEXT[last.status]}
-                </span>
-                <pre class="json">${last.body == null ? "(nothing — it's gone)" : JSON.stringify(last.body, null, 2)}</pre>
-              </div>
+              <p class="says">${last.req.says}</p>
+              ${last.req.body && html`<code class="body">${JSON.stringify(last.req.body)}</code>`}
             `
-          : html`<p class="empty">Pick a request on the left to send it.</p>`}
+          : html`<p class="says">Pick a request to send it.</p>`}
       </section>
+
+      ${last &&
+      html`
+        <div class="block-title">
+          Response to <code class="sent">${last.req.method} ${last.req.path}</code>
+        </div>
+        <div class="response">
+          <span class=${`status s${String(last.status)[0]}`}>
+            ${last.status} ${STATUS_TEXT[last.status]}
+          </span>
+          <pre class="json">${last.body == null ? "(nothing — it's gone)" : JSON.stringify(last.body, null, 2)}</pre>
+        </div>
+      `}
     </main>
   `;
 }
