@@ -119,6 +119,8 @@ function Side({ side, scenario, setPicked }) {
       html`
         <pre class="wire">${scenario[side.id].lines.join("\n")}</pre>
         <p class="note">${scenario[side.id].note}</p>
+        ${scenario[side.id].cost &&
+        html`<p class="cost">${scenario[side.id].cost.trips} trip${scenario[side.id].cost.trips > 1 ? "s" : ""} to the server · ${scenario[side.id].cost.bytes} bytes back</p>`}
       `}
       <div class="lists">
         <div>

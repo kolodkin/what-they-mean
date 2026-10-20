@@ -58,6 +58,17 @@ def test_picking_a_situation_filters_to_it(cmp: Page):
     expect(cmp.locator(".point")).to_have_count(2 * _situations(cmp).count())
 
 
+def test_trip_counts_show_on_both_sides_or_neither(cmp: Page):
+    expect(cmp.locator(".cost")).to_have_count(0)
+    seen = 0
+    for i in range(_situations(cmp).count()):
+        _situations(cmp).nth(i).click()
+        n = cmp.locator(".cost").count()
+        assert n in (0, 2)
+        seen += n
+    assert seen > 0
+
+
 def test_clicking_a_point_picks_its_situation(cmp: Page):
     cmp.locator(".side-rest .pro").nth(0).click()
     expect(cmp.locator(".side-rest")).to_have_class(WINS)
@@ -75,6 +86,11 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
     page.goto(server_url + "/rest-vs-graphql/")
     page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
     assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    # The situations are one row of one-line chips.
+    chips = page.locator(".scenario")
+    boxes = [chips.nth(i).bounding_box() for i in range(chips.count())]
+    assert len({round(b["y"]) for b in boxes}) == 1
+    assert len({round(b["height"]) for b in boxes}) == 1
     page.get_by_text("Play demo").click()
     # Each step keeps its situation chip and the side that wins it on screen.
     for i in range(2):

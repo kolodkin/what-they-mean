@@ -66,16 +66,6 @@ export function runQuery(picked) {
   return { data: { recipe } };
 }
 
-// The same need met with REST: one trip for the recipe, a second for the
-// author if any author field is wanted — and each trip returns the whole record.
-export function restTrips(picked) {
-  const trips = [{ path: "/recipes/1", bytes: JSON.stringify(RECIPE).length }];
-  if ([...picked].some((p) => p.startsWith("author."))) {
-    trips.push({ path: "/authors/7", bytes: JSON.stringify(AUTHOR).length });
-  }
-  return trips;
-}
-
 // --- changing data: mutations -----------------------------------------------
 // Same single address, but the request starts with "mutation". It still names
 // which fields of the result to send back.

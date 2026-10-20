@@ -35,11 +35,8 @@ def test_untick_removes_field_from_answer(gql: Page):
     assert "minutes" not in gql.locator(".query").inner_text()
 
 
-def test_author_costs_rest_a_second_trip(gql: Page):
-    expect(gql.locator(".trip-rest")).to_have_count(1)
+def test_author_is_reached_in_the_same_query(gql: Page):
     gql.locator('[data-leaf="author.name"]').check()
-    expect(gql.locator(".trip-rest")).to_have_count(2)
-    expect(gql.locator(".trip-gql")).to_have_count(1)
     assert list(_answer(gql)["author"]) == ["name"]
     gql.screenshot(path=os.path.join(SHOTS, "41-graphql-author.png"))
 

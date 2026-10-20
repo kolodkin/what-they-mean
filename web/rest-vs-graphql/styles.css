@@ -128,6 +128,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   min-height: 5.2em;
 }
 .note { margin: 0 0 16px; font-size: 14px; color: var(--muted); line-height: 1.5; min-height: 3em; }
+.cost { margin: -8px 0 16px; font-size: 13px; font-weight: 700; color: var(--c); }
 
 .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .list-title {
@@ -180,7 +181,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   }
   /* Plain chips here: half-scrolled-off winner stripes at both edges read as
      stray colour, and the sides below already say who wins. */
-  .scenario { flex: none; max-width: 78vw; scroll-snap-align: start; border-left: 1px solid var(--line); }
+  .scenario { flex: none; white-space: nowrap; scroll-snap-align: start; border-left: 1px solid var(--line); }
   .scenario.current { border-left-color: var(--ink); }
   /* Stacked, the side that wins the picked situation comes first — right under
      the situations — instead of sometimes falling below the fold. */
@@ -190,6 +191,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .side.wins { order: -1; }
   .wire { font-size: 11px; line-height: 1.5; padding: 8px 10px; min-height: 0; white-space: pre; overflow-x: auto; }
   .note { margin-bottom: 8px; min-height: 0; }
+  .cost { margin: 0 0 8px; }
   .list-title { margin-bottom: 4px; }
   .point { font-size: 15px; }
   .lists { grid-template-columns: 1fr; gap: 8px; }
