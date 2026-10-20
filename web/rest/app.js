@@ -71,8 +71,8 @@ function App() {
   return html`
     <header class="page-head">
       <p class="page-explain">
-        A <strong>REST API</strong> is a menu of <em>addresses</em>, one per kind of
-        thing — <code>/recipes</code>, <code>/recipes/2</code>. You pair an address
+        A <strong>REST API</strong> is a menu of <em>addresses</em>, one per
+        <em>resource</em> (a thing the server keeps) — <code>/recipes</code>, <code>/recipes/2</code>. You pair an address
         with a <em>verb</em> — GET to look, POST to add, PUT to replace the whole thing,
         PATCH to change only the fields you send, DELETE to remove — and the server answers with a number saying how it went, plus the data.
       </p>
