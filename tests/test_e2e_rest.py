@@ -89,6 +89,11 @@ def test_on_a_phone_the_demo_brings_the_answer_into_view(page: Page, server_url:
     page.get_by_text("Play demo").click()
     expect(page.locator(".status")).to_be_in_viewport(timeout=4000)
     expect(page.locator(".shelf")).to_be_in_viewport()
+    # The request row scrolls sideways along with the demo, so each one sent is in sight.
+    for i in range(6):
+        btn = page.locator(".req").nth(i)
+        expect(btn).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
+        expect(btn).to_be_in_viewport(ratio=1, timeout=1500)
     page.screenshot(path=os.path.join(SHOTS, "32-rest-phone.png"))
 
 
