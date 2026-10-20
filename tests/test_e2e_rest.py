@@ -90,3 +90,17 @@ def test_on_a_phone_the_demo_brings_the_answer_into_view(page: Page, server_url:
     expect(page.locator(".status")).to_be_in_viewport(timeout=4000)
     expect(page.locator(".shelf")).to_be_in_viewport()
     page.screenshot(path=os.path.join(SHOTS, "32-rest-phone.png"))
+
+
+def test_on_a_phone_requests_are_a_drop_down(page: Page, server_url: str):
+    page.set_viewport_size({"width": 375, "height": 740})
+    page.goto(server_url + "/rest/")
+    page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
+    expect(page.locator(".req").first).to_be_hidden()
+    pick = page.locator(".req-pick")
+    expect(pick).to_be_visible()
+    expect(pick.locator("option:not([disabled])")).to_have_count(6)
+    pick.select_option("2")  # POST
+    expect(page.locator(".shelf .item")).to_have_count(4)
+    expect(page.locator(".status")).to_have_class(re.compile(r"\bs2\b"))
+    page.screenshot(path=os.path.join(SHOTS, "33-rest-phone-drop-down.png"))
