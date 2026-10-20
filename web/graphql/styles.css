@@ -105,31 +105,6 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .field.on { background: #fdf2f8; border-color: var(--accent); }
 .field input { accent-color: var(--accent); margin: 0; }
 
-.block-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-/* --- REST vs GraphQL: how many trips, how much came back ----------------- */
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.side {
-  display: grid;
-  align-content: start;
-  gap: 6px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-}
-.side-name { font-weight: 700; }
-.trip { font-size: 13px; padding: 3px 8px; border-radius: 6px; justify-self: start; }
-.trip-rest { background: #e0f2fe; color: #075985; }
-.trip-gql { background: #fce7f3; color: #9d174d; }
-.weight { font-size: 13px; color: var(--muted); }
-
 /* --- the query and answer ------------------------------------------------ */
 .code {
   margin: 0 0 18px;

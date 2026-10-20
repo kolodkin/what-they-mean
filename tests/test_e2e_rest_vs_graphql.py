@@ -58,6 +58,17 @@ def test_picking_a_situation_filters_to_it(cmp: Page):
     expect(cmp.locator(".point")).to_have_count(2 * _situations(cmp).count())
 
 
+def test_trip_counts_show_on_both_sides_or_neither(cmp: Page):
+    expect(cmp.locator(".cost")).to_have_count(0)
+    seen = 0
+    for i in range(_situations(cmp).count()):
+        _situations(cmp).nth(i).click()
+        n = cmp.locator(".cost").count()
+        assert n in (0, 2)
+        seen += n
+    assert seen > 0
+
+
 def test_clicking_a_point_picks_its_situation(cmp: Page):
     cmp.locator(".side-rest .pro").nth(0).click()
     expect(cmp.locator(".side-rest")).to_have_class(WINS)

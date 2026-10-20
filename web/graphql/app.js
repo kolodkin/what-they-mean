@@ -1,7 +1,7 @@
 import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
-import { SCHEMA, LEAVES, buildQuery, runQuery, restTrips, SEED, MUTATIONS, mutate } from "./data.js";
+import { SCHEMA, LEAVES, buildQuery, runQuery, SEED, MUTATIONS, mutate } from "./data.js";
 
 const html = htm.bind(h);
 
@@ -90,9 +90,8 @@ function App() {
           <strong>GraphQL</strong> is a <em>single endpoint</em> for entities and their
           relationships. The data is a <em>graph</em>: a recipe links to its author, the
           author to their other recipes. You send a <em>query</em> shaped like a tree — the fields you want,
-          nested under the things they belong to — and get back exactly that shape, in
-          <em>one trip</em>. Changing data goes to the same endpoint: a <em>mutation</em>
-          says what to add, change or delete.
+          nested under the things they belong to — and get back exactly that shape, in <em>one trip</em>.
+          Changing data goes to the same endpoint: a <em>mutation</em> says what to add, change or delete.
         </p>
         <div class="tabs">
           <button class=${`tab ${mode === "read" ? "current" : ""}`} onClick=${() => switchMode("read")}>
@@ -118,9 +117,6 @@ function App() {
 
 function ReadView({ picked, toggle, playing }) {
   const answer = runQuery(picked);
-  const trips = restTrips(picked);
-  const restBytes = trips.reduce((n, t) => n + t.bytes, 0);
-  const gqlBytes = JSON.stringify(answer).length;
 
   return html`
     <main class="split">
@@ -143,20 +139,6 @@ function ReadView({ picked, toggle, playing }) {
               : html`<${Field} key=${f.key} leaf=${f.key} label=${f.key} picked=${picked} toggle=${toggle} disabled=${playing} />`
           )}
         </ul>
-
-        <div class="block-title">Trips to the server</div>
-        <div class="compare">
-          <div class="side">
-            <span class="side-name">REST</span>
-            ${trips.map((t) => html`<code key=${t.path} class="trip trip-rest">GET ${t.path}</code>`)}
-            <span class="weight">${trips.length} trip${trips.length > 1 ? "s" : ""} · ${restBytes} bytes</span>
-          </div>
-          <div class="side">
-            <span class="side-name">GraphQL</span>
-            <code class="trip trip-gql">POST /graphql</code>
-            <span class="weight">1 trip · ${gqlBytes} bytes</span>
-          </div>
-        </div>
       </section>
 
       <section class="pane pane-wire">

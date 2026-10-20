@@ -1,5 +1,7 @@
 // Everyday situations. In each, one side has the easier time: its `point`
 // becomes a pro for that side, and the other side's `point` becomes a con.
+// `cost`, where given, is how many trips to the server and how many bytes came
+// back (measured on the GraphQL demo's sample recipe and author).
 export const SCENARIOS = [
   {
     id: "fields",
@@ -9,11 +11,13 @@ export const SCENARIOS = [
       lines: ["GET /recipes/1", "← name, minutes, servings, calories, description, ingredients…"],
       note: "The address decides what comes back — the whole record, even if you need one field.",
       point: "Sends whole records, even when you need one field",
+      cost: { trips: 1, bytes: 355 },
     },
     graphql: {
       lines: ["{ recipe(id: 1) { name } }", "← { name }"],
       note: "You list the fields; only those come back.",
       point: "Exactly the fields you need, nothing more",
+      cost: { trips: 1, bytes: 46 },
     },
   },
   {
@@ -24,11 +28,13 @@ export const SCENARIOS = [
       lines: ["GET /recipes/1          → authorId: 7", "GET /authors/7          → then…", "GET /authors/7/recipes"],
       note: "Three trips, one after another — each one needs the answer of the one before.",
       point: "Related things mean a chain of trips, one after another",
+      cost: { trips: 3, bytes: 1185 },
     },
     graphql: {
       lines: ["{ recipe(id: 1) {", "    author { name  recipes { name } } } }"],
       note: "One query follows the links for you, however deep.",
       point: "Follows relationships in one query",
+      cost: { trips: 1, bytes: 114 },
     },
   },
   {
