@@ -94,17 +94,6 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
-/* On a phone the six buttons would stack into a tall block; a drop-down takes one line. */
-.req-pick {
-  display: none;
-  width: 100%;
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font: 15px "SF Mono", Menlo, Consolas, monospace;
-}
 .req:hover:not(:disabled) { border-color: #64748b; }
 .req.current { border-color: #38bdf8; background: #172554; }
 .req:disabled { cursor: default; }
@@ -187,8 +176,9 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
   .pane { overflow: visible; }
-  .requests { display: none; }
-  .req-pick { display: block; }
+  /* One row of buttons that scrolls sideways, instead of a tall stack. */
+  .requests { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scroll-padding-left: 16px; }
+  .req { flex: none; }
   /* Too narrow for label, hint and Reset on one line; the drop-down already reads "verb + address". */
   .ask .pane-sub { display: none; }
 }

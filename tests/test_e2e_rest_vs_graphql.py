@@ -86,6 +86,11 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
     page.goto(server_url + "/rest-vs-graphql/")
     page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
     assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    # The situations are one row of one-line chips.
+    chips = page.locator(".scenario")
+    boxes = [chips.nth(i).bounding_box() for i in range(chips.count())]
+    assert len({round(b["y"]) for b in boxes}) == 1
+    assert len({round(b["height"]) for b in boxes}) == 1
     page.get_by_text("Play demo").click()
     # Each step keeps its situation chip and the side that wins it on screen.
     for i in range(2):

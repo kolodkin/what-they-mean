@@ -92,15 +92,15 @@ def test_on_a_phone_the_demo_brings_the_answer_into_view(page: Page, server_url:
     page.screenshot(path=os.path.join(SHOTS, "32-rest-phone.png"))
 
 
-def test_on_a_phone_requests_are_a_drop_down(page: Page, server_url: str):
+def test_on_a_phone_requests_are_one_scrolling_row(page: Page, server_url: str):
     page.set_viewport_size({"width": 375, "height": 740})
     page.goto(server_url + "/rest/")
     page.wait_for_function("() => window.__APP && window.__APP.ready === true", timeout=20000)
-    expect(page.locator(".req").first).to_be_hidden()
-    pick = page.locator(".req-pick")
-    expect(pick).to_be_visible()
-    expect(pick.locator("option:not([disabled])")).to_have_count(6)
-    pick.select_option("2")  # POST
-    expect(page.locator(".shelf .item")).to_have_count(4)
+    tops = {round(page.locator(".req").nth(i).bounding_box()["y"]) for i in range(6)}
+    assert len(tops) == 1
+    assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    last = page.locator(".req").nth(5)
+    last.click()  # DELETE, scrolled into the row
+    expect(last).to_be_in_viewport()
     expect(page.locator(".status")).to_have_class(re.compile(r"\bs2\b"))
-    page.screenshot(path=os.path.join(SHOTS, "33-rest-phone-drop-down.png"))
+    page.screenshot(path=os.path.join(SHOTS, "33-rest-phone-row.png"))

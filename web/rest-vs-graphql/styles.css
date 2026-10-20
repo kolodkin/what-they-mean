@@ -181,7 +181,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   }
   /* Plain chips here: half-scrolled-off winner stripes at both edges read as
      stray colour, and the sides below already say who wins. */
-  .scenario { flex: none; max-width: 78vw; scroll-snap-align: start; border-left: 1px solid var(--line); }
+  .scenario { flex: none; white-space: nowrap; scroll-snap-align: start; border-left: 1px solid var(--line); }
   .scenario.current { border-left-color: var(--ink); }
   /* Stacked, the side that wins the picked situation comes first — right under
      the situations — instead of sometimes falling below the fold. */

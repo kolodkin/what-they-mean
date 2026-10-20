@@ -61,7 +61,13 @@ function App() {
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (last) reveal(document.querySelector(".response"));
+    if (!last) return;
+    // On a phone the requests are one sideways-scrolling row; scroll the row
+    // itself (not the page) so the one just sent is in sight.
+    const row = document.querySelector(".requests");
+    const btn = row.querySelector(".req.current");
+    if (btn && row.scrollWidth > row.clientWidth) row.scrollTo({ left: btn.offsetLeft - row.offsetLeft - 16, behavior: "smooth" });
+    reveal(document.querySelector(".response"));
   }, [last]);
 
   useEffect(() => {
@@ -90,16 +96,6 @@ function App() {
           <span class="pane-sub">verb + address</span>
           <button class="reset" onClick=${reset} disabled=${playing}>Reset the shelf</button>
         </div>
-        <select
-          class="req-pick"
-          aria-label="Request"
-          value=${last ? REQUESTS.indexOf(last.req) : ""}
-          onChange=${(e) => send(REQUESTS[e.target.value])}
-          disabled=${playing}
-        >
-          <option value="" disabled>Pick a request…</option>
-          ${REQUESTS.map((req, i) => html`<option key=${i} value=${i}>${req.method} ${req.path}</option>`)}
-        </select>
         <div class="requests" role="group" aria-label="Requests">
           ${REQUESTS.map(
             (req, i) => html`
