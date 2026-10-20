@@ -191,6 +191,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .side.wins { order: -1; }
   .wire { font-size: 11px; line-height: 1.5; padding: 8px 10px; min-height: 0; white-space: pre; overflow-x: auto; }
   .note { margin-bottom: 8px; min-height: 0; }
+  .cost { margin: 0 0 8px; }
   .list-title { margin-bottom: 4px; }
   .point { font-size: 15px; }
   .lists { grid-template-columns: 1fr; gap: 8px; }

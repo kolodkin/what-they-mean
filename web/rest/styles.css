@@ -189,5 +189,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .pane { overflow: visible; }
   .requests { display: none; }
   .req-pick { display: block; }
+  /* Too narrow for label, hint and Reset on one line; the drop-down already reads "verb + address". */
+  .ask .pane-sub { display: none; }
 }
 .sent { text-transform: none; letter-spacing: 0; color: var(--ink); font-weight: 700; }
