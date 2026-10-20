@@ -65,7 +65,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 /* --- one column: shelf, then the request bar, then the answer ------------- */
 .pane { flex: 1; min-height: 0; padding: 18px 22px; overflow: auto; background: #fff; }
 
-.pane-label { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.pane-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 14px; }
 .badge {
   font-size: 12px;
   font-weight: 700;
@@ -73,6 +73,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 .badge-app { background: var(--ink); color: #fff; }
 .badge-api { background: #38bdf8; color: #04263a; }
@@ -114,6 +115,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 12px;
+  white-space: nowrap;
   cursor: pointer;
 }
 

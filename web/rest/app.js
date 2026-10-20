@@ -84,24 +84,6 @@ function App() {
       </div>
     </header>
     <main class="pane pane-server">
-      <div class="pane-label">
-        <span class="badge badge-app">The server</span>
-        ${playing && last && html`<span class=${`doing m-${last.req.method}`}>${DOING[last.req.method]}</span>`}
-        <span class="pane-sub">what it keeps</span>
-      </div>
-      <div class="shelf">
-        ${shelf.map(
-          (r) => html`
-            <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""} ${r.id === leaving ? "leaving" : ""}`}>
-              <span class="item-id">${r.id}</span>
-              <strong>${r.name}</strong>
-              <span class="item-min">${r.minutes} min</span>
-            </div>
-          `
-        )}
-        ${shelf.length === 0 && html`<p class="empty">The shelf is empty.</p>`}
-      </div>
-
       <section class="ask">
         <div class="pane-label">
           <span class="badge badge-api">Send a request</span>
@@ -130,6 +112,24 @@ function App() {
             `
           : html`<p class="says">Pick a request to send it.</p>`}
       </section>
+
+      <div class="pane-label">
+        <span class="badge badge-app">The server</span>
+        ${playing && last && html`<span class=${`doing m-${last.req.method}`}>${DOING[last.req.method]}</span>`}
+        <span class="pane-sub">what it keeps</span>
+      </div>
+      <div class="shelf">
+        ${shelf.map(
+          (r) => html`
+            <div key=${r.id} class=${`item ${last && last.touched === r.id ? "glow" : ""} ${r.id === leaving ? "leaving" : ""}`}>
+              <span class="item-id">${r.id}</span>
+              <strong>${r.name}</strong>
+              <span class="item-min">${r.minutes} min</span>
+            </div>
+          `
+        )}
+        ${shelf.length === 0 && html`<p class="empty">The shelf is empty.</p>`}
+      </div>
 
       ${last &&
       html`
