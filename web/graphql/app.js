@@ -76,7 +76,7 @@ function App() {
   }, [picked]);
 
   useEffect(() => {
-    if (last) reveal(document.querySelector(".pane-ask"));
+    if (last) reveal(document.querySelector(".shelf"));
   }, [last]);
 
   useEffect(() => {
@@ -173,7 +173,26 @@ function ChangeView({ shelf, last, send, reset, playing }) {
     <main class="split">
       <section class="pane pane-ask">
         <div class="pane-label">
-          <span class="badge badge-app">The server</span>
+          <span class="badge badge-app">The mutations</span>
+          <span class="pane-sub">click one to send it to POST /graphql</span>
+        </div>
+        <ul class="mutations">
+          ${MUTATIONS.map(
+            (m) => html`
+              <li key=${m.op}>
+                <button class=${`mut ${last && last.m === m ? "current" : ""}`} onClick=${() => send(m)} disabled=${playing || !canSend(shelf, m)}>
+                  <span class="says">${m.says}</span>
+                  <pre class="code query">${m.text}</pre>
+                </button>
+              </li>
+            `
+          )}
+        </ul>
+      </section>
+
+      <section class="pane pane-wire">
+        <div class="pane-label">
+          <span class="badge badge-api">The server</span>
           <span class="pane-sub">what it keeps</span>
         </div>
         <div class="shelf">
@@ -191,31 +210,12 @@ function ChangeView({ shelf, last, send, reset, playing }) {
         <button class="reset" onClick=${reset} disabled=${playing}>Reset the shelf</button>
 
         <div class="pane-label">
-          <span class="badge badge-app">What came back</span>
+          <span class="badge badge-api">What came back</span>
           <span class="pane-sub">only the fields the mutation asked for</span>
         </div>
         ${last
           ? html`<pre class="code answer">${JSON.stringify(last.answer, null, 2)}</pre>`
           : html`<p class="empty">Pick a mutation to send it.</p>`}
-      </section>
-
-      <section class="pane pane-wire">
-        <div class="pane-label">
-          <span class="badge badge-api">The mutations</span>
-          <span class="pane-sub">click one to send it to POST /graphql</span>
-        </div>
-        <ul class="mutations">
-          ${MUTATIONS.map(
-            (m) => html`
-              <li key=${m.op}>
-                <button class=${`mut ${last && last.m === m ? "current" : ""}`} onClick=${() => send(m)} disabled=${playing || !canSend(shelf, m)}>
-                  <span class="says">${m.says}</span>
-                  <pre class="code query">${m.text}</pre>
-                </button>
-              </li>
-            `
-          )}
-        </ul>
       </section>
     </main>
   `;

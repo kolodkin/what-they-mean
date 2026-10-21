@@ -118,8 +118,7 @@ def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
 
 def test_on_a_phone_a_mutation_brings_the_shelf_into_view(phone: Page):
     phone.locator(".tab").nth(1).click()
-    phone.evaluate("scrollTo(0, document.body.scrollHeight)")
-    # Recipe 2 is what the update mutation changes; it starts off screen.
+    # Recipe 2 is what the update mutation changes; it sits below the mutations.
     expect(phone.locator(".shelf .item").nth(1)).not_to_be_in_viewport()
     phone.locator(".mut").nth(1).click()
     expect(phone.locator(".shelf .item.glow")).to_be_in_viewport(timeout=4000)
