@@ -81,13 +81,17 @@ def test_create_update_delete(change: Page):
     change.screenshot(path=os.path.join(SHOTS, "42-graphql-mutations.png"))
 
 
-def test_delete_missing_answers_with_errors(change: Page):
-    change.locator(".mut").nth(2).click()
-    change.locator(".mut").nth(2).click()
-    expect(change.locator(".answer")).to_have_class(re.compile(r"\bhas-errors\b"))
-    assert _mut_answer(change)["errors"]
+def test_mutations_only_offered_when_they_make_sense(change: Page):
+    muts = change.locator(".mut")
+    muts.nth(0).click()  # create: can't add the same recipe twice
+    expect(muts.nth(0)).to_be_disabled()
+    muts.nth(2).click()  # delete: nothing left to update or delete
+    expect(muts.nth(1)).to_be_disabled()
+    expect(muts.nth(2)).to_be_disabled()
     change.get_by_role("button", name=re.compile("Reset")).click()
     expect(change.locator(".shelf .item")).to_have_count(3)
+    for i in range(3):
+        expect(muts.nth(i)).to_be_enabled()
 
 
 def test_play_demo_sends_mutations(change: Page):
@@ -114,8 +118,7 @@ def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
 
 def test_on_a_phone_a_mutation_brings_the_shelf_into_view(phone: Page):
     phone.locator(".tab").nth(1).click()
-    phone.evaluate("scrollTo(0, document.body.scrollHeight)")
-    # Recipe 2 is what the update mutation changes; it starts off screen.
+    # Recipe 2 is what the update mutation changes; it sits below the mutations.
     expect(phone.locator(".shelf .item").nth(1)).not_to_be_in_viewport()
     phone.locator(".mut").nth(1).click()
     expect(phone.locator(".shelf .item.glow")).to_be_in_viewport(timeout=4000)

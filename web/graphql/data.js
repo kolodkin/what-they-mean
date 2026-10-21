@@ -78,32 +78,34 @@ export const SEED = [
 export const MUTATIONS = [
   {
     op: "createRecipe",
-    says: "Add a new recipe",
+    says: "Add Waffles",
     text: 'mutation {\n  createRecipe(name: "Waffles", minutes: 25) {\n    id\n    name\n  }\n}',
   },
   {
     op: "updateRecipe",
-    says: "Change only the fields you send",
+    says: "Update Omelette to 15 min",
     text: "mutation {\n  updateRecipe(id: 2, minutes: 15) {\n    name\n    minutes\n  }\n}",
   },
   {
     op: "deleteRecipe",
-    says: "Throw away recipe 2",
+    says: "Delete Omelette",
     text: "mutation {\n  deleteRecipe(id: 2)\n}",
   },
 ];
 
-// A pretend GraphQL server for the three mutations above. A missing recipe
-// isn't a 404 here: GraphQL answers normally and lists what went wrong.
+// A pretend GraphQL server for the three mutations above. The page only lets
+// a mutation be sent when it makes sense, so there is no error case to show.
+export function canSend(shelf, { op }) {
+  return op === "createRecipe" ? !shelf.some((r) => r.name === "Waffles") : shelf.some((r) => r.id === 2);
+}
+
 export function mutate(shelf, { op }) {
   if (op === "createRecipe") {
     const made = { id: Math.max(0, ...shelf.map((r) => r.id)) + 1, name: "Waffles", minutes: 25 };
     return { shelf: [...shelf, made], touched: made.id, answer: { data: { [op]: { id: made.id, name: made.name } } } };
   }
-  const found = shelf.find((r) => r.id === 2);
-  if (!found) return { shelf, answer: { data: { [op]: null }, errors: [{ message: "No recipe 2" }] } };
   if (op === "updateRecipe") {
-    const next = { ...found, minutes: 15 };
+    const next = { ...shelf.find((r) => r.id === 2), minutes: 15 };
     return {
       shelf: shelf.map((r) => (r.id === 2 ? next : r)),
       touched: 2,

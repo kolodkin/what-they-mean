@@ -1,7 +1,7 @@
 import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
-import { SCHEMA, LEAVES, buildQuery, runQuery, SEED, MUTATIONS, mutate } from "./data.js";
+import { SCHEMA, LEAVES, buildQuery, runQuery, SEED, MUTATIONS, canSend, mutate } from "./data.js";
 
 const html = htm.bind(h);
 
@@ -76,7 +76,7 @@ function App() {
   }, [picked]);
 
   useEffect(() => {
-    if (last) reveal(document.querySelector(".pane-ask"));
+    if (last) reveal(document.querySelector(".shelf"));
   }, [last]);
 
   useEffect(() => {
@@ -143,7 +143,7 @@ function ReadView({ picked, toggle, playing }) {
 
       <section class="pane pane-wire">
         <div class="pane-label">
-          <span class="badge badge-api">The query</span>
+          <span class="badge badge-api">The query API</span>
           <span class="pane-sub">POST /graphql</span>
         </div>
         <pre class="code query">${buildQuery(picked)}</pre>
@@ -173,7 +173,26 @@ function ChangeView({ shelf, last, send, reset, playing }) {
     <main class="split">
       <section class="pane pane-ask">
         <div class="pane-label">
-          <span class="badge badge-app">The server</span>
+          <span class="badge badge-app">The mutation API</span>
+          <span class="pane-sub">click one to send it to POST /graphql</span>
+        </div>
+        <ul class="mutations">
+          ${MUTATIONS.map(
+            (m) => html`
+              <li key=${m.op}>
+                <button class=${`mut ${last && last.m === m ? "current" : ""}`} onClick=${() => send(m)} disabled=${playing || !canSend(shelf, m)}>
+                  <span class="says">${m.says}</span>
+                  <pre class="code query">${m.text}</pre>
+                </button>
+              </li>
+            `
+          )}
+        </ul>
+      </section>
+
+      <section class="pane pane-wire">
+        <div class="pane-label">
+          <span class="badge badge-api">The server</span>
           <span class="pane-sub">what it keeps</span>
         </div>
         <div class="shelf">
@@ -191,31 +210,12 @@ function ChangeView({ shelf, last, send, reset, playing }) {
         <button class="reset" onClick=${reset} disabled=${playing}>Reset the shelf</button>
 
         <div class="pane-label">
-          <span class="badge badge-app">The answer</span>
-          <span class="pane-sub">${last ? html`to <code class="sent">${last.m.op}</code> — ` : ""}only the fields it asked for</span>
+          <span class="badge badge-api">What came back</span>
+          <span class="pane-sub">only the fields the mutation asked for</span>
         </div>
         ${last
-          ? html`<pre class=${`code answer ${last.answer.errors ? "has-errors" : ""}`}>${JSON.stringify(last.answer, null, 2)}</pre>`
+          ? html`<pre class="code answer">${JSON.stringify(last.answer, null, 2)}</pre>`
           : html`<p class="empty">Pick a mutation to send it.</p>`}
-      </section>
-
-      <section class="pane pane-wire">
-        <div class="pane-label">
-          <span class="badge badge-api">The mutations</span>
-          <span class="pane-sub">all sent to POST /graphql</span>
-        </div>
-        <ul class="mutations">
-          ${MUTATIONS.map(
-            (m) => html`
-              <li key=${m.op}>
-                <button class=${`mut ${last && last.m === m ? "current" : ""}`} onClick=${() => send(m)} disabled=${playing}>
-                  <pre class="code query">${m.text}</pre>
-                  <span class="says">${m.says}</span>
-                </button>
-              </li>
-            `
-          )}
-        </ul>
       </section>
     </main>
   `;
