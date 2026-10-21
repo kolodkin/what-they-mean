@@ -143,7 +143,7 @@ function ReadView({ picked, toggle, playing }) {
 
       <section class="pane pane-wire">
         <div class="pane-label">
-          <span class="badge badge-api">The query</span>
+          <span class="badge badge-api">The query API</span>
           <span class="pane-sub">POST /graphql</span>
         </div>
         <pre class="code query">${buildQuery(picked)}</pre>
@@ -173,7 +173,7 @@ function ChangeView({ shelf, last, send, reset, playing }) {
     <main class="split">
       <section class="pane pane-ask">
         <div class="pane-label">
-          <span class="badge badge-app">The mutations</span>
+          <span class="badge badge-app">The mutation API</span>
           <span class="pane-sub">click one to send it to POST /graphql</span>
         </div>
         <ul class="mutations">
