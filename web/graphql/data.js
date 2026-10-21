@@ -78,17 +78,17 @@ export const SEED = [
 export const MUTATIONS = [
   {
     op: "createRecipe",
-    says: "Add Waffles, 25 min",
+    says: "Add Waffles",
     text: 'mutation {\n  createRecipe(name: "Waffles", minutes: 25) {\n    id\n    name\n  }\n}',
   },
   {
     op: "updateRecipe",
-    says: "Make Omelette (#2) take 15 min instead of 10",
+    says: "Update Omelette to 15 min",
     text: "mutation {\n  updateRecipe(id: 2, minutes: 15) {\n    name\n    minutes\n  }\n}",
   },
   {
     op: "deleteRecipe",
-    says: "Delete Omelette (#2)",
+    says: "Delete Omelette",
     text: "mutation {\n  deleteRecipe(id: 2)\n}",
   },
 ];
