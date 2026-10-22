@@ -82,21 +82,6 @@ export const SCENARIOS = [
       point: "More to build: a schema, resolvers and query limits",
     },
   },
-  {
-    id: "versions",
-    title: "Rename a field without breaking old apps",
-    winner: "graphql",
-    rest: {
-      lines: ["GET /v1/recipes/1  → minutes", "GET /v2/recipes/1  → cookTime"],
-      note: "Old apps keep calling v1, so the server has to keep both versions running, often for years.",
-      point: "Changes mean a new version — and keeping the old one alive",
-    },
-    graphql: {
-      lines: ["minutes: Int @deprecated", "cookTime: Int"],
-      note: "Add the new field, mark the old one as deprecated. Old apps still get what they ask for; new ones ask for the new name.",
-      point: "Changes go in beside the old — one version, no breakage",
-    },
-  },
 ];
 
 export const SIDES = [
