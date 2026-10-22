@@ -5,14 +5,6 @@ import { SEED, REQUESTS, handle, STATUS_TEXT, DOING } from "./data.js";
 
 const html = htm.bind(h);
 
-// The answer sits under the requests, so on a short screen it can land below
-// the fold. Bring it into view the shortest way, only if it isn't already, and without
-// animating for anyone who asked their system for less motion.
-function reveal(el) {
-  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
-}
-
 function App() {
   const [shelf, setShelf] = useState(SEED);
   const [last, setLast] = useState(null); // { req, status, body, touched }
@@ -67,7 +59,6 @@ function App() {
     const row = document.querySelector(".requests");
     const btn = row.querySelector(".req.current");
     if (btn && row.scrollWidth > row.clientWidth) row.scrollTo({ left: btn.offsetLeft - row.offsetLeft - 16, behavior: "smooth" });
-    reveal(document.querySelector(".response"));
   }, [last]);
 
   useEffect(() => {
