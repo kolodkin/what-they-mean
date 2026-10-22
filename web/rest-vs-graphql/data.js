@@ -67,6 +67,21 @@ export const SCENARIOS = [
       point: "More to learn: a query language and tooling",
     },
   },
+  {
+    id: "build",
+    title: "Build the server yourself",
+    winner: "rest",
+    rest: {
+      lines: ["GET /recipes/:id  → look it up, send it back"],
+      note: "One handler per address. Any web framework does this out of the box.",
+      point: "Easy to build — a few plain handlers",
+    },
+    graphql: {
+      lines: ["type Recipe { … }", "resolvers: recipe, author, recipes…"],
+      note: "You write a schema, a resolver for every field that links, and guard against deep, costly queries.",
+      point: "More to build: a schema, resolvers and query limits",
+    },
+  },
 ];
 
 export const SIDES = [
