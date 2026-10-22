@@ -56,7 +56,8 @@ function App() {
     <header class="page-head">
       <p class="page-explain">
         <strong>REST</strong> and <strong>GraphQL</strong> are two ways for an app to ask a
-        server for data. Neither one always wins — it depends on the job. Pick a situation
+        server for data. REST is the older, plainer one. Facebook built GraphQL in 2012 for its
+        phone apps, where every extra trip and byte costs. Neither one always wins — it depends on the job. Pick a situation
         and see which side has the easier time; every situation adds a <em>pro</em> to the
         side that wins it and a <em>con</em> to the side that doesn't. "All situations" shows
         the full list.

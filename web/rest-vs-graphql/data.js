@@ -38,18 +38,18 @@ export const SCENARIOS = [
     },
   },
   {
-    id: "cache",
-    title: "Thousands of people open the same recipe",
+    id: "errors",
+    title: "Ask for a recipe that doesn't exist",
     winner: "rest",
     rest: {
-      lines: ["GET /recipes/1", "→ saved by the browser and the CDN"],
-      note: "Every thing has its own address, so ordinary caches can keep a copy.",
-      point: "Easy to cache — one address per thing",
+      lines: ["GET /recipes/99", "← 404 Not Found"],
+      note: "The status code says it failed. Browsers, proxies and logs all understand it without reading the body.",
+      point: "Failures are plain — a status code says what went wrong",
     },
     graphql: {
-      lines: ["POST /graphql", "POST /graphql", "POST /graphql"],
-      note: "Every request goes to the same address, so by default ordinary caches can't tell them apart.",
-      point: "Harder to cache — by default every request looks alike",
+      lines: ["{ recipe(id: 99) { name } }", '← 200 OK  { "data": { "recipe": null }, "errors": [ … ] }'],
+      note: "The reply says OK; the failure is a note inside it, next to whatever did work. You have to read the body to know.",
+      point: "Failures hide inside an OK reply",
     },
   },
   {
@@ -80,6 +80,21 @@ export const SCENARIOS = [
       lines: ["type Recipe { … }", "resolvers: recipe, author, recipes…"],
       note: "You write a schema, a resolver for every field that links, and guard against deep, costly queries.",
       point: "More to build: a schema, resolvers and query limits",
+    },
+  },
+  {
+    id: "versions",
+    title: "Rename a field without breaking old apps",
+    winner: "graphql",
+    rest: {
+      lines: ["GET /v1/recipes/1  → minutes", "GET /v2/recipes/1  → cookTime"],
+      note: "Old apps keep calling v1, so the server has to keep both versions running, often for years.",
+      point: "Changes mean a new version — and keeping the old one alive",
+    },
+    graphql: {
+      lines: ["minutes: Int @deprecated", "cookTime: Int"],
+      note: "Add the new field, mark the old one as deprecated. Old apps still get what they ask for; new ones ask for the new name.",
+      point: "Changes go in beside the old — one version, no breakage",
     },
   },
 ];
