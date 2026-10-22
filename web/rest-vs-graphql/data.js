@@ -1,7 +1,7 @@
 // Everyday situations. In each, one side has the easier time: its `point`
 // becomes a pro for that side, and the other side's `point` becomes a con.
 // `cost`, where given, is how many trips to the server and how many bytes came
-// back (measured on the GraphQL demo's sample recipe and author).
+// back (JSON length of the GraphQL demo's RECIPE, AUTHOR and AUTHOR_RECIPES).
 export const SCENARIOS = [
   {
     id: "fields",
@@ -9,8 +9,8 @@ export const SCENARIOS = [
     winner: "graphql",
     rest: {
       lines: ["GET /recipes/1", "← name, minutes, servings, calories, description, ingredients…"],
-      note: "The address decides what comes back — the whole record, even if you need one field.",
-      point: "Sends whole records, even when you need one field",
+      note: "The address decides what comes back — usually the whole record, even if you need one field.",
+      point: "Usually sends whole records, even when you need one field",
       cost: { trips: 1, bytes: 355 },
     },
     graphql: {
@@ -26,9 +26,9 @@ export const SCENARIOS = [
     winner: "graphql",
     rest: {
       lines: ["GET /recipes/1          → authorId: 7", "GET /authors/7          → then…", "GET /authors/7/recipes"],
-      note: "Three trips, one after another — each one needs the answer of the one before.",
-      point: "Related things mean a chain of trips, one after another",
-      cost: { trips: 3, bytes: 1185 },
+      note: "One trip to find the author, then two more.",
+      point: "Related things mean several trips",
+      cost: { trips: 3, bytes: 1172 },
     },
     graphql: {
       lines: ["{ recipe(id: 1) {", "    author { name  recipes { name } } } }"],
@@ -48,8 +48,8 @@ export const SCENARIOS = [
     },
     graphql: {
       lines: ["POST /graphql", "POST /graphql", "POST /graphql"],
-      note: "Every request goes to the same address, so ordinary caches can't tell them apart.",
-      point: "Harder to cache — every request looks alike",
+      note: "Every request goes to the same address, so by default ordinary caches can't tell them apart.",
+      point: "Harder to cache — by default every request looks alike",
     },
   },
   {

@@ -24,6 +24,27 @@ export const AUTHOR = {
   joined: "2019-05-02",
 };
 
+// Ada's recipes, as GET /authors/7/recipes would return them. The demo doesn't
+// show these; the comparison page measures its byte counts on them.
+export const AUTHOR_RECIPES = [
+  RECIPE,
+  {
+    id: 4,
+    name: "Banana Bread",
+    minutes: 70,
+    servings: 8,
+    calories: 290,
+    description: "A moist loaf for the bananas nobody ate in time.",
+    createdAt: "2025-11-02T15:40:00Z",
+    authorId: 7,
+    ingredients: [
+      { item: "bananas", amount: "3", grams: 360 },
+      { item: "flour", amount: "2 cups", grams: 250 },
+      { item: "sugar", amount: "3/4 cup", grams: 150 },
+    ],
+  },
+];
+
 // The fields a person can tick. A field with children is a related thing you
 // can reach into — with REST, author lives at a different address.
 export const SCHEMA = [

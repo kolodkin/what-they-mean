@@ -88,8 +88,8 @@ function App() {
       <div>
         <p class="page-explain">
           <strong>GraphQL</strong> is a <em>single endpoint</em> for entities and their
-          relationships. The data is a <em>graph</em>: a recipe links to its author, the
-          author to their other recipes. You send a <em>query</em> shaped like a tree — the fields you want,
+          relationships. The data is a <em>graph</em>: a recipe links to its author and
+          its ingredients. You send a <em>query</em> shaped like a tree — the fields you want,
           nested under the things they belong to — and get back exactly that shape, in <em>one trip</em>.
           Changing data goes to the same endpoint: a <em>mutation</em> says what to add, change or delete.
         </p>
