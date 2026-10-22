@@ -59,6 +59,12 @@ function App() {
     const row = document.querySelector(".requests");
     const btn = row.querySelector(".req.current");
     if (btn && row.scrollWidth > row.clientWidth) row.scrollTo({ left: btn.offsetLeft - row.offsetLeft - 16, behavior: "smooth" });
+    // During the tour pin the request bar to the same spot every step, so the page
+    // never jumps as answers grow and shrink (the pane keeps room below it to stay put).
+    if (playing) {
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.querySelector(".ask").scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+    }
   }, [last]);
 
   useEffect(() => {
@@ -80,7 +86,7 @@ function App() {
         </button>
       </div>
     </header>
-    <main class="pane pane-server">
+    <main class=${`pane pane-server ${playing ? "playing" : ""}`}>
       <section class="ask">
         <div class="pane-label">
           <span class="badge badge-api">Send a request</span>
