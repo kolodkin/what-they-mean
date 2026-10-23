@@ -120,7 +120,12 @@ def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
     ask, wire = (phone.locator(s).bounding_box() for s in (".pane-ask", ".pane-wire"))
     assert wire["y"] > ask["y"]
     phone.locator(".tab").nth(0).click()
+    phone.evaluate("document.querySelector('.split').scrollLeft = 200")
     phone.get_by_text("Play demo").click()
+    # The tour brings the side-by-side section back to its left edge, every step.
+    for n in (0, 2):
+        phone.wait_for_function(f"window.__APP.picked.length === {n}", timeout=6000)
+        phone.wait_for_function("document.querySelector('.split').scrollLeft === 0", timeout=1500)
     expect(phone.locator(".answer")).to_be_in_viewport(timeout=5000)
 
 

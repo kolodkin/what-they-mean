@@ -72,7 +72,12 @@ function App() {
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (playing) reveal(document.querySelector(".pane-wire"));
+    if (!playing) return;
+    // On a phone the read panes scroll sideways as one; the tour keeps them at the
+    // left edge and only scrolls the page down to them.
+    const split = document.querySelector(".split");
+    split.scrollLeft = 0;
+    reveal(split);
   }, [picked]);
 
   useEffect(() => {
