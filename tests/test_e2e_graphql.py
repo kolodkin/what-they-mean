@@ -121,8 +121,12 @@ def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
     assert wire["y"] > ask["y"]
     phone.locator(".tab").nth(0).click()
     phone.evaluate("document.querySelector('.split').scrollLeft = 200")
+    picked = phone.evaluate("window.__APP.picked.length")
     phone.get_by_text("Play demo").click()
-    # The tour brings the side-by-side section back to its left edge, every step.
+    # It scrolls to the section first and starts ticking only after a pause.
+    phone.wait_for_function("document.querySelector('.split').scrollLeft === 0", timeout=500)
+    assert phone.evaluate("window.__APP.picked.length") == picked
+    # The tour keeps the side-by-side section at its left edge, every step.
     for n in (0, 2):
         phone.wait_for_function(f"window.__APP.picked.length === {n}", timeout=6000)
         phone.wait_for_function("document.querySelector('.split').scrollLeft === 0", timeout=1500)

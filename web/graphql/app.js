@@ -13,6 +13,17 @@ function reveal(el) {
   if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
 }
 
+// On a phone the read panes scroll sideways as one; keep them at the left edge
+// and only scroll the page down to them.
+function revealRead() {
+  const split = document.querySelector(".split");
+  split.scrollLeft = 0;
+  reveal(split);
+}
+
+// Reading tour: scroll to the panes first, then start ticking once they've settled.
+const SETTLE = 800;
+
 function App() {
   const [mode, setMode] = useState("read"); // read | change
   const [picked, setPicked] = useState(() => new Set(["name", "minutes"]));
@@ -61,23 +72,20 @@ function App() {
   function playTour() {
     if (playing) return stopTour();
     setPlaying(true);
-    const steps =
-      mode === "read"
-        ? [() => setPicked(new Set()), ...LEAVES.map((leaf) => () => setPicked((p) => new Set([...p, leaf])))]
-        : [reset, ...MUTATIONS.map((m) => () => send(m))];
-    steps.forEach((step, i) => timers.current.push(setTimeout(step, i * 2000)));
-    timers.current.push(setTimeout(stopTour, steps.length * 2000));
+    const read = mode === "read";
+    const steps = read
+      ? [() => setPicked(new Set()), ...LEAVES.map((leaf) => () => setPicked((p) => new Set([...p, leaf])))]
+      : [reset, ...MUTATIONS.map((m) => () => send(m))];
+    const start = read ? SETTLE : 0;
+    if (read) revealRead();
+    steps.forEach((step, i) => timers.current.push(setTimeout(step, start + i * 2000)));
+    timers.current.push(setTimeout(stopTour, start + steps.length * 2000));
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (!playing) return;
-    // On a phone the read panes scroll sideways as one; the tour keeps them at the
-    // left edge and only scrolls the page down to them.
-    const split = document.querySelector(".split");
-    split.scrollLeft = 0;
-    reveal(split);
+    if (playing) revealRead();
   }, [picked]);
 
   useEffect(() => {
