@@ -111,7 +111,15 @@ def phone(page: Page, server_url: str):
 
 
 def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
-    expect(phone.locator(".answer")).not_to_be_in_viewport()
+    # Asking: picker and query sit side by side. Changing: the panes stack.
+    ask, wire = (phone.locator(s).bounding_box() for s in (".pane-ask", ".pane-wire"))
+    assert wire["x"] > ask["x"] and wire["y"] == ask["y"]
+    # The side-by-side section is wider than the screen and scrolls sideways, not the page.
+    assert phone.evaluate("(el => el.scrollWidth > el.clientWidth)(document.querySelector('.split'))")
+    phone.locator(".tab").nth(1).click()
+    ask, wire = (phone.locator(s).bounding_box() for s in (".pane-ask", ".pane-wire"))
+    assert wire["y"] > ask["y"]
+    phone.locator(".tab").nth(0).click()
     phone.get_by_text("Play demo").click()
     expect(phone.locator(".answer")).to_be_in_viewport(timeout=5000)
 

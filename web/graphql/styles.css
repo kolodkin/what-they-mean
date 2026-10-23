@@ -65,9 +65,6 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   display: grid;
   grid-template-columns: 1fr 1.1fr;
 }
-@media (max-width: 720px) {
-  .split { grid-template-columns: 1fr; }
-}
 .pane { padding: 18px 22px; overflow: auto; }
 .pane-wire { background: #0f172a; color: #e2e8f0; }
 .pane-ask { background: #fff; border-right: 3px solid var(--ink); }
@@ -85,6 +82,8 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .badge-api { background: var(--accent); color: #fff; }
 .pane-sub { color: var(--muted); font-size: 13px; }
 .pane-wire .pane-sub { color: #94a3b8; }
+/* What you want: the hint goes under the badge, so the narrow left pane keeps its width for the fields. */
+.read .pane-ask .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }
 
 /* --- the field picker ---------------------------------------------------- */
 .fields { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 6px; }
@@ -185,14 +184,20 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .says { font-size: 15px; font-weight: 700; color: var(--ink); padding: 0 4px; }
 .mut:disabled:not(.current) { opacity: 0.4; }
 
-/* --- phone: one column, and the whole page scrolls ------------------------
-   Locked to the screen height, the stacked halves would each shrink into a
-   small scroll box with the interesting part hidden inside it. */
+/* --- phone: the whole page scrolls -----------------------------------------
+   Locked to the screen height, each pane would be a small scroll box. */
 @media (max-width: 720px) {
   #app { height: auto; min-height: 100vh; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
   .pane { overflow: visible; }
+  .split { grid-template-columns: 1fr; }
   .pane-ask { border-right: none; border-bottom: 3px solid var(--ink); }
+  /* Ask for data stays side by side: the picker is narrow, and the query gets a
+     readable width even past the screen edge; the section then scrolls sideways. */
+  .split.read { grid-template-columns: max-content minmax(340px, 1fr); overflow-x: auto; }
+  .read .pane { padding: 14px 10px; min-width: 0; }
+  .read .pane-ask { border-right: 3px solid var(--ink); border-bottom: none; }
+  .read .pane-wire .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }
 }
 .badge { white-space: nowrap; }
