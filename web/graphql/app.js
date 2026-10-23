@@ -119,7 +119,7 @@ function ReadView({ picked, toggle, playing }) {
   const answer = runQuery(picked);
 
   return html`
-    <main class="split">
+    <main class="split read">
       <section class="pane pane-ask">
         <div class="pane-label">
           <span class="badge badge-app">What you want</span>
