@@ -193,8 +193,9 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .pane { overflow: visible; }
   .split { grid-template-columns: 1fr; }
   .pane-ask { border-right: none; border-bottom: 3px solid var(--ink); }
-  /* Ask for data stays side by side: the picker is narrow, the query grows beside it. */
-  .split.read { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+  /* Ask for data stays side by side: the picker is narrow, and the query gets a
+     readable width even past the screen edge; the section then scrolls sideways. */
+  .split.read { grid-template-columns: max-content minmax(340px, 1fr); overflow-x: auto; }
   .read .pane { padding: 14px 10px; min-width: 0; }
   .read .pane-ask { border-right: 3px solid var(--ink); border-bottom: none; }
   .read .pane-wire .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }

@@ -114,9 +114,8 @@ def test_on_a_phone_the_reading_demo_brings_the_answer_into_view(phone: Page):
     # Asking: picker and query sit side by side. Changing: the panes stack.
     ask, wire = (phone.locator(s).bounding_box() for s in (".pane-ask", ".pane-wire"))
     assert wire["x"] > ask["x"] and wire["y"] == ask["y"]
-    # Long lines scroll sideways inside the answer box, not the page.
-    assert phone.evaluate("(el => el.scrollWidth > el.clientWidth)(document.querySelector('.answer'))")
-    assert phone.evaluate("getComputedStyle(document.querySelector('.answer')).overflowX") == "auto"
+    # The side-by-side section is wider than the screen and scrolls sideways, not the page.
+    assert phone.evaluate("(el => el.scrollWidth > el.clientWidth)(document.querySelector('.split'))")
     phone.locator(".tab").nth(1).click()
     ask, wire = (phone.locator(s).bounding_box() for s in (".pane-ask", ".pane-wire"))
     assert wire["y"] > ask["y"]
