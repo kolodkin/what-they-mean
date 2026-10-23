@@ -94,6 +94,8 @@ def test_on_a_phone_the_demo_brings_the_answer_into_view(page: Page, server_url:
         btn = page.locator(".req").nth(i)
         expect(btn).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
         expect(btn).to_be_in_viewport(ratio=1, timeout=1500)
+        # The request bar is pinned to one spot every step: scrolled, but no jumping.
+        page.wait_for_function("() => Math.abs(document.querySelector('.ask').getBoundingClientRect().top - 18) < 2", timeout=1500)
     page.screenshot(path=os.path.join(SHOTS, "32-rest-phone.png"))
 
 

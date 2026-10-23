@@ -81,7 +81,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
 .doing { font-size: 13px; font-weight: 700; }
 
 /* --- the request bar: a button group on a dark strip ---------------------- */
-.ask { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+.ask { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; scroll-margin-top: 18px; }
 .ask .pane-sub { color: #94a3b8; }
 .requests { display: flex; flex-wrap: wrap; gap: 8px; }
 .req {
@@ -176,6 +176,8 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
   .pane { overflow: visible; }
+  /* Room for the tour to scroll the request bar to the top even when the answer is short. */
+  .pane.playing { min-height: 100vh; }
   /* One row of buttons that scrolls sideways, instead of a tall stack. */
   .requests { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scroll-padding-left: 16px; }
   .req { flex: none; }
