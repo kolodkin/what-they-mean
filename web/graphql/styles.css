@@ -190,14 +190,16 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   #app { height: auto; min-height: 100vh; }
   .page-head { flex-direction: column; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
-  .pane { overflow: visible; }
+  .pane { overflow: visible; min-width: 0; }
   .split { grid-template-columns: 1fr; }
   .pane-ask { border-right: none; border-bottom: 3px solid var(--ink); }
   /* Ask for data stays side by side: the picker is narrow, and the query gets a
      readable width even past the screen edge; the section then scrolls sideways. */
   .split.read { grid-template-columns: max-content minmax(340px, 1fr); overflow-x: auto; }
-  .read .pane { padding: 14px 10px; min-width: 0; }
+  .read .pane { padding: 14px 10px; }
   .read .pane-ask { border-right: 3px solid var(--ink); border-bottom: none; }
   .read .pane-wire .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }
+  /* Ask what exists: one row of questions that scrolls sideways, instead of a tall stack. */
+  .asks { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; margin: 0 -22px 18px; padding: 0 22px; scroll-padding-left: 22px; }
 }
 .badge { white-space: nowrap; }

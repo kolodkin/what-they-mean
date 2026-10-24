@@ -95,6 +95,14 @@ function App() {
     if (last) reveal(document.querySelector(".shelf"));
   }, [last]);
 
+  // On a phone the questions are one sideways-scrolling row; scroll the row
+  // itself (not the page) so the one just asked is in sight.
+  useEffect(() => {
+    const row = document.querySelector(".asks");
+    const btn = row && row.querySelector(".ask.current");
+    if (btn && row.scrollWidth > row.clientWidth) row.scrollTo({ left: btn.parentNode.offsetLeft - row.offsetLeft - 22, behavior: "smooth" });
+  }, [asked]);
+
   useEffect(() => {
     window.__APP = { ready: true, mode, picked: [...picked], count: shelf.length, asked: asked && asked.says };
   }, [mode, picked, shelf, asked]);
@@ -251,7 +259,7 @@ function InspectView({ asked, ask, playing }) {
           <span class="badge badge-app">Questions about the API itself</span>
           <span class="pane-sub">click one to send it to POST /graphql</span>
         </div>
-        <ul class="mutations">
+        <ul class="mutations asks">
           ${INSPECTS.map(
             (q) => html`
               <li key=${q.says}>
