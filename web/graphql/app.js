@@ -1,7 +1,7 @@
 import { h, render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import htm from "htm";
-import { SCHEMA, LEAVES, buildQuery, runQuery, SEED, MUTATIONS, canSend, mutate } from "./data.js";
+import { SCHEMA, LEAVES, buildQuery, runQuery, SEED, MUTATIONS, canSend, mutate, INSPECTS } from "./data.js";
 
 const html = htm.bind(h);
 
@@ -25,10 +25,11 @@ function revealRead() {
 const SETTLE = 800;
 
 function App() {
-  const [mode, setMode] = useState("read"); // read | change
+  const [mode, setMode] = useState("read"); // read | change | inspect
   const [picked, setPicked] = useState(() => new Set(["name", "minutes"]));
   const [shelf, setShelf] = useState(SEED);
   const [last, setLast] = useState(null); // { m, answer, touched }
+  const [asked, setAsked] = useState(null); // an INSPECTS entry
   const [playing, setPlaying] = useState(false);
   const timers = useRef([]);
   // The server reads the latest shelf even when fired from a tour timer.
@@ -68,14 +69,16 @@ function App() {
 
   // Auto-tour, 2s a step. Reading: start from nothing and tick one field at a
   // time, so the query and the answer grow together. Changing: start from a
-  // fresh shelf and send each mutation in turn.
+  // fresh shelf and send each mutation in turn. Inspecting: ask each question.
   function playTour() {
     if (playing) return stopTour();
     setPlaying(true);
     const read = mode === "read";
     const steps = read
       ? [() => setPicked(new Set()), ...LEAVES.map((leaf) => () => setPicked((p) => new Set([...p, leaf])))]
-      : [reset, ...MUTATIONS.map((m) => () => send(m))];
+      : mode === "change"
+        ? [reset, ...MUTATIONS.map((m) => () => send(m))]
+        : INSPECTS.map((q) => () => setAsked(q));
     const start = read ? SETTLE : 0;
     if (read) revealRead();
     steps.forEach((step, i) => timers.current.push(setTimeout(step, start + i * 2000)));
@@ -93,8 +96,8 @@ function App() {
   }, [last]);
 
   useEffect(() => {
-    window.__APP = { ready: true, mode, picked: [...picked], count: shelf.length };
-  }, [mode, picked, shelf]);
+    window.__APP = { ready: true, mode, picked: [...picked], count: shelf.length, asked: asked && asked.says };
+  }, [mode, picked, shelf, asked]);
 
   return html`
     <header class="page-head">
@@ -105,6 +108,7 @@ function App() {
           its ingredients. You send a <em>query</em> shaped like a tree — the fields you want,
           nested under the things they belong to — and get back exactly that shape, in <em>one trip</em>.
           Changing data goes to the same endpoint: a <em>mutation</em> says what to add, change or delete.
+          And the endpoint can <em>describe itself</em>: ask it what types, fields and mutations exist.
         </p>
         <div class="tabs">
           <button class=${`tab ${mode === "read" ? "current" : ""}`} onClick=${() => switchMode("read")}>
@@ -112,6 +116,9 @@ function App() {
           </button>
           <button class=${`tab ${mode === "change" ? "current" : ""}`} onClick=${() => switchMode("change")}>
             Change data
+          </button>
+          <button class=${`tab ${mode === "inspect" ? "current" : ""}`} onClick=${() => switchMode("inspect")}>
+            Ask what exists
           </button>
         </div>
       </div>
@@ -124,7 +131,9 @@ function App() {
     </header>
     ${mode === "read"
       ? html`<${ReadView} picked=${picked} toggle=${toggle} playing=${playing} />`
-      : html`<${ChangeView} shelf=${shelf} last=${last} send=${send} reset=${reset} playing=${playing} />`}
+      : mode === "change"
+        ? html`<${ChangeView} shelf=${shelf} last=${last} send=${send} reset=${reset} playing=${playing} />`
+        : html`<${InspectView} asked=${asked} ask=${setAsked} playing=${playing} />`}
   `;
 }
 
@@ -229,6 +238,41 @@ function ChangeView({ shelf, last, send, reset, playing }) {
         ${last
           ? html`<pre class="code answer">${JSON.stringify(last.answer, null, 2)}</pre>`
           : html`<p class="empty">Pick a mutation to send it.</p>`}
+      </section>
+    </main>
+  `;
+}
+
+function InspectView({ asked, ask, playing }) {
+  return html`
+    <main class="split">
+      <section class="pane pane-ask">
+        <div class="pane-label">
+          <span class="badge badge-app">Questions about the API itself</span>
+          <span class="pane-sub">click one to send it to POST /graphql</span>
+        </div>
+        <ul class="mutations">
+          ${INSPECTS.map(
+            (q) => html`
+              <li key=${q.says}>
+                <button class=${`mut ask ${asked === q ? "current" : ""}`} onClick=${() => ask(q)} disabled=${playing}>
+                  <span class="says">${q.says}</span>
+                  <pre class="code query">${q.text}</pre>
+                </button>
+              </li>
+            `
+          )}
+        </ul>
+      </section>
+
+      <section class="pane pane-wire">
+        <div class="pane-label">
+          <span class="badge badge-api">The answer</span>
+          <span class="pane-sub">the schema, read like any other data</span>
+        </div>
+        ${asked
+          ? html`<pre class="code answer">${JSON.stringify(asked.answer, null, 2)}</pre>`
+          : html`<p class="empty">Pick a question to send it.</p>`}
       </section>
     </main>
   `;

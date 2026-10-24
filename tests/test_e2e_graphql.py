@@ -56,7 +56,7 @@ def change(gql: Page):
 
 
 def test_tabs_switch_modes(gql: Page):
-    expect(gql.locator(".tab")).to_have_count(2)
+    expect(gql.locator(".tab")).to_have_count(3)
     expect(gql.locator(".tab").nth(0)).to_have_class(re.compile(r"\bcurrent\b"))
     gql.locator(".tab").nth(1).click()
     expect(gql.locator(".fields")).to_have_count(0)
@@ -99,6 +99,31 @@ def test_play_demo_sends_mutations(change: Page):
     expect(change.locator(".mut").nth(0)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
     expect(change.locator(".mut").nth(2)).to_have_class(re.compile(r"\bcurrent\b"), timeout=8000)
     expect(change.locator(".shelf .item")).to_have_count(3)
+
+
+@pytest.fixture()
+def inspect(gql: Page):
+    gql.locator(".tab").nth(2).click()
+    expect(gql.locator(".ask")).to_have_count(4)
+    return gql
+
+
+def test_each_question_gets_a_schema_answer(inspect: Page):
+    expect(inspect.locator(".answer")).to_have_count(0)
+    asks = inspect.locator(".ask")
+    for i in range(asks.count()):
+        asks.nth(i).click()
+        expect(asks.nth(i)).to_have_class(re.compile(r"\bcurrent\b"))
+        expect(inspect.locator(".ask.current")).to_have_count(1)
+        answer = json.loads(inspect.locator(".answer").inner_text())["data"]
+        assert "__schema" in answer or "__type" in answer
+    inspect.screenshot(path=os.path.join(SHOTS, "44-graphql-inspect.png"))
+
+
+def test_play_demo_asks_each_question(inspect: Page):
+    inspect.get_by_text("Play demo").click()
+    expect(inspect.locator(".ask").nth(0)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
+    expect(inspect.locator(".ask").nth(3)).to_have_class(re.compile(r"\bcurrent\b"), timeout=10000)
 
 
 @pytest.fixture()
