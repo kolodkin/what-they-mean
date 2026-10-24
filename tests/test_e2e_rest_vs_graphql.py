@@ -34,6 +34,10 @@ def test_all_situations_is_first_and_shows_everything(cmp: Page):
     # Every situation is a pro on one side and a con on the other.
     expect(cmp.locator(".point.pro")).to_have_count(n)
     expect(cmp.locator(".point.con")).to_have_count(n)
+    # Fair fight: each side has as many pros as cons.
+    for side in ("rest", "graphql"):
+        expect(cmp.locator(f".side-{side} .pro")).to_have_count(n // 2)
+        expect(cmp.locator(f".side-{side} .con")).to_have_count(n // 2)
     expect(cmp.locator(".side.wins")).to_have_count(0)
     expect(cmp.locator(".wire")).to_have_count(0)
     cmp.screenshot(path=os.path.join(SHOTS, "50-rest-vs-graphql.png"))
