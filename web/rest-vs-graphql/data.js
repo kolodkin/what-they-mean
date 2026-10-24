@@ -38,6 +38,21 @@ export const SCENARIOS = [
     },
   },
   {
+    id: "endpoint",
+    title: "Find where to ask",
+    winner: "graphql",
+    rest: {
+      lines: ["GET /recipes/1", "GET /authors/7", "GET /authors/7/recipes", "GET /ingredients?recipe=1 …"],
+      note: "Every kind of thing has its own address, and you have to know (and maintain) each one.",
+      point: "Many addresses to know and keep straight",
+    },
+    graphql: {
+      lines: ["POST /graphql", "{ … any question you like … }"],
+      note: "One address answers every question; the query says what you want.",
+      point: "Single endpoint — one address for everything",
+    },
+  },
+  {
     id: "errors",
     title: "Ask for a recipe that doesn't exist",
     winner: "rest",
