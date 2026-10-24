@@ -135,3 +135,40 @@ export function mutate(shelf, { op }) {
   }
   return { shelf: shelf.filter((r) => r.id !== 2), answer: { data: { [op]: true } } };
 }
+
+// --- asking what exists: introspection -------------------------------------
+// Still the same address. The schema is data too, so you can query it: every
+// type, every field, every mutation. Tools use this to autocomplete queries.
+export const INSPECTS = [
+  {
+    says: "What kinds of things are there?",
+    text: "{\n  __schema {\n    types { name }\n  }\n}",
+    answer: { data: { __schema: { types: [{ name: "Recipe" }, { name: "Author" }, { name: "Ingredient" }, { name: "Query" }, { name: "Mutation" }] } } },
+  },
+  {
+    says: "What can I ask about a recipe?",
+    text: '{\n  __type(name: "Recipe") {\n    fields { name type { name } }\n  }\n}',
+    answer: {
+      data: {
+        __type: {
+          fields: [
+            { name: "name", type: { name: "String" } },
+            { name: "minutes", type: { name: "Int" } },
+            { name: "ingredients", type: { name: "[Ingredient]" } },
+            { name: "author", type: { name: "Author" } },
+          ],
+        },
+      },
+    },
+  },
+  {
+    says: "What can I ask about an author?",
+    text: '{\n  __type(name: "Author") {\n    fields { name type { name } }\n  }\n}',
+    answer: { data: { __type: { fields: [{ name: "name", type: { name: "String" } }, { name: "country", type: { name: "String" } }] } } },
+  },
+  {
+    says: "What can I change?",
+    text: '{\n  __type(name: "Mutation") {\n    fields { name }\n  }\n}',
+    answer: { data: { __type: { fields: [{ name: "createRecipe" }, { name: "updateRecipe" }, { name: "deleteRecipe" }] } } },
+  },
+];
