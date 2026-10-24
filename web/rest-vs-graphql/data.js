@@ -39,17 +39,17 @@ export const SCENARIOS = [
   },
   {
     id: "endpoint",
-    title: "Find where to ask",
+    title: "Find out what you can ask for",
     winner: "graphql",
     rest: {
       lines: ["GET /recipes/1", "GET /authors/7", "GET /authors/7/recipes", "GET /ingredients?recipe=1 …"],
-      note: "Every kind of thing has its own address, and you have to know (and maintain) each one.",
-      point: "Many addresses to know and keep straight",
+      note: "Every kind of thing has its own address. Nothing tells you what addresses exist or what they return — you read the docs, or guess.",
+      point: "Many addresses, and no way to ask what they are",
     },
     graphql: {
-      lines: ["POST /graphql", "{ … any question you like … }"],
-      note: "One address answers every question; the query says what you want.",
-      point: "Single endpoint — one address for everything",
+      lines: ["POST /graphql", "{ __schema { types { name fields { name } } } }", "← Recipe: name, minutes, author…  Author: name, recipes…"],
+      note: "One address for everything, and you can ask it to describe itself: every type, field and link it knows. Tools use this to autocomplete your queries.",
+      point: "Single endpoint that describes itself — ask it what exists",
     },
   },
   {
