@@ -78,7 +78,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   padding: 3px 10px;
   border-radius: 999px;
 }
-.badge-app { background: var(--ink); color: #fff; }
+.badge-app { color: var(--ink); padding: 0; white-space: normal; }
 .badge-api { background: var(--accent); color: #fff; }
 .pane-sub { color: var(--muted); font-size: 13px; }
 .pane-wire .pane-sub { color: #94a3b8; }
@@ -199,7 +199,8 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .read .pane { padding: 14px 10px; }
   .read .pane-ask { border-right: 3px solid var(--ink); border-bottom: none; }
   .read .pane-wire .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .pane-ask .pane-label { flex-direction: column; align-items: flex-start; gap: 4px; }
   /* Ask what exists: one row of questions that scrolls sideways, instead of a tall stack. */
   .asks { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; margin: 0 -22px 18px; padding: 0 22px; scroll-padding-left: 22px; }
 }
-.badge { white-space: nowrap; }
+.badge-api { white-space: nowrap; }
