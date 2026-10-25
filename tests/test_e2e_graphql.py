@@ -165,3 +165,16 @@ def test_on_a_phone_a_mutation_brings_the_shelf_into_view(phone: Page):
     phone.locator(".mut").nth(1).click()
     expect(phone.locator(".shelf .item.glow")).to_be_in_viewport(timeout=4000)
     phone.screenshot(path=os.path.join(SHOTS, "43-graphql-phone.png"))
+
+
+def test_on_a_phone_questions_are_one_scrolling_row(phone: Page):
+    phone.locator(".tab").nth(2).click()
+    asks = phone.locator(".ask")
+    tops = {round(asks.nth(i).bounding_box()["y"]) for i in range(asks.count())}
+    assert len(tops) == 1
+    assert phone.evaluate("document.documentElement.scrollWidth") <= 375
+    # The tour scrolls the row itself so the question being asked is in sight.
+    phone.get_by_text("Play demo").click()
+    expect(asks.last).to_have_class(re.compile(r"\bcurrent\b"), timeout=10000)
+    expect(asks.last).to_be_in_viewport(ratio=0.5, timeout=3000)
+    phone.screenshot(path=os.path.join(SHOTS, "45-graphql-phone-asks.png"))
