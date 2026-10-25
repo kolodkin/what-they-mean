@@ -178,3 +178,13 @@ def test_on_a_phone_questions_are_one_scrolling_row(phone: Page):
     expect(asks.last).to_have_class(re.compile(r"\bcurrent\b"), timeout=10000)
     expect(asks.last).to_be_in_viewport(ratio=0.5, timeout=3000)
     phone.screenshot(path=os.path.join(SHOTS, "45-graphql-phone-asks.png"))
+
+
+def test_on_a_phone_the_asking_demo_scrolls_to_the_questions_first(phone: Page):
+    phone.locator(".tab").nth(2).click()
+    phone.get_by_text("Play demo").click()
+    # It scrolls the questions' title up first and asks only after a pause.
+    phone.wait_for_function("document.querySelector('.pane-ask').getBoundingClientRect().top < 40", timeout=700)
+    assert phone.evaluate("window.__APP.asked") is None
+    expect(phone.locator(".ask").nth(0)).to_have_class(re.compile(r"\bcurrent\b"), timeout=4000)
+    phone.screenshot(path=os.path.join(SHOTS, "46-graphql-phone-asking-tour.png"))
