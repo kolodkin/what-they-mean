@@ -8,9 +8,10 @@ const html = htm.bind(h);
 // On a phone the panes stack, so what a step changes can land below the fold.
 // Bring it into view the shortest way, only if it isn't already, and without
 // animating for anyone who asked their system for less motion.
+const still = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 function reveal(el) {
-  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+  if (el) el.scrollIntoView({ block: "nearest", behavior: still() ? "auto" : "smooth" });
 }
 
 // On a phone the read panes scroll sideways as one; keep them at the left edge
@@ -21,7 +22,7 @@ function revealRead() {
   reveal(split);
 }
 
-// Reading tour: scroll to the panes first, then start ticking once they've settled.
+// Reading and asking tours: scroll to the panes first, then start ticking once they've settled.
 const SETTLE = 800;
 
 function App() {
@@ -79,7 +80,7 @@ function App() {
       : mode === "change"
         ? [reset, ...MUTATIONS.map((m) => () => send(m))]
         : INSPECTS.map((q) => () => setAsked(q));
-    const start = read ? SETTLE : 0;
+    const start = mode === "change" ? 0 : SETTLE;
     if (read) revealRead();
     steps.forEach((step, i) => timers.current.push(setTimeout(step, start + i * 2000)));
     timers.current.push(setTimeout(stopTour, start + steps.length * 2000));
@@ -90,6 +91,12 @@ function App() {
   useEffect(() => {
     if (playing) revealRead();
   }, [picked]);
+
+  // Asking what exists: bring the questions' title to the top before the first one
+  // is asked. Runs after render, once the playing pane has made room to scroll that far.
+  useEffect(() => {
+    if (playing && mode === "inspect") document.querySelector(".pane-ask").scrollIntoView({ block: "start", behavior: still() ? "auto" : "smooth" });
+  }, [playing]);
 
   useEffect(() => {
     if (last) reveal(document.querySelector(".shelf"));
@@ -273,7 +280,7 @@ function InspectView({ asked, ask, playing }) {
         </ul>
       </section>
 
-      <section class="pane pane-wire">
+      <section class=${`pane pane-wire ${playing ? "playing" : ""}`}>
         <div class="pane-label">
           <span class="badge badge-api">The answer</span>
           <span class="pane-sub">the schema, read like any other data</span>
