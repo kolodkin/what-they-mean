@@ -78,7 +78,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   padding: 3px 10px;
   border-radius: 999px;
 }
-.badge-app { color: var(--ink); padding: 0; white-space: normal; }
+.badge-app { color: var(--ink); padding: 0; white-space: normal; font-size: 15px; }
 .badge-api { background: var(--accent); color: #fff; }
 .pane-sub { color: var(--muted); font-size: 13px; }
 .pane-wire .pane-sub { color: #94a3b8; }
