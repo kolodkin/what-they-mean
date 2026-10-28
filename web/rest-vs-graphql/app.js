@@ -93,7 +93,7 @@ function App() {
       )}
     </nav>
 
-    <main class="split">
+    <main class=${`split ${playing ? "playing" : ""}`}>
       ${SIDES.map((side) => html`<${Side} key=${side.id} side=${side} scenario=${scenario} setPicked=${setPicked} />`)}
     </main>
   `;
