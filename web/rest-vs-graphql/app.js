@@ -5,13 +5,16 @@ import { SCENARIOS, SIDES } from "./data.js";
 
 const html = htm.bind(h);
 const STEP_MS = 4000;
+// Tour: scroll to the situations first, then start stepping once they've settled.
+const SETTLE = 800;
+
+const still = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // On a phone the panes stack, so what a step changes can land below the fold.
 // Bring it into view the shortest way, only if it isn't already, and without
 // animating for anyone who asked their system for less motion.
 function reveal(el) {
-  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (el) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+  if (el) el.scrollIntoView({ block: "nearest", behavior: still() ? "auto" : "smooth" });
 }
 
 function App() {
@@ -30,9 +33,11 @@ function App() {
   function playTour() {
     if (playing) return stopTour();
     setPlaying(true);
+    // On a phone, bring the situations' row up to the top before the first step.
+    document.querySelector(".scenarios").scrollIntoView({ block: "start", behavior: still() ? "auto" : "smooth" });
     const steps = [...SCENARIOS.map((s) => s.id), "all"];
-    steps.forEach((id, i) => timers.current.push(setTimeout(() => setPicked(id), i * STEP_MS)));
-    timers.current.push(setTimeout(stopTour, (steps.length - 1) * STEP_MS));
+    steps.forEach((id, i) => timers.current.push(setTimeout(() => setPicked(id), SETTLE + i * STEP_MS)));
+    timers.current.push(setTimeout(stopTour, SETTLE + (steps.length - 1) * STEP_MS));
   }
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);

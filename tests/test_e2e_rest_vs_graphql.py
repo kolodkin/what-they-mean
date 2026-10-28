@@ -96,6 +96,9 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
     assert len({round(b["y"]) for b in boxes}) == 1
     assert len({round(b["height"]) for b in boxes}) == 1
     page.get_by_text("Play demo").click()
+    # It scrolls the situations up to the top first and steps only after a pause.
+    page.wait_for_function("document.querySelector('.scenarios').getBoundingClientRect().top < 2", timeout=700)
+    assert page.evaluate("window.__APP.picked") == "all"
     # Each step keeps its situation chip and the side that wins it on screen.
     for i in range(2):
         chip = _situations(page).nth(i)
