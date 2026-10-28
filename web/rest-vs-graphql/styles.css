@@ -108,6 +108,9 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   transition: box-shadow 0.2s, opacity 0.2s;
 }
 .side-graphql { --c: var(--graphql); }
+.side { animation: side-in 0.35s ease-out; }
+@keyframes side-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .side { animation: none; } }
 .side.wins { box-shadow: 0 0 0 3px var(--c), 0 10px 30px rgba(15, 23, 42, 0.1); }
 .side-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
 .side-head h2 { margin: 0; font-size: 24px; color: var(--c); }
@@ -172,7 +175,7 @@ code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .page-controls { order: -1; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-left: 0; }
   .split { overflow: visible; padding: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
   /* Room for the tour to keep the situations at the top even when one situation is shorter than the full list. */
-  .split.playing { min-height: 100vh; }
+  .split.playing { min-height: 100vh; align-content: start; }
   /* The winner jumps to the top of the stack; don't let the browser shift the page to follow the old first card. */
   html { overflow-anchor: none; }
   /* The situations ride along in one swipeable row, so the one being shown
