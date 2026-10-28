@@ -99,6 +99,12 @@ def test_on_a_phone_the_demo_follows_the_winner(page: Page, server_url: str):
     # It scrolls the situations up to the top first and steps only after a pause.
     page.wait_for_function("document.querySelector('.scenarios').getBoundingClientRect().top < 2", timeout=700)
     assert page.evaluate("window.__APP.picked") == "all"
+    page.wait_for_timeout(300)  # let that scroll finish
+    top = page.evaluate("scrollY")
+    # The first step doesn't yank the page: it stays where the tour scrolled it.
+    expect(_situations(page).nth(0)).to_have_class(CURRENT, timeout=2000)
+    page.wait_for_timeout(600)
+    assert abs(page.evaluate("scrollY") - top) < 20
     # Each step keeps its situation chip and the side that wins it on screen.
     for i in range(2):
         chip = _situations(page).nth(i)

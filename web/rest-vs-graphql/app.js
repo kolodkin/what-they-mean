@@ -93,8 +93,9 @@ function App() {
       )}
     </nav>
 
-    <main class="split">
-      ${SIDES.map((side) => html`<${Side} key=${side.id} side=${side} scenario=${scenario} setPicked=${setPicked} />`)}
+    <main class=${`split ${playing ? "playing" : ""}`}>
+      <!-- Keyed by situation, so each pick fades the sides in instead of swapping them at once. -->
+      ${SIDES.map((side) => html`<${Side} key=${`${side.id}-${picked}`} side=${side} scenario=${scenario} setPicked=${setPicked} />`)}
     </main>
   `;
 }
